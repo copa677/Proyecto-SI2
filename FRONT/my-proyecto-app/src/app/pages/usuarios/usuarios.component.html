@@ -1,0 +1,202 @@
+<section class="py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h2>
+        <p class="mt-1 text-sm text-gray-600">Administre los usuarios del sistema</p>
+      </div>
+      <div class="mt-4 md:mt-0">
+        <!-- Abre modal en modo creación -->
+        <button class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
+                (click)="abrirCrear()">
+          <i class="fas fa-user-plus -ml-1 mr-2"></i>Registrar Usuario
+        </button>
+      </div>
+    </div>
+
+    <!-- Buscador / filtros -->
+    <div class="mt-6 bg-white shadow rounded-md p-4 mb-6">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-grow">
+          <div class="relative rounded-md shadow-sm">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-search text-gray-400"></i>
+            </div>
+            <input type="search"
+                   class="form-input block w-full pl-10 sm:text-sm rounded-md"
+                   placeholder="Buscar usuario…"
+                   [(ngModel)]="busqueda">
+          </div>
+        </div>
+        <div class="md:w-64">
+          <select class="form-input block w-full sm:text-sm rounded-md"
+                  [(ngModel)]="filtroEstado">
+            <option [ngValue]="''">Todos los estados</option>
+            <option [ngValue]="'Activo'">Activos</option>
+            <option [ngValue]="'Inactivo'">Inactivos</option>
+          </select>
+        </div>
+        <div class="md:w-64">
+          <select class="form-input block w-full sm:text-sm rounded-md"
+                  [(ngModel)]="filtroTipo">
+            <option [ngValue]="''">Todos los tipos</option>
+            <option *ngFor="let t of tiposCatalogo" [ngValue]="t">{{ t }}</option>
+          </select>
+        </div>
+        <button class="inline-flex items-center px-3 py-2 border rounded-md text-sm"
+                (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </div>
+
+    <!-- Tabla desktop -->
+    <div class="hidden sm:block">
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+              <th class="relative px-6 py-3"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr class="table-row" *ngFor="let u of filtrados">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                    {{ initials(u.nombre) }}
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">{{ u.nombre }}</div>
+                    <div class="text-xs text-gray-500">ID: {{ u.id | number:'3.0' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ u.email }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      [ngClass]="badgeEstado(u.estado)">
+                  {{ u.estado }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {{ u.tipo }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button class="text-indigo-600 hover:text-indigo-900 mr-3"
+                        (click)="abrirEditar(u)">
+                  <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="text-red-600 hover:text-red-900"
+                        (click)="eliminar(u)">
+                  <i class="fas fa-trash"></i> Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Paginación decorativa -->
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <p class="text-sm text-gray-700">
+            Mostrando <span class="font-medium">{{ filtrados.length }}</span> de
+            <span class="font-medium">{{ usuarios.length }}</span> resultados
+          </p>
+          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+            <a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">Anterior</span><i class="fas fa-chevron-left"></i>
+            </a>
+            <a class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-indigo-50 text-sm font-medium text-indigo-600 hover:bg-gray-50">1</a>
+            <a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <span class="sr-only">Siguiente</span><i class="fas fa-chevron-right"></i>
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vista móvil en tarjetas -->
+    <div class="sm:hidden space-y-4 mt-6">
+      <div class="mobile-card bg-white overflow-hidden border rounded-md"
+           *ngFor="let u of filtrados">
+        <div class="p-4 flex items-center">
+          <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+            {{ initials(u.nombre) }}
+          </div>
+          <div class="ml-4 flex-1">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="text-sm font-medium text-gray-900">{{ u.nombre }}</h4>
+                <p class="text-sm text-gray-500">{{ u.email }}</p>
+              </div>
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                    [ngClass]="badgeEstado(u.estado)">{{ u.estado }}</span>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">{{ u.tipo }}</p>
+          </div>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3">
+          <button class="text-indigo-600 hover:text-indigo-900 text-sm font-medium" (click)="abrirEditar(u)">
+            <i class="fas fa-edit"></i> Editar
+          </button>
+          <button class="text-red-600 hover:text-red-900 text-sm font-medium" (click)="eliminar(u)">
+            <i class="fas fa-trash"></i> Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal Crear/Editar Usuario -->
+<div class="fixed inset-0 z-50 flex items-center justify-center" *ngIf="showForm">
+  <!-- Backdrop -->
+  <div class="modal-backdrop absolute inset-0" (click)="cancelar()"></div>
+
+  <!-- Contenido -->
+  <div class="modal-content relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
+    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+      {{ editMode ? 'Editar Usuario' : 'Registrar Usuario' }}
+    </h3>
+
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Nombre</label>
+        <input class="form-input mt-1 block w-full" [(ngModel)]="form.nombre" placeholder="Admin Usuario">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" class="form-input mt-1 block w-full" [(ngModel)]="form.email" placeholder="admin@ejemplo.com">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Tipo</label>
+        <select class="form-input mt-1 block w-full" [(ngModel)]="form.tipo">
+          <option *ngFor="let t of tiposCatalogo" [ngValue]="t">{{ t }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Estado</label>
+        <select class="form-input mt-1 block w-full" [(ngModel)]="form.estado">
+          <option>Activo</option>
+          <option>Inactivo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end space-x-2">
+      <button class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              (click)="cancelar()">Cancelar</button>
+      <button class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
+              (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>

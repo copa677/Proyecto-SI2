@@ -1,0 +1,27 @@
+.table-row:hover { background-color: rgba(79,70,229,0.05); }
+
+.btn-primary {
+  background-image: linear-gradient(to right, #2563eb, #4f46e5);
+  color: #fff;
+}
+.btn-primary:hover { filter: brightness(0.98); }
+
+.form-input {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+  border-color: #4f46e5;
+}
+
+/* Modal */
+.modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
+.modal-content   { transform: scale(0.98); animation: zoomIn .18s ease-out; }
+
+@keyframes zoomIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(0.98); opacity: 1; }
+}

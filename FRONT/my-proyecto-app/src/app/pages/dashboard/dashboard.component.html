@@ -1,0 +1,142 @@
+<section class="py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+    <p class="mt-1 text-sm text-gray-600">Bienvenido al sistema de gestión de manufactura</p>
+
+    <!-- Tarjetas métricas -->
+    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 dashboard-grid">
+      <!-- Personal -->
+      <div class="card">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="icon-wrap">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Personal</dt>
+                <dd>
+                  <div class="text-lg font-medium text-gray-900">{{ kpis.totalPersonal }}</div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="text-sm">
+            <a routerLink="/menu/personal" class="link">
+              Ver personal <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asistencia -->
+      <div class="card">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="icon-wrap">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Asistencia Hoy</dt>
+                <dd>
+                  <div class="text-lg font-medium text-gray-900">
+                    {{ kpis.asistenciaHoy }} / {{ kpis.totalPersonal }}
+                  </div>
+                  <div class="h-2 bg-gray-200 rounded-full overflow-hidden mt-2">
+                    <div class="h-2 bg-green-500 rounded-full" [style.width.%]="asistenciaPct"></div>
+                  </div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="text-sm">
+            <a routerLink="/menu/asistencia" class="link">
+              Gestionar asistencia <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usuarios -->
+      <div class="card">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="icon-wrap">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Usuarios del Sistema</dt>
+                <dd><div class="text-lg font-medium text-gray-900">{{ kpis.usuarios }}</div></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="text-sm">
+            <a routerLink="/menu/usuarios" class="link">
+              Ver usuarios <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividad reciente -->
+    <div class="mt-8">
+      <h3 class="text-lg font-medium text-gray-900">Actividad Reciente</h3>
+      <div class="mt-4 overflow-hidden bg-white shadow sm:rounded-md">
+        <ul class="divide-y divide-gray-200">
+          <li *ngFor="let a of actividad">
+            <div class="px-4 py-4 sm:px-6 flex items-center">
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-indigo-600 truncate">{{ a.titulo }}</p>
+                <p class="text-sm text-gray-500">{{ a.detalle }}</p>
+              </div>
+              <div class="ml-4 flex-shrink-0">
+                <p class="text-sm text-gray-500">{{ a.hace }}</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bloque opcional: “Qué sigue” -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="panel">
+        <h4 class="panel-title"><i class="fas fa-bolt mr-2"></i>Accesos rápidos</h4>
+        <div class="grid grid-cols-2 gap-3">
+          <a routerLink="/menu/personal" class="quick-btn"><i class="fas fa-user-friends mr-2"></i>Personal</a>
+          <a routerLink="/menu/asistencia" class="quick-btn"><i class="fas fa-clipboard-check mr-2"></i>Asistencia</a>
+          <a routerLink="/menu/usuarios" class="quick-btn"><i class="fas fa-id-card mr-2"></i>Usuarios</a>
+          <a routerLink="/menu/configuracion" class="quick-btn"><i class="fas fa-cog mr-2"></i>Configuración</a>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h4 class="panel-title"><i class="fas fa-chart-line mr-2"></i>Indicadores de hoy</h4>
+        <ul class="space-y-3">
+          <li class="kpi-line">
+            <span>Órdenes activas</span>
+            <strong>{{ kpis.ordenes }}</strong>
+          </li>
+          <li class="kpi-line">
+            <span>Inventario crítico</span>
+            <strong>{{ kpis.inventarioCritico }}</strong>
+          </li>
+          <li class="kpi-line">
+            <span>Eficiencia</span>
+            <strong>{{ (kpis.eficiencia * 100) | number:'1.0-0' }}%</strong>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
