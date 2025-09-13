@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:textiltech/pages/login.dart';
 import 'package:textiltech/pages/formulario_personal.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

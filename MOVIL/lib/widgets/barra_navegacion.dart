@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 class BarraNavegacion extends StatelessWidget {
   final List<Widget> paginas;
@@ -16,16 +17,16 @@ class BarraNavegacion extends StatelessWidget {
             'Sistema de Manufactura',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
           ),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
+          backgroundColor: AppColors.blanco,
+          foregroundColor: AppColors.grisTextoSecundario,
           elevation: 1,
           bottom: const PreferredSize(
             preferredSize: Size.fromHeight(48),
             child: TabBar(
               isScrollable: true,
-              labelColor: Colors.blue,
-              unselectedLabelColor: Colors.black54,
-              indicatorColor: Colors.blue,
+              labelColor: AppColors.azulPrincipal,
+              unselectedLabelColor: AppColors.grisTextoSecundario,
+              indicatorColor: AppColors.azulPrincipal,
               tabs: [
                 Tab(text: 'Dashboard'),
                 Tab(text: 'Personal'),
@@ -37,7 +38,7 @@ class BarraNavegacion extends StatelessWidget {
           ),
         ),
         body: TabBarView(
-          children: paginas.map((pagina) => SafeArea(child: SingleChildScrollView(child: pagina))).toList(),
+          children: paginas.map((pagina) => SafeArea(child: pagina)).toList(),
         ),
       ),
     );
