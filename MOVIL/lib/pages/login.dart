@@ -1,3 +1,4 @@
+import 'pagina_principal.dart';
 import 'package:textiltech/pages/olvido_contrasena.dart';
 import 'package:textiltech/pages/formulario_personal.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +110,13 @@ class Login extends StatelessWidget {
                   SizedBox(height: 24),
                   BotonPrincipal(
                     texto: 'Iniciar sesión',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const PaginaPrincipal(),
+                        ),
+                      );
+                    },
                     color: azulBoton,
                   ),
                   SizedBox(height: 16),
