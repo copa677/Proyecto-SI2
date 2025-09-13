@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 
 class ConfiguracionPage extends StatelessWidget {
   const ConfiguracionPage({Key? key}) : super(key: key);
@@ -37,8 +35,32 @@ class ConfiguracionPage extends StatelessWidget {
             _ImportExportCard(),
             const SizedBox(height: 32),
             _PreferenciasSistemaCard(),
+            const SizedBox(height: 32),
+            _CerrarSesionButton(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _CerrarSesionButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.redAccent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        icon: const Icon(Icons.logout),
+        label: const Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold)),
+        onPressed: () {
+          // Aquí puedes agregar la lógica real de logout
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        },
       ),
     );
   }

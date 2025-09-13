@@ -4,6 +4,7 @@ import 'dashboard.dart';
 import 'Usuarios.dart';
 import 'Configuracion.dart';
 import 'personal_g.dart';
+import 'asistenciasturnos.dart';
 
 class PaginaPrincipal extends StatelessWidget {
   const PaginaPrincipal({Key? key}) : super(key: key);
@@ -14,7 +15,7 @@ class PaginaPrincipal extends StatelessWidget {
       paginas: [
         const Dashboard(),
         const PersonalGestion(),
-        const Placeholder(),
+        const AsistenciasTurnosPage(),
         UsuariosPage(),
         const ConfiguracionPage(),
       ],

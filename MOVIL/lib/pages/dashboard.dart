@@ -30,12 +30,13 @@ class Dashboard extends StatelessWidget {
 										icon: Icons.check_circle_outline,
 										color: AppColors.verdePrincipal,
 									),
-									_MetricCard(
-										title: 'Usuarios del Sistema',
-										value: '5',
-										icon: Icons.person_outline,
-										color: AppColors.azulClaro,
-									),
+									   _MetricCard(
+										   title: 'Usuarios del Sistema',
+										   value: '5',
+										   icon: Icons.person_outline,
+										   color: AppColors.grisLineas,
+										   disabled: true,
+									   ),
 								],
 							),
 							const SizedBox(height: 28),
@@ -66,7 +67,8 @@ class _MetricCard extends StatelessWidget {
 	final String value;
 	final IconData icon;
 	final Color color;
-	const _MetricCard({required this.title, required this.value, required this.icon, required this.color});
+		final bool disabled;
+		const _MetricCard({required this.title, required this.value, required this.icon, required this.color, this.disabled = false});
 
 	@override
 	Widget build(BuildContext context) {
@@ -81,14 +83,14 @@ class _MetricCard extends StatelessWidget {
 						mainAxisSize: MainAxisSize.min,
 						children: [
 							CircleAvatar(
-								backgroundColor: color.withOpacity(0.1),
-								child: Icon(icon, color: color, size: 28),
+								backgroundColor: disabled ? AppColors.grisLineas.withOpacity(0.18) : color.withOpacity(0.1),
+								child: Icon(icon, color: disabled ? AppColors.grisTextoSecundario : color, size: 28),
 								radius: 22,
 							),
 							const SizedBox(height: 10),
 							Text(
 								value,
-								style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
+								style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: disabled ? AppColors.grisTextoSecundario : color),
 							),
 							const SizedBox(height: 6),
 							Text(
@@ -167,12 +169,20 @@ class _ActivityItem extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		return ListTile(
-			leading: CircleAvatar(
-				backgroundColor: color.withOpacity(0.12),
-				child: Icon(icon, color: color, size: 22),
-			),
-			title: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-			subtitle: Text(subtitle, style: const TextStyle(color: AppColors.grisTextoSecundario)),
+									leading: CircleAvatar(
+											backgroundColor: (title == 'Modificación de datos' || title == 'Modificación de dato' || title == 'Modificación de datos del sistema')
+												? AppColors.grisLineas.withOpacity(0.18)
+												: color.withOpacity(0.12),
+											child: Icon(icon, color: (title == 'Modificación de datos' || title == 'Modificación de dato' || title == 'Modificación de datos del sistema') ? AppColors.grisTextoSecundario : color, size: 22),
+									),
+									title: Text(
+										title,
+										style: TextStyle(
+											color: (title == 'Modificación de datos' || title == 'Modificación de dato' || title == 'Modificación de datos del sistema') ? AppColors.grisTextoSecundario : color,
+											fontWeight: FontWeight.bold,
+										),
+									),
+									subtitle: Text(subtitle, style: const TextStyle(color: AppColors.grisTextoSecundario)),
 			trailing: Text(time, style: const TextStyle(fontSize: 12, color: AppColors.grisTextoSecundario)),
 		);
 	}
@@ -194,17 +204,33 @@ class _QuickAccess extends StatelessWidget {
 					children: [
 						const Text('Accesos rápidos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
 						const SizedBox(height: 12),
-						Column(
-							children: [
-								_QuickButton(text: 'Personal', icon: Icons.people_alt_rounded),
-								SizedBox(height: 10),
-								_QuickButton(text: 'Asistencia', icon: Icons.check_circle_outline),
-								SizedBox(height: 10),
-								_QuickButton(text: 'Usuarios', icon: Icons.person_outline),
-								SizedBox(height: 10),
-								_QuickButton(text: 'Configuración', icon: Icons.settings),
-							],
-						),
+																		Column(
+																				children: [
+																						_QuickButton(
+																							text: 'Personal',
+																							icon: Icons.people_alt_rounded,
+																							onTap: () => DefaultTabController.of(context)?.animateTo(1),
+																						),
+																						SizedBox(height: 10),
+																						_QuickButton(
+																							text: 'Asistencia',
+																							icon: Icons.check_circle_outline,
+																							onTap: () => DefaultTabController.of(context)?.animateTo(2),
+																						),
+																						SizedBox(height: 10),
+																						_QuickButton(
+																							text: 'Usuarios',
+																							icon: Icons.person_outline,
+																							onTap: () => DefaultTabController.of(context)?.animateTo(3),
+																						),
+																						SizedBox(height: 10),
+																						_QuickButton(
+																							text: 'Configuración',
+																							icon: Icons.settings,
+																							onTap: () => DefaultTabController.of(context)?.animateTo(4),
+																						),
+																				],
+																		),
 					],
 				),
 			),
@@ -213,22 +239,30 @@ class _QuickAccess extends StatelessWidget {
 }
 
 class _QuickButton extends StatelessWidget {
-	final String text;
-	final IconData icon;
-	const _QuickButton({required this.text, required this.icon});
+		final String text;
+		final IconData icon;
+		final VoidCallback? onTap;
+		const _QuickButton({required this.text, required this.icon, this.onTap});
 
 	@override
 	Widget build(BuildContext context) {
-		return OutlinedButton.icon(
-			onPressed: () {},
-			icon: Icon(icon, color: AppColors.azulPrincipal),
-			label: Text(text, style: const TextStyle(fontSize: 15, color: AppColors.azulPrincipal)),
-			style: OutlinedButton.styleFrom(
-				minimumSize: const Size.fromHeight(40),
-				shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-				side: const BorderSide(color: AppColors.azulPrincipal),
-			),
-		);
+				return OutlinedButton.icon(
+					onPressed: onTap,
+					icon: Icon(icon, color: AppColors.azulPrincipal),
+					label: Text(
+						text,
+						style: TextStyle(
+							fontSize: text == 'Configuración' ? 13 : 15,
+							color: AppColors.azulPrincipal,
+						),
+						overflow: TextOverflow.ellipsis,
+					),
+					style: OutlinedButton.styleFrom(
+						minimumSize: const Size.fromHeight(40),
+						shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+						side: const BorderSide(color: AppColors.azulPrincipal),
+					),
+				);
 	}
 }
 
