@@ -1,55 +1,47 @@
+<!-- notes.component.html -->
 <p>notes works!</p>
 
-
-
-<!-- Pantalla de Login -->
 <div id="login-screen" class="page">
   <div class="card">
     <div class="header">
-      <img
-        src="assets/login/img/login.png"
-        alt="TextilTech Logo"
-        class="logo"
-      />
-      
+      <img src="assets/login/img/login.png" alt="TextilTech Logo" class="logo" />
       <h1>Sistema de Manufactura de Textiles</h1>
     </div>
- <form (submit)="onLogin($event)">
-   
-      <div class="field">
-        <label for="username">Usuario</label>
-        <input
-          id="username"
-          type="text"
-          placeholder="Email o nombre de usuario"
-          name="username"
-        />
-      </div>
 
-      <div class="field">
-        <label for="password">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          placeholder="************"
-          name="password"
-        />
-      </div>
+    <!-- 🔁 Quitamos el <form> y usamos (click) como en tu ejemplo -->
+    <div class="field">
+      <label for="username">Usuario</label>
+      <input
+        id="username"
+        type="text"
+        placeholder="Email o nombre de usuario"
+        [(ngModel)]="username"
+        (keyup.enter)="login()"
+      />
+    </div>
 
-      <div class="field">
-        <label for="role">Rol</label>
-        <select id="role" name="role">
-          <option>Operario</option>
-          <option>Supervisor</option>
-          <option>Administrador</option>
-        </select>
-      </div>
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="************"
+        [(ngModel)]="password"
+        (keyup.enter)="login()"
+      />
+    </div>
 
-      <button type="submit" class="btn">Iniciar sesión</button>
-    </form>
+    <button
+      type="button"
+      class="btn"
+      (click)="login()"
+      [disabled]="loading || !username || !password"
+    >
+      {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
+    </button>
 
     <div class="footer">
-      <a href="#">¿Olvidaste tu contraseña?</a>
+      <a routerLink="/recover_password">¿Olvidaste tu contraseña?</a>
     </div>
   </div>
 </div>

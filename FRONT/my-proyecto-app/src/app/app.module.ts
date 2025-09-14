@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http'; // ⬅️ AÑADE ESTO
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './pages/home/home.component';
 import { NotesComponent } from './pages/notes/notes.component';
 import { HeaderComponent } from './components/header/header.component';
 import { MenuComponent } from './pages/menu/menu.component';
@@ -17,7 +17,6 @@ import { ConfiguracionComponent } from './pages/configuracion/configuracion.comp
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
     NotesComponent,
     HeaderComponent,
     MenuComponent,
@@ -25,15 +24,15 @@ import { ConfiguracionComponent } from './pages/configuracion/configuracion.comp
     DashboardComponent,
     PersonalComponent,
     AsistenciaComponent,
-    ConfiguracionComponent
+    ConfiguracionComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-     FormsModule,
+    FormsModule,
+    HttpClientModule, // ⬅️ AÑADIDO
   ],
   providers: [],
   bootstrap: [AppComponent],
- 
 })
-export class AppModule { }
+export class AppModule {}
