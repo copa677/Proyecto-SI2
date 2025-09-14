@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import usurios
-from .serializers import LoginSerializer, RegisterSerializer
+from .serializers import LoginSerializer, RegisterSerializer ,UsuarioListSerializer
 from .utils import generate_jwt
 from django.db import connection 
 # Create your views here.
@@ -161,7 +161,14 @@ def obtener_tipo_usuario(request, username):
     except usurios.DoesNotExist:
         return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-    
+@api_view(['GET'])
+def obtener_todos_usuarios(request):
+    try:
+        usuarios = usurios.objects.all().order_by('id')
+        serializer = UsuarioListSerializer(usuarios, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
 
 @api_view(['POST'])
 def editar_empleado_usuario(request):
