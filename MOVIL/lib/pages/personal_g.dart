@@ -235,73 +235,38 @@ class _PersonalGestionState extends State<PersonalGestion> {
                       scrollDirection: Axis.horizontal,
                       controller: _horizontalScrollController,
                       child: SizedBox(
-                        width: 770,
+                        width: 720,
                         child: Column(
                           children: [
                             // Header de la tabla
                             Container(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               decoration: const BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(color: Color(0xFFE9ECEF)),
                                 ),
                               ),
-                              child: const Row(
-                                children: [
+                              child: Row(
+                                children: const [
                                   SizedBox(
-                                    width: 180,
-                                    child: Text(
-                                      'NOMBRE',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                        color: Color(0xFF495057),
-                                      ),
-                                    ),
+                                    width: 170,
+                                    child: Text('NOMBRE', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
                                   ),
                                   SizedBox(
-                                    width: 220,
-                                    child: Text(
-                                      'EMAIL',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                        color: Color(0xFF495057),
-                                      ),
-                                    ),
+                                    width: 180,
+                                    child: Text('EMAIL', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
                                   ),
                                   SizedBox(
                                     width: 110,
-                                    child: Text(
-                                      'ROL',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                        color: Color(0xFF495057),
-                                      ),
-                                    ),
+                                    child: Text('ROL', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
                                   ),
                                   SizedBox(
                                     width: 140,
-                                    child: Text(
-                                      'PERMISOS',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                        color: Color(0xFF495057),
-                                      ),
-                                    ),
+                                    child: Text('PERMISOS', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
                                   ),
                                   SizedBox(
-                                    width: 100,
-                                    child: Text(
-                                      'ACCIONES',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                        color: Color(0xFF495057),
-                                      ),
-                                    ),
+                                    width: 90,
+                                    child: Text('ACCIONES', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
                                   ),
                                 ],
                               ),
@@ -399,16 +364,16 @@ class PersonalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 750, // Ancho fijo
-      padding: const EdgeInsets.all(16),
+      width: 720,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFF8F9FA))),
+        border: Border(bottom: BorderSide(color: Color(0xFFE9ECEF))),
       ),
       child: Row(
         children: [
           // Avatar e información personal
           SizedBox(
-            width: 170, // Ajustado
+            width: 170,
             child: Row(
               children: [
                 CircleAvatar(
@@ -453,7 +418,7 @@ class PersonalCard extends StatelessWidget {
 
           // Email
           SizedBox(
-            width: 200, // Ajustado
+            width: 180,
             child: Text(
               person.email,
               style: const TextStyle(fontSize: 12, color: Color(0xFF495057)),
@@ -463,7 +428,7 @@ class PersonalCard extends StatelessWidget {
 
           // Rol
           SizedBox(
-            width: 100, // Ajustado
+            width: 110,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -485,7 +450,7 @@ class PersonalCard extends StatelessWidget {
 
           // Permisos
           SizedBox(
-            width: 140, // Igual
+            width: 140,
             child: Wrap(
               spacing: 4,
               runSpacing: 4,
@@ -518,7 +483,7 @@ class PersonalCard extends StatelessWidget {
 
           // Acciones
           SizedBox(
-            width: 120, // Ajustado
+            width: 90,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

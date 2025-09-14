@@ -86,27 +86,34 @@ class _FormularioPersonalState extends State<FormularioPersonal> {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                     const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      value: _rol,
-                      items: const [
-                        DropdownMenuItem(value: 'Operario', child: Text('Operario')),
-                        DropdownMenuItem(value: 'Supervisor', child: Text('Supervisor')),
-                        DropdownMenuItem(value: 'Administrador', child: Text('Administrador')),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _rol = value);
-                        }
-                      },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        canvasColor: Colors.white,
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        value: _rol,
+                        items: const [
+                          DropdownMenuItem(value: 'Operario', child: Text('Operario')),
+                          DropdownMenuItem(value: 'Supervisor', child: Text('Supervisor')),
+                          DropdownMenuItem(value: 'Administrador', child: Text('Administrador')),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _rol = value);
+                          }
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: azulPrincipal, width: 2),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: azulPrincipal, width: 2),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
                     const SizedBox(height: 28),

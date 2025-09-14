@@ -60,53 +60,60 @@ class Login extends StatelessWidget {
                     colorBorde: azulPrincipal,
                   ),
                   SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: 'Administrador',
-                    items: [
-                      DropdownMenuItem(
-                        value: 'Administrador',
-                        child: Row(
-                          children: [
-                            Icon(Icons.person_outline, color: azulPrincipal),
-                            SizedBox(width: 8),
-                            Text('Administrador'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Propietario/Inquilino',
-                        child: Row(
-                          children: [
-                            Icon(Icons.person_outline, color: azulPrincipal),
-                            SizedBox(width: 8),
-                            Text('Propietario/Inquilino'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Personal',
-                        child: Row(
-                          children: [
-                            Icon(Icons.person_outline, color: azulPrincipal),
-                            SizedBox(width: 8),
-                            Text('Personal'),
-                          ],
-                        ),
-                      ),
-                    ],
-                    onChanged: (value) {},
-                    decoration: InputDecoration(
-                      labelText: 'Rol',
-                      labelStyle: TextStyle(color: azulPrincipal),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: azulPrincipal, width: 2),
-                      ),
-                    ),
-                  ),
+                            Theme(
+                              data: Theme.of(context).copyWith(
+                                canvasColor: Colors.white,
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                value: 'Administrador',
+                                items: [
+                                  DropdownMenuItem(
+                                    value: 'Administrador',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.person_outline, color: azulPrincipal),
+                                        SizedBox(width: 8),
+                                        Text('Administrador'),
+                                      ],
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Propietario/Inquilino',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.person_outline, color: azulPrincipal),
+                                        SizedBox(width: 8),
+                                        Text('Propietario/Inquilino'),
+                                      ],
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Personal',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.person_outline, color: azulPrincipal),
+                                        SizedBox(width: 8),
+                                        Text('Personal'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {},
+                                decoration: InputDecoration(
+                                  labelText: 'Rol',
+                                  labelStyle: TextStyle(color: azulPrincipal),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: azulPrincipal, width: 2),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                ),
+                              ),
+                            ),
                   SizedBox(height: 24),
                   BotonPrincipal(
                     texto: 'Iniciar sesión',

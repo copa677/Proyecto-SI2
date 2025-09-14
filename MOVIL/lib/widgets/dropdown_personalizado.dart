@@ -9,16 +9,21 @@ class DropdownPersonalizado extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<String>(
-      value: valorSeleccionado ?? items.first,
-      items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-        filled: true,
-        fillColor: Colors.grey[100],
-        hintText: hint,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        canvasColor: Colors.white, // Color del popup del dropdown
+      ),
+      child: DropdownButtonFormField<String>(
+        value: valorSeleccionado ?? items.first,
+        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          filled: true,
+          fillColor: Colors.white,
+          hintText: hint,
+        ),
       ),
     );
   }

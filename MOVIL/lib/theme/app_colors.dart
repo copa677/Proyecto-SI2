@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
+  static const Color rojo = Color(0xFFF04438); // Estados negativos, badges "Ausente"
   // Nueva paleta
   static const Color azulPrincipal = Color(0xFF437AD1); // Encabezados, botones, links activos, íconos principales
   static const Color azulClaro = Color(0xFFEAF1FB);     // Fondos sutiles para avatares, tags, iconos secundarios

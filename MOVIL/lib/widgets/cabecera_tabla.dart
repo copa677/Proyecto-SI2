@@ -9,11 +9,38 @@ class CabeceraTabla extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        children: columnas
-            .map((col) => Expanded(
-                  child: Text(col, style: const TextStyle(fontWeight: FontWeight.bold)),
-                ))
-            .toList(),
+        children: [
+          // USUARIO (avatar+nombre+id)
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(columnas[0], style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+          // EMAIL
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(columnas[1], style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+          // ESTADO
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(columnas[2], style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+          // TIPO
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(columnas[3], style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
       ),
     );
   }
