@@ -93,10 +93,7 @@
                         (click)="abrirEditar(u)">
                   <i class="fas fa-edit"></i> Editar
                 </button>
-                <button class="text-red-600 hover:text-red-900"
-                        (click)="eliminar(u)">
-                  <i class="fas fa-trash"></i> Eliminar
-                </button>
+                
               </td>
             </tr>
           </tbody>
@@ -145,9 +142,7 @@
           <button class="text-indigo-600 hover:text-indigo-900 text-sm font-medium" (click)="abrirEditar(u)">
             <i class="fas fa-edit"></i> Editar
           </button>
-          <button class="text-red-600 hover:text-red-900 text-sm font-medium" (click)="eliminar(u)">
-            <i class="fas fa-trash"></i> Eliminar
-          </button>
+          
         </div>
       </div>
     </div>
@@ -155,11 +150,10 @@
 </section>
 
 <!-- Modal Crear/Editar Usuario -->
+<!-- Modal Crear/Editar Usuario -->
 <div class="fixed inset-0 z-50 flex items-center justify-center" *ngIf="showForm">
-  <!-- Backdrop -->
   <div class="modal-backdrop absolute inset-0" (click)="cancelar()"></div>
 
-  <!-- Contenido -->
   <div class="modal-content relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
       {{ editMode ? 'Editar Usuario' : 'Registrar Usuario' }}
@@ -167,36 +161,32 @@
 
     <div class="grid grid-cols-1 gap-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700">Nombre</label>
-        <input class="form-input mt-1 block w-full" [(ngModel)]="form.nombre" placeholder="Admin Usuario">
+        <label class="block text-sm font-medium text-gray-700">Username</label>
+        <input class="form-input mt-1 block w-full" [(ngModel)]="form.nombre" placeholder="ej: mponce">
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700">Email</label>
-        <input type="email" class="form-input mt-1 block w-full" [(ngModel)]="form.email" placeholder="admin@ejemplo.com">
+        <input type="email" class="form-input mt-1 block w-full" [(ngModel)]="form.email" placeholder="usuario@ejemplo.com">
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Tipo</label>
-        <select class="form-input mt-1 block w-full" [(ngModel)]="form.tipo">
-          <option *ngFor="let t of tiposCatalogo" [ngValue]="t">{{ t }}</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Estado</label>
-        <select class="form-input mt-1 block w-full" [(ngModel)]="form.estado">
-          <option>Activo</option>
-          <option>Inactivo</option>
-        </select>
+      <!-- Password solo visible al crear -->
+      <div *ngIf="!editMode">
+        <label class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" class="form-input mt-1 block w-full" [(ngModel)]="form.password" placeholder="********">
       </div>
     </div>
 
     <div class="mt-6 flex justify-end space-x-2">
       <button class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               (click)="cancelar()">Cancelar</button>
+
       <button class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
-              (click)="guardar()">Guardar</button>
+              (click)="guardar()"
+              [disabled]="!editMode && (!form.nombre || !form.email || !form.password)">
+        Guardar
+      </button>
     </div>
   </div>
 </div>
+

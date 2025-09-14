@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 
 type Rol = 'Administrador' | 'Supervisor' | 'Operario';
 
-interface Personal {
+interface PersonalRow {
   id: number;
-  nombre: string;
-  email: string;
+  nombre_completo: string;
+  direccion: string;
+  telefono: string;
   rol: Rol;
-  permisos: string[]; // ['Asistencia','Reportes','Admin','Básico']
+  fecha_nacimiento: string; // ISO 'YYYY-MM-DD'
 }
 
 @Component({
@@ -16,32 +17,63 @@ interface Personal {
   styleUrls: ['./personal.component.css'],
 })
 export class PersonalComponent {
-  // ===== Datos iniciales (mock) =====
-  personal: Personal[] = [
-    { id: 1, nombre: 'Juan Pérez',      email: 'juan.perez@ejemplo.com',      rol: 'Supervisor',    permisos: ['Asistencia','Reportes'] },
-    { id: 2, nombre: 'María González',  email: 'maria.gonzalez@ejemplo.com',  rol: 'Administrador', permisos: ['Asistencia','Reportes','Admin'] },
-    { id: 3, nombre: 'Carlos Rodríguez',email: 'carlos.rodriguez@ejemplo.com',rol: 'Operario',      permisos: ['Básico'] },
+  // ===== Datos iniciales (mock de ejemplo) =====
+  personal: PersonalRow[] = [
+    {
+      id: 1,
+      nombre_completo: 'Juan Pérez',
+      direccion: 'Av. Siempre Viva 123',
+      telefono: '987654321',
+      rol: 'Supervisor',
+      fecha_nacimiento: '1990-04-12',
+    },
+    {
+      id: 2,
+      nombre_completo: 'María González',
+      direccion: 'Calle Sol 456',
+      telefono: '912345678',
+      rol: 'Administrador',
+      fecha_nacimiento: '1985-11-03',
+    },
+    {
+      id: 3,
+      nombre_completo: 'Carlos Rodríguez',
+      direccion: 'Jr. Luna 789',
+      telefono: '934567890',
+      rol: 'Operario',
+      fecha_nacimiento: '1998-01-25',
+    },
   ];
 
   // ===== Estado UI =====
-  showForm = false;       // muestra/oculta modal
-  editMode = false;       // crear vs editar
-  filtroRol: '' | Rol = ''; // filtro de rol
-  busqueda = '';          // texto de búsqueda
-
-  // Permisos disponibles para checkboxes
-  permisosCatalogo = ['Asistencia','Reportes','Admin','Básico'];
+  showForm = false;
+  editMode = false;
+  filtroRol: '' | Rol = '';
+  busqueda = '';
 
   // Modelo de formulario
-  form: Personal = this.vacio();
+  form: PersonalRow = this.vacio();
 
   // ===== Helpers =====
-  vacio(): Personal {
-    return { id: 0, nombre: '', email: '', rol: 'Operario', permisos: [] };
+  vacio(): PersonalRow {
+    return {
+      id: 0,
+      nombre_completo: '',
+      direccion: '',
+      telefono: '',
+      rol: 'Operario',
+      fecha_nacimiento: '',
+    };
   }
 
   initials(nombre: string): string {
-    return nombre.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
+    return (nombre || '')
+      .trim()
+      .split(/\s+/)
+      .map((x) => x[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
   }
 
   // ===== Acciones UI =====
@@ -51,8 +83,8 @@ export class PersonalComponent {
     this.showForm = true;
   }
 
-  abrirEditar(p: Personal): void {
-    this.form = { ...p, permisos: [...p.permisos] }; // copia
+  abrirEditar(p: PersonalRow): void {
+    this.form = { ...p }; // copia
     this.editMode = true;
     this.showForm = true;
   }
@@ -61,36 +93,32 @@ export class PersonalComponent {
     this.showForm = false;
   }
 
-  togglePermiso(valor: string, checked: boolean): void {
-    const i = this.form.permisos.indexOf(valor);
-    if (checked && i === -1) this.form.permisos.push(valor);
-    if (!checked && i !== -1) this.form.permisos.splice(i, 1);
-  }
-
   guardar(): void {
-    if (!this.form.nombre.trim() || !this.form.email.trim()) return;
+    const f = this.form;
+    if (!f.nombre_completo.trim() || !f.rol.trim()) return;
 
     if (this.editMode) {
-      this.personal = this.personal.map(p => p.id === this.form.id ? { ...this.form } : p);
+      this.personal = this.personal.map((p) => (p.id === f.id ? { ...f } : p));
     } else {
-      const nuevoId = Math.max(...this.personal.map(x => x.id), 0) + 1;
-      this.personal = [...this.personal, { ...this.form, id: nuevoId }];
+      const nuevoId = Math.max(...this.personal.map((x) => x.id), 0) + 1;
+      this.personal = [...this.personal, { ...f, id: nuevoId }];
     }
     this.showForm = false;
   }
 
-  eliminar(p: Personal): void {
-    if (confirm(`¿Eliminar a ${p.nombre}?`)) {
-      this.personal = this.personal.filter(x => x.id !== p.id);
+  eliminar(p: PersonalRow): void {
+    if (confirm(`¿Eliminar a ${p.nombre_completo}?`)) {
+      this.personal = this.personal.filter((x) => x.id !== p.id);
     }
   }
 
   // ===== Filtro calculado =====
-  get filtrados(): Personal[] {
-    return this.personal.filter(p => {
+  get filtrados(): PersonalRow[] {
+    const q = this.busqueda.trim().toLowerCase();
+    return this.personal.filter((p) => {
       const rolOk = this.filtroRol ? p.rol === this.filtroRol : true;
-      const text = (p.nombre + ' ' + p.email).toLowerCase();
-      const buscaOk = this.busqueda ? text.includes(this.busqueda.toLowerCase()) : true;
+      const text = `${p.nombre_completo} ${p.direccion} ${p.telefono}`.toLowerCase();
+      const buscaOk = q ? text.includes(q) : true;
       return rolOk && buscaOk;
     });
   }

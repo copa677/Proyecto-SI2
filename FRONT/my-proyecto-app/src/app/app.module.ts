@@ -3,6 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http'; // ⬅️ AÑADE ESTO
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NotesComponent } from './pages/notes/notes.component';
@@ -30,7 +32,9 @@ import { ConfiguracionComponent } from './pages/configuracion/configuracion.comp
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule, // ⬅️ AÑADIDO
+    HttpClientModule,
+    BrowserAnimationsModule, // required animations module
+    ToastrModule.forRoot(), // ToastrModule added
   ],
   providers: [],
   bootstrap: [AppComponent],

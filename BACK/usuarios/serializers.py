@@ -10,3 +10,10 @@ class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     tipo_usuario = serializers.CharField()
     estado = serializers.CharField()
+
+class UsuarioListSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name_user = serializers.CharField()
+    email = serializers.EmailField()
+    tipo_usuario = serializers.CharField()
+    estado = serializers.CharField()

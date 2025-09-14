@@ -1,122 +1,160 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { LoginService } from '../../services_back/login.service';
+import { ToastrService } from 'ngx-toastr';
+// import { Usuario } from 'src/interface/user'; // <- quítalo si no lo usas
 
-type EstadoUsuario = 'Activo' | 'Inactivo';
-type TipoUsuario   = 'Administrador' | 'Supervisor' | 'Operario';
-
-interface Usuario {
+// View-model que usa TU HTML
+type ViewUsuario = {
   id: number;
+  nombre: string;           // ← viene de name_user
+  email: string;
+  estado: 'Activo' | 'Inactivo';
+  tipo: string;             // ← viene de tipo_usuario
+};
+
+type FormUsuario = Partial<ViewUsuario> & {
+  password?: string;        // ← para crear
   nombre: string;
   email: string;
-  tipo: TipoUsuario;
-  estado: EstadoUsuario;
-}
+  estado: 'Activo' | 'Inactivo';
+  tipo: string;
+};
 
 @Component({
   selector: 'app-usuarios',
   templateUrl: './usuarios.component.html',
   styleUrls: ['./usuarios.component.css']
 })
-export class UsuariosComponent {
-  // Catálogos
-  tiposCatalogo: TipoUsuario[] = ['Administrador', 'Supervisor', 'Operario'];
-
-  // Filtros
+export class UsuariosComponent implements OnInit {
+  // filtros/búsqueda
   busqueda = '';
-  filtroEstado: EstadoUsuario | '' = '';
-  filtroTipo: TipoUsuario | '' = '';
+  filtroEstado: '' | 'Activo' | 'Inactivo' = '';
+  filtroTipo: string | '' = '';
 
-  // Datos demo (en memoria)
-  usuarios: Usuario[] = [
-    { id: 1, nombre: 'Admin Usuario',   email: 'admin@ejemplo.com', tipo: 'Administrador', estado: 'Activo' },
-    { id: 2, nombre: 'Juan Pérez',      email: 'juan@ejemplo.com',  tipo: 'Supervisor',    estado: 'Activo' },
-    { id: 3, nombre: 'María González',  email: 'maria@ejemplo.com', tipo: 'Operario',      estado: 'Inactivo' },
-  ];
+  // El listado seguirá mostrando tipo/estado que llegan del back
+  tiposCatalogo = ['Administrador','Supervisor','Operario'];
 
-  // Modal / Form
+  // datos
+  usuarios: ViewUsuario[] = [];
+  filtrados: ViewUsuario[] = [];
+
+  // modal
   showForm = false;
   editMode = false;
-  form: Usuario = this.nuevoForm();
+  form: FormUsuario = { nombre: '', email: '', password: '', estado: 'Activo', tipo: 'empleado' };
 
-  // Lista filtrada
-  get filtrados(): Usuario[] {
-    return this.usuarios.filter(u => {
-      const okTexto = this.busqueda
-        ? (u.nombre + ' ' + u.email).toLowerCase().includes(this.busqueda.toLowerCase())
-        : true;
-      const okEstado = this.filtroEstado ? u.estado === this.filtroEstado : true;
-      const okTipo   = this.filtroTipo   ? u.tipo   === this.filtroTipo   : true;
-      return okTexto && okEstado && okTipo;
-    });
+  loading = false;
+
+  constructor(
+    private api: LoginService,
+    private toastr: ToastrService,
+  ) {}
+
+  ngOnInit(): void {
+    this.cargar();
   }
 
-  // Acciones
-  abrirCrear(): void {
-    this.editMode = false;
-    this.form = this.nuevoForm();
-    if (this.filtroTipo)   this.form.tipo = this.filtroTipo as TipoUsuario;
-    if (this.filtroEstado) this.form.estado = this.filtroEstado as EstadoUsuario;
-    this.showForm = true;
+  // Helpers UI
+  initials(nombre: string): string {
+    if (!nombre) return '';
+    return nombre.trim().split(/\s+/).slice(0,2).map(s => s[0]).join('').toUpperCase();
   }
 
-  abrirEditar(u: Usuario): void {
-    this.editMode = true;
-    this.form = { ...u };
-    this.showForm = true;
+  badgeEstado(estado: string) {
+    return {
+      'bg-green-100 text-green-800': estado === 'Activo',
+      'bg-gray-200 text-gray-700': estado === 'Inactivo'
+    };
   }
 
-  cancelar(): void {
-    this.showForm = false;
-  }
-
-  guardar(): void {
-    if (!this.form.nombre || !this.form.email) return;
-
-    if (this.editMode) {
-      const idx = this.usuarios.findIndex(x => x.id === this.form.id);
-      if (idx > -1) this.usuarios[idx] = { ...this.form };
-    } else {
-      const nuevoId = this.usuarios.length ? Math.max(...this.usuarios.map(x => x.id)) + 1 : 1;
-      this.usuarios.unshift({ ...this.form, id: nuevoId });
-    }
-    this.showForm = false;
-  }
-
-  eliminar(u: Usuario): void {
-    if (confirm(`¿Eliminar al usuario ${u.nombre}?`)) {
-      this.usuarios = this.usuarios.filter(x => x.id !== u.id);
-    }
-  }
-
-  limpiarFiltros(): void {
+  limpiarFiltros() {
     this.busqueda = '';
     this.filtroEstado = '';
     this.filtroTipo = '';
+    this.aplicarFiltros();
   }
 
-  // Helpers
-  initials(nombre: string): string {
-    if (!nombre) return '';
-    return nombre.split(' ')
-      .filter(Boolean)
-      .map(p => p[0]?.toUpperCase() ?? '')
-      .slice(0, 2)
-      .join('');
+  // ===== CRUD =====
+  cargar() {
+    this.loading = true;
+    this.api.getuser().subscribe({
+      next: (rows: any[]) => {
+        // Mapeo: backend → view-model (lo que tu HTML espera)
+        this.usuarios = (rows ?? []).map(r => ({
+          id: Number(r.id),
+          nombre: r.name_user ?? '',
+          email: r.email ?? '',
+          estado: (r.estado as 'Activo'|'Inactivo') ?? 'Activo',
+          tipo: r.tipo_usuario ?? ''
+        }));
+        this.aplicarFiltros();
+      },
+      error: (e) => {
+        console.error(e);
+        this.toastr.error('No se pudieron cargar los usuarios', 'Error');
+      },
+      complete: () => this.loading = false
+    });
   }
 
-  badgeEstado(estado: EstadoUsuario): Record<string, boolean> {
-    return {
-      'badge-activo':   estado === 'Activo',
-      'badge-inactivo': estado === 'Inactivo',
+  aplicarFiltros() {
+    const q = this.busqueda.trim().toLowerCase();
+    this.filtrados = this.usuarios.filter(u => {
+      const byQ = !q || `${u.nombre} ${u.email} ${u.tipo}`.toLowerCase().includes(q);
+      const byE = !this.filtroEstado || u.estado === this.filtroEstado;
+      const byT = !this.filtroTipo || u.tipo === this.filtroTipo;
+      return byQ && byE && byT;
+    });
+  }
+
+  abrirCrear() {
+    this.editMode = false;
+    // por requisitos: tipo = "empleado", estado = "Activo"
+    this.form = { nombre: '', email: '', password: '', estado: 'Activo', tipo: 'empleado' };
+    this.showForm = true;
+  }
+
+  abrirEditar(u: ViewUsuario) {
+    this.editMode = true;
+    this.form = { id: u.id, nombre: u.nombre, email: u.email, estado: u.estado, tipo: u.tipo };
+    this.showForm = true;
+  }
+
+  cancelar() {
+    this.showForm = false;
+  }
+
+  guardar() {
+    if (this.editMode && this.form.id) {
+      // Por ahora no hay endpoint de UPDATE en tu backend público.
+      this.toastr.info('La edición aún no está disponible desde esta pantalla.', 'Aviso');
+      return;
+    }
+
+    // Crear: username (name_user), password, email
+    const payloadCreate = {
+      name_user   : this.form.nombre?.trim(),
+      password    : this.form.password?.trim(),
+      email       : this.form.email?.trim(),
+      tipo_usuario: 'empleado', // fijo
+      estado      : 'Activo'    // fijo
     };
-  }
 
-  nuevoForm(): Usuario {
-    return {
-      id: 0,
-      nombre: '',
-      email: '',
-      tipo: 'Operario',
-      estado: 'Activo',
-    };
+    if (!payloadCreate.name_user || !payloadCreate.email || !payloadCreate.password) {
+      this.toastr.warning('Completa username, email y password', 'Campos requeridos');
+      return;
+    }
+
+    this.api.register(payloadCreate as any).subscribe({
+      next: () => {
+        this.toastr.success('Usuario creado', 'Éxito');
+        this.showForm = false;
+        this.cargar();
+      },
+      error: (e: any) => {
+        console.error(e);
+        this.toastr.error('No se pudo crear', 'Error');
+      }
+    });
   }
 }
