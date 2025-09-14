@@ -50,6 +50,13 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Nac.</th>
+
+              <!-- Nueva columna: ID Usuario -->
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Usuario</th>
+
+              <!-- Nueva columna: Estado -->
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+
               <th class="relative px-6 py-3"><span class="sr-only">Acciones</span></th>
             </tr>
           </thead>
@@ -78,16 +85,29 @@
 
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="{
-          'bg-blue-100 text-blue-800': p.rol==='Administrador',
-          'bg-green-100 text-green-800': p.rol==='Supervisor',
-          'bg-gray-100 text-gray-800': p.rol==='Operario'
-        }">
+            'bg-blue-100 text-blue-800': p.rol==='Administrador',
+            'bg-green-100 text-green-800': p.rol==='Supervisor',
+            'bg-gray-100 text-gray-800': p.rol==='Operario'
+          }">
                   {{ p.rol }}
                 </span>
               </td>
 
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                 {{ p.fecha_nacimiento | date:'dd/MM/yyyy' }}
+              </td>
+
+              <!-- Nueva celda: ID Usuario -->
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ p.id_usuario }}
+              </td>
+
+              <!-- Nueva celda: Estado -->
+              <td class="px-6 py-4 whitespace-nowrap text-sm" [ngClass]="{
+              'text-green-600 font-semibold': p.estado === 'activo',
+              'text-red-600 font-semibold': p.estado === 'inactivo'
+            }">
+                {{ p.estado }}
               </td>
 
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -102,6 +122,7 @@
           </tbody>
         </table>
       </div>
+
 
       <!-- Paginación (decorativa) -->
       <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
@@ -125,34 +146,80 @@
     </div>
 
     <!-- Modal Crear/Editar -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-gray-700">Nombre Completo</label>
-        <input class="form-input mt-1 block w-full" [(ngModel)]="form.nombre_completo" placeholder="Juan Pérez">
-      </div>
+    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center" (keydown.escape)="cancelar()"
+      tabindex="0">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-gray-900/50" (click)="cancelar()"></div>
 
-      <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-gray-700">Dirección</label>
-        <input class="form-input mt-1 block w-full" [(ngModel)]="form.direccion" placeholder="Calle / Av. y número">
-      </div>
+      <!-- Card del modal -->
+      <div class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ editMode ? 'Editar Personal' : 'Añadir Personal' }}
+          </h3>
+          <button class="text-gray-400 hover:text-gray-600" (click)="cancelar()" aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Teléfono</label>
-        <input class="form-input mt-1 block w-full" [(ngModel)]="form.telefono" placeholder="999999999">
-      </div>
+        <!-- Body -->
+        <div class="px-6 py-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+              <input class="form-input mt-1 block w-full" [(ngModel)]="form.nombre_completo" placeholder="Juan Pérez">
+            </div>
+            
+            <!-- Campo: Nombre de usuario -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Nombre de usuario</label>
+              <input class="form-input mt-1 block w-full" [(ngModel)]="form.nombre_usuario" placeholder="ej: jperez" />
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700">Dirección</label>
+              <input class="form-input mt-1 block w-full" [(ngModel)]="form.direccion"
+                placeholder="Calle / Av. y número">
+            </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Rol</label>
-        <select class="form-input mt-1 block w-full" [(ngModel)]="form.rol">
-          <option>Administrador</option>
-          <option>Supervisor</option>
-          <option>Operario</option>
-        </select>
-      </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Teléfono</label>
+              <input class="form-input mt-1 block w-full" [(ngModel)]="form.telefono" placeholder="999999999">
+            </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
-        <input class="form-input mt-1 block w-full" type="date" [(ngModel)]="form.fecha_nacimiento">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Rol</label>
+              <select class="form-input mt-1 block w-full" [(ngModel)]="form.rol">
+                <option>Administrador</option>
+                <option>Supervisor</option>
+                <option>Operario</option>
+              </select>
+            </div>
+            
+            <!-- Campo: Estado -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Estado</label>
+              <select class="form-input mt-1 block w-full" [(ngModel)]="form.estado">
+                <option [ngValue]="'activo'">Activo</option>
+                <option [ngValue]="'inactivo'">Inactivo</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Fecha de Nacimiento</label>
+              <input class="form-input mt-1 block w-full" type="date" [(ngModel)]="form.fecha_nacimiento">
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+          <button class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
+            (click)="cancelar()">Cancelar</button>
+          <button class="btn-primary inline-flex items-center px-4 py-2 rounded-md text-white" (click)="guardar()">
+            <i class="fas fa-save -ml-1 mr-2"></i>{{ editMode ? 'Guardar cambios' : 'Guardar' }}
+          </button>
+        </div>
       </div>
     </div>
 

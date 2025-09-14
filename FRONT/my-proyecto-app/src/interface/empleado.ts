@@ -1,5 +1,6 @@
+
 export interface Empleado{
-    id_usuario?: number;
+    id_personal?: number;
     nombre_completo: string;
     direccion: string;
     telefono: string;
@@ -8,4 +9,5 @@ export interface Empleado{
     estado: string;
     username?: string;
     email?:string;
+    id_usuario?: number;
 }

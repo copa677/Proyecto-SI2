@@ -49,7 +49,8 @@ def obtener_empleado_nombre(request, nombre):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except personal.DoesNotExist:
         return Response({'error': 'Empleado no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-    
+
+ 
 @api_view(['GET'])
 def obtener_empleado_por_usuario(request, id_usuario):
     try:

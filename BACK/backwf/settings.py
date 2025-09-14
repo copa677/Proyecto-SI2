@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'usuarios',
     'personal',
     'turnos',
+    'asistencias',
 ]
 
 MIDDLEWARE = [

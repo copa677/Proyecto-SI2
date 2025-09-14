@@ -13,7 +13,7 @@ export class EmpleadoService {
 
   constructor(private http: HttpClient) {
     this.myAppUrl = environment.endpoint;
-    this.myApiUrl = 'api/empleado';
+    this.myApiUrl = 'api/personal';
   }
 
   getEmpleados():Observable<Empleado[]> {
