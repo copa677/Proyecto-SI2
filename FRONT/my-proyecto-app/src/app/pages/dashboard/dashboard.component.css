@@ -1,0 +1,81 @@
+/* Tarjeta genérica */
+.card {
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+/* Footer de tarjeta */
+.card-footer {
+  background: #f9fafb;
+  padding: 0.75rem 1.25rem;
+}
+
+/* Icono de tarjeta */
+.icon-wrap {
+  background: #e0e7ff;      /* indigo-100 */
+  color: #4f46e5;           /* indigo-600 */
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Enlaces */
+.link {
+  color: #4f46e5;
+  font-weight: 600;
+}
+.link:hover { color: #4338ca; }
+
+/* Paneles secundarios */
+.panel {
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 1rem;
+}
+.panel-title {
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.75rem;
+}
+
+/* Botones rápidos */
+.quick-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .6rem .8rem;
+  border-radius: .5rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-weight: 600;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  text-align: center;
+}
+.quick-btn:hover {
+  background: #f9fafb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+}
+
+/* KPIs laterales */
+.kpi-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: .5rem;
+  padding: .6rem .8rem;
+}
+
+/* Responsive helper igual que en otras pantallas */
+@media (max-width: 640px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+}

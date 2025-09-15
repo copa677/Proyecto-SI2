@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema de Manufactura - Poleras y Camisas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+  <style id="app-style">
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background-color: #f9fafb;
+    }
+    
+    .page-transition {
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    
+    .page-visible {
+      opacity: 1;
+    }
+    
+    .logo-text {
+      background: linear-gradient(90deg, #2563eb, #4f46e5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nav-item {
+      transition: all 0.2s;
+    }
+    
+    .nav-item:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      transition: all 0.2s;
+      background-image: linear-gradient(to right, #2563eb, #4f46e5);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .form-input:focus {
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+    
+    .table-row:hover {
+      background-color: rgba(79, 70, 229, 0.05);
+    }
+    
+    /* Mobile adjustments */
+    @media (max-width: 640px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .mobile-card {
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+      }
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      background: white;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Modal styles */
+    .modal-backdrop {
+      background-color: rgba(0, 0, 0, 0.5);
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal-content {
+      transform: scale(0.95);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    
+    .modal-content.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+    
+    /* Custom switch */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #4f46e5;
+    }
+    
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #4f46e5;
+    }
+    
+    /* Calendar/datepicker custom styles */
+    .flatpickr-day.selected {
+      background: #4f46e5 !important;
+      border-color: #4f46e5 !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+
+  <!-- Main Dashboard -->
+  <div id="dashboard" class="page-transition hidden min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+      <div class="mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <div class="flex-shrink-0 flex items-center">
+              <h1 class="text-2xl font-bold logo-text">ManufacturaPRO</h1>
+            </div>
+          </div>
+          <div class="flex items-center">
+            <div class="hidden md:ml-4 md:flex-shrink-0 md:flex md:items-center">
+              <div class="ml-3 relative">
+                <div>
+                  <button id="user-menu-button" type="button" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" aria-expanded="false" aria-haspopup="true">
+                    <span class="sr-only">Abrir menú de usuario</span>
+                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                      A
+                    </div>
+                  </button>
+                </div>
+                <div id="user-menu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                  <div class="px-4 py-2 border-b">
+                    <p class="text-sm font-medium text-gray-900">Admin Usuario</p>
+                    <p class="text-xs text-gray-500">admin@ejemplo.com</p>
+                  </div>
+                  <a href="javascript:void(0)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi perfil</a>
+                  <a href="javascript:void(0)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+                  <a href="javascript:void(0)" id="logout-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar sesión</a>
+                </div>
+              </div>
+            </div>
+            <!-- Mobile menu button -->
+            <div class="flex items-center md:hidden">
+              <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-expanded="false">
+                <span class="sr-only">Abrir menú principal</span>
+                <i class="fas fa-bars"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="hidden md:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+          <a href="javascript:void(0)" class="mobile-nav-link bg-indigo-50 border-l-4 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 text-base font-medium" data-section="dashboard-home">Dashboard</a>
+          <a href="javascript:void(0)" class="mobile-nav-link border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 text-base font-medium" data-section="personal-section">Personal</a>
+          <a href="javascript:void(0)" class="mobile-nav-link border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 text-base font-medium" data-section="attendance-section">Asistencia y Turnos</a>
+          <a href="javascript:void(0)" class="mobile-nav-link border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 text-base font-medium" data-section="users-section">Usuarios</a>
+          <a href="javascript:void(0)" class="mobile-nav-link border-l-4 border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 text-base font-medium" data-section="settings-section">Configuración</a>
+        </div>
+        <div class="pt-4 pb-3 border-t border-gray-200">
+          <div class="flex items-center px-4">
+            <div class="flex-shrink-0">
+              <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                A
+              </div>
+            </div>
+            <div class="ml-3">
+              <div class="text-base font-medium text-gray-800">Admin Usuario</div>
+              <div class="text-sm font-medium text-gray-500">admin@ejemplo.com</div>
+            </div>
+          </div>
+          <div class="mt-3 space-y-1">
+            <a href="javascript:void(0)" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Mi perfil</a>
+            <a href="javascript:void(0)" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Configuración</a>
+            <a href="javascript:void(0)" id="mobile-logout-button" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Cerrar sesión</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Navigation Tabs (Desktop) -->
+    <div class="bg-white shadow-sm border-b hidden md:block">
+      <div class="mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex space-x-8">
+          <a href="javascript:void(0)" class="nav-item desktop-nav-link border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium" data-section="dashboard-home">Dashboard</a>
+          <a href="javascript:void(0)" class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium" data-section="personal-section">Personal</a>
+          <a href="javascript:void(0)" class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium" data-section="attendance-section">Asistencia y Turnos</a>
+          <a href="javascript:void(0)" class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium" data-section="users-section">Usuarios</a>
+          <a href="javascript:void(0)" class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium" data-section="settings-section">Configuración</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <!-- Dashboard Home -->
+      <section id="dashboard-home" class="dashboard-section py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+          <p class="mt-1 text-sm text-gray-600">Bienvenido al sistema de gestión de manufactura</p>
+          
+          <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 dashboard-grid">
+            <!-- Card 1 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-5">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                    <i class="fas fa-users text-indigo-600"></i>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt class="text-sm font-medium text-gray-500 truncate">Total Personal</dt>
+                      <dd>
+                        <div class="text-lg font-medium text-gray-900">12</div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 px-5 py-3">
+                <div class="text-sm">
+                  <a href="javascript:void(0)" class="font-medium text-indigo-600 hover:text-indigo-500 nav-link" data-section="personal-section">Ver personal <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-5">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                    <i class="fas fa-calendar-check text-indigo-600"></i>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt class="text-sm font-medium text-gray-500 truncate">Asistencia Hoy</dt>
+                      <dd>
+                        <div class="text-lg font-medium text-gray-900">8 / 12</div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 px-5 py-3">
+                <div class="text-sm">
+                  <a href="javascript:void(0)" class="font-medium text-indigo-600 hover:text-indigo-500 nav-link" data-section="attendance-section">Gestionar asistencia <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-5">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                    <i class="fas fa-user-circle text-indigo-600"></i>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt class="text-sm font-medium text-gray-500 truncate">Usuarios del Sistema</dt>
+                      <dd>
+                        <div class="text-lg font-medium text-gray-900">5</div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 px-5 py-3">
+                <div class="text-sm">
+                  <a href="javascript:void(0)" class="font-medium text-indigo-600 hover:text-indigo-500 nav-link" data-section="users-section">Ver usuarios <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8">
+            <h3 class="text-lg font-medium text-gray-900">Actividad Reciente</h3>
+            <div class="mt-4 overflow-hidden bg-white shadow sm:rounded-md">
+              <ul class="divide-y divide-gray-200">
+                <li>
+                  <div class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center">
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-indigo-600 truncate">Registro de usuario</p>
+                        <p class="text-sm text-gray-500">Juan Pérez se ha registrado en el sistema</p>
+                      </div>
+                      <div class="ml-4 flex-shrink-0">
+                        <p class="text-sm text-gray-500">hace 2 horas</p>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center">
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-indigo-600 truncate">Modificación de datos</p>
+                        <p class="text-sm text-gray-500">Se actualizaron datos del personal</p>
+                      </div>
+                      <div class="ml-4 flex-shrink-0">
+                        <p class="text-sm text-gray-500">hace 5 horas</p>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center">
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-indigo-600 truncate">Registro de asistencia</p>
+                        <p class="text-sm text-gray-500">8 miembros del personal registraron asistencia</p>
+                      </div>
+                      <div class="ml-4 flex-shrink-0">
+                        <p class="text-sm text-gray-500">hoy, 8:00 AM</p>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Personal Section (Web Only) -->
+      <section id="personal-section" class="dashboard-section hidden py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+          <div class="md:flex md:items-center md:justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">Gestión de Personal</h2>
+              <p class="mt-1 text-sm text-gray-600">Administre los datos del personal de la empresa</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+              <button id="add-personal-button" class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
+                <i class="fas fa-plus -ml-1 mr-2"></i>
+                Añadir Personal
+              </button>
+            </div>
+          </div>
+          
+          <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+            <div class="px-4 py-4 sm:px-6 border-b border-gray-200 bg-gray-50">
+              <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="flex-grow max-w-lg">
+                  <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="search" id="search-personal" class="form-input block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Buscar personal...">
+                  </div>
+                </div>
+                <div class="mt-4 md:mt-0 flex items-center space-x-2">
+                  <span class="text-gray-500 text-sm">Filtrar por:</span>
+                  <select id="filter-role" class="form-input block w-full sm:text-sm border-gray-300 rounded-md">
+                    <option value="">Todos los roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="operario">Operario</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permisos</th>
+                    <th scope="col" class="relative px-6 py-3">
+                      <span class="sr-only">Acciones</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr class="table-row">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                          JP
+                        </div>
+                        <div class="ml-4">
+                          <div class="text-sm font-medium text-gray-900">Juan Pérez</div>
+                          <div class="text-sm text-gray-500">ID: 001</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-900">juan.perez@ejemplo.com</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Supervisor
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 mr-1">
+                        Asistencia
+                      </span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-100 text-purple-800">
+                        Reportes
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-personal-button" data-id="1">
+                        <i class="fas fa-edit"></i> Editar
+                      </button>
+                      <button class="text-red-600 hover:text-red-900 delete-personal-button" data-id="1">
+                        <i class="fas fa-trash"></i> Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                          MG
+                        </div>
+                        <div class="ml-4">
+                          <div class="text-sm font-medium text-gray-900">María González</div>
+                          <div class="text-sm text-gray-500">ID: 002</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-900">maria.gonzalez@ejemplo.com</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        Administrador
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800 mr-1">
+                        Asistencia
+                      </span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-100 text-purple-800 mr-1">
+                        Reportes
+                      </span>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Admin
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-personal-button" data-id="2">
+                        <i class="fas fa-edit"></i> Editar
+                      </button>
+                      <button class="text-red-600 hover:text-red-900 delete-personal-button" data-id="2">
+                        <i class="fas fa-trash"></i> Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                          CR
+                        </div>
+                        <div class="ml-4">
+                          <div class="text-sm font-medium text-gray-900">Carlos Rodríguez</div>
+                          <div class="text-sm text-gray-500">ID: 003</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm text-gray-900">carlos.rodriguez@ejemplo.com</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                        Operario
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                        Básico
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-personal-button" data-id="3">
+                        <i class="fas fa-edit"></i> Editar
+                      </button>
+                      <button class="text-red-600 hover:text-red-900 delete-personal-button" data-id="3">
+                        <i class="fas fa-trash"></i> Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div class="flex-1 flex justify-between sm:hidden">
+                <a href="javascript:void(0)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  Anterior
+                </a>
+                <a href="javascript:void(0)" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  Siguiente
+                </a>
+              </div>
+              <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p class="text-sm text-gray-700">
+                    Mostrando <span class="font-medium">1</span> a <span class="font-medium">3</span> de <span class="font-medium">12</span> resultados
+                  </p>
+                </div>
+                <div>
+                  <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <a href="javascript:void(0)" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      <span class="sr-only">Anterior</span>
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="javascript:void(0)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-indigo-50 text-sm font-medium text-indigo-600 hover:bg-gray-50">
+                      1
+                    </a>
+                    <a href="javascript:void(0)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      2
+                    </a>
+                    <a href="javascript:void(0)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      3
+                    </a>
+                    <a href="javascript:void(0)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      4
+                    </a>
+                    <a href="javascript:void(0)" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      <span class="sr-only">Siguiente</span>
+                      <i class="fas fa-chevron-right"></i>
+                    </a>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Attendance Section (Web Only) -->
+      <section id="attendance-section" class="dashboard-section hidden py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+          <div class="md:flex md:items-center md:justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">Asistencia y Turnos</h2>
+              <p class="mt-1 text-sm text-gray-600">Gestione la asistencia y los turnos del personal</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+              <button id="add-attendance-button" class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
+                <i class="fas fa-plus -ml-1 mr-2"></i>
+                Registrar Asistencia
+              </button>
+            </div>
+          </div>
+          
+          <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+            <div class="px-4 py-5 sm:p-6">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Calendario de Asistencias</h3>
+                  <div id="attendance-calendar" class="bg-white border rounded-md p-4"></div>
+                </div>
+                <div>
+                  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Resumen de Asistencia</h3>
+                  <div class="bg-gray-50 p-4 rounded-md">
+                    <h4 class="font-semibold text-gray-700">Hoy, <span id="current-date"></span></h4>
+                    <div class="mt-4 space-y-4">
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-500">Total Personal:</span>
+                        <span class="text-sm text-gray-900">12</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-500">Asistencia:</span>
+                        <span class="text-sm text-gray-900">8 (67%)</span>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-500">Ausencias:</span>
+                        <span class="text-sm text-gray-900">4 (33%)</span>
+                      </div>
+                      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: 67%;"></div>
+                      </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                      <h4 class="font-semibold text-gray-700">Turnos Activos</h4>
+                      <div class="mt-2 space-y-2">
+                        <div class="bg-white p-3 rounded-md border border-gray-200">
+                          <div class="flex justify-between items-center">
+                            <div>
+                              <span class="text-sm font-medium text-gray-900 block">Turno Mañana</span>
+                              <span class="text-xs text-gray-500">8:00 AM - 2:00 PM</span>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-800">
+                              5 personas
+                            </span>
+                          </div>
+                        </div>
+                        <div class="bg-white p-3 rounded-md border border-gray-200">
+                          <div class="flex justify-between items-center">
+                            <div>
+                              <span class="text-sm font-medium text-gray-900 block">Turno Tarde</span>
+                              <span class="text-xs text-gray-500">2:00 PM - 8:00 PM</span>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-800">
+                              3 personas
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-8">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Registro de Asistencias</h3>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Turno</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th scope="col" class="relative px-6 py-3">
+                          <span class="sr-only">Acciones</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <tr class="table-row">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                              JP
+                            </div>
+                            <div class="ml-4">
+                              <div class="text-sm font-medium text-gray-900">Juan Pérez</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="text-sm text-gray-900">16/04/2025</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="text-sm text-gray-900">Mañana (8:00 AM - 2:00 PM)</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Presente
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-attendance-button" data-id="1">
+                            <i class="fas fa-edit"></i> Editar
+                          </button>
+                          <button class="text-red-600 hover:text-red-900 delete-attendance-button" data-id="1">
+                            <i class="fas fa-trash"></i> Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                              MG
+                            </div>
+                            <div class="ml-4">
+                              <div class="text-sm font-medium text-gray-900">María González</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="text-sm text-gray-900">16/04/2025</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="text-sm text-gray-900">Mañana (8:00 AM - 2:00 PM)</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Presente
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-attendance-button" data-id="2">
+                            <i class="fas fa-edit"></i> Editar
+                          </button>
+                          <button class="text-red-600 hover:text-red-900 delete-attendance-button" data-id="2">
+                            <i class="fas fa-trash"></i> Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                              CR
+                            </div>
+                            <div class="ml-4">
+                              <div class="text-sm font-medium text-gray-900">Carlos Rodríguez</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="text-sm text-gray-900">16/04/2025</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="text-sm text-gray-900">Tarde (2:00 PM - 8:00 PM)</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            Ausente
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-attendance-button" data-id="3">
+                            <i class="fas fa-edit"></i> Editar
+                          </button>
+                          <button class="text-red-600 hover:text-red-900 delete-attendance-button" data-id="3">
+                            <i class="fas fa-trash"></i> Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div class="mt-4 flex justify-center">
+                  <button class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Cargar más registros
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Users Section (Web & Mobile) -->
+      <section id="users-section" class="dashboard-section hidden py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+          <div class="md:flex md:items-center md:justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h2>
+              <p class="mt-1 text-sm text-gray-600">Administre los usuarios del sistema</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+              <button id="add-user-button" class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
+                <i class="fas fa-user-plus -ml-1 mr-2"></i>
+                Registrar Usuario
+              </button>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <!-- Search and Filter - For both mobile and desktop -->
+            <div class="bg-white shadow rounded-md p-4 mb-6">
+              <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                <div class="flex-grow">
+                  <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="search" id="search-user" class="form-input block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Buscar usuario...">
+                  </div>
+                </div>
+                <div class="md:w-1/4">
+                  <select id="filter-user-status" class="form-input block w-full sm:text-sm border-gray-300 rounded-md">
+                    <option value="">Todos los estados</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Desktop Table View (hidden on mobile) -->
+            <div class="hidden sm:block">
+              <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                      <th scope="col" class="relative px-6 py-3">
+                        <span class="sr-only">Acciones</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="table-row">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                            AU
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">Admin Usuario</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">admin@ejemplo.com</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Activo
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        Administrador
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-user-button" data-id="1">
+                          <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="text-red-600 hover:text-red-900 delete-user-button" data-id="1">
+                          <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="table-row">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                            JP
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">Juan Pérez</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">juan@ejemplo.com</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Activo
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        Supervisor
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-user-button" data-id="2">
+                          <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="text-red-600 hover:text-red-900 delete-user-button" data-id="2">
+                          <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                    <tr class="table-row">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                            MG
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">María González</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">maria@ejemplo.com</div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                          Inactivo
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        Operario
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-900 mr-3 edit-user-button" data-id="3">
+                          <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="text-red-600 hover:text-red-900 delete-user-button" data-id="3">
+                          <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                  <div class="flex-1 flex justify-between sm:hidden">
+                    <a href="javascript:void(0)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                      Anterior
+                    </a>
+                    <a href="javascript:void(0)" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                      Siguiente
+                    </a>
+                  </div>
+                  <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                      <p class="text-sm text-gray-700">
+                        Mostrando <span class="font-medium">1</span> a <span class="font-medium">3</span> de <span class="font-medium">5</span> resultados
+                      </p>
+                    </div>
+                    <div>
+                      <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        <a href="javascript:void(0)" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                          <span class="sr-only">Anterior</span>
+                          <i class="fas fa-chevron-left"></i>
+                        </a>
+                        <a href="javascript:void(0)" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-indigo-50 text-sm font-medium text-indigo-600 hover:bg-gray-50">
+                          1
+                        </a>
+                        <a href="javascript:void(0)" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                          <span class="sr-only">Siguiente</span>
+                          <i class="fas fa-chevron-right"></i>
+                        </a>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Mobile Card View (visible only on small screens) -->
+            <div class="sm:hidden space-y-4">
+              <div class="mobile-card bg-white overflow-hidden">
+                <div class="p-4 flex items-center">
+                  <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                    AU
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <h4 class="text-sm font-medium text-gray-900">Admin Usuario</h4>
+                        <p class="text-sm text-gray-500">admin@ejemplo.com</p>
+                      </div>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Activo
+                      </span>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Administrador</p>
+                  </div>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3">
+                  <button class="text-indigo-600 hover:text-indigo-900 text-sm font-medium edit-user-button" data-id="1">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button class="text-red-600 hover:text-red-900 text-sm font-medium delete-user-button" data-id="1">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+              
+              <div class="mobile-card bg-white overflow-hidden">
+                <div class="p-4 flex items-center">
+                  <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                    JP
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <h4 class="text-sm font-medium text-gray-900">Juan Pérez</h4>
+                        <p class="text-sm text-gray-500">juan@ejemplo.com</p>
+                      </div>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Activo
+                      </span>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Supervisor</p>
+                  </div>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3">
+                  <button class="text-indigo-600 hover:text-indigo-900 text-sm font-medium edit-user-button" data-id="2">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button class="text-red-600 hover:text-red-900 text-sm font-medium delete-user-button" data-id="2">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+              
+              <div class="mobile-card bg-white overflow-hidden">
+                <div class="p-4 flex items-center">
+                  <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+                    MG
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <h4 class="text-sm font-medium text-gray-900">María González</h4>
+                        <p class="text-sm text-gray-500">maria@ejemplo.com</p>
+                      </div>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                        Inactivo
+                      </span>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Operario</p>
+                  </div>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3">
+                  <button class="text-indigo-600 hover:text-indigo-900 text-sm font-medium edit-user-button" data-id="3">
+                    <i class="fas fa-edit"></i> Editar
+                  </button>
+                  <button class="text-red-600 hover:text-red-900 text-sm font-medium delete-user-button" data-id="3">
+                    <i class="fas fa-trash"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+              
+              <div class="flex justify-center mt-4">
+                <button class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                  Cargar más
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Settings Section -->
+      <section id="settings-section" class="dashboard-section hidden py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-2xl font-bold text-gray-900">Configuración</h2>
+          <p class="mt-1 text-sm text-gray-600">Gestione la configuración del sistema</p>
+          
+          <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+            <div class="px-4 py-5 sm:p-6">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">Importación/Exportación de Datos</h3>
+              <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-5 rounded-lg">
+                  <h4 class="text-base font-medium text-gray-900">Exportar Datos</h4>
+                  <p class="mt-1 text-sm text-gray-500">Descargue los datos del sistema en formato CSV</p>
+                  <div class="mt-4 space-y-3">
+                    <button id="export-personal" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                      <i class="fas fa-download mr-2"></i> Exportar Personal
+                    </button>
+                    <button id="export-attendance" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                      <i class="fas fa-download mr-2"></i> Exportar Asistencia
+                    </button>
+                    <button id="export-users" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                      <i class="fas fa-download mr-2"></i> Exportar Usuarios
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="bg-gray-50 p-5 rounded-lg">
+                  <h4 class="text-base font-medium text-gray-900">Importar Datos</h4>
+                  <p class="mt-1 text-sm text-gray-500">Suba archivos CSV para importar datos al sistema</p>
+                  <div class="mt-4 space-y-3">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Personal</label>
+                      <div class="mt-1 flex items-center">
+                        <input type="file" id="import-personal-file" class="sr-only" accept=".csv">
+                        <label for="import-personal-file" class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                          <i class="fas fa-upload mr-2"></i> Seleccionar archivo
+                        </label>
+                        <span id="import-personal-filename" class="ml-3 text-sm text-gray-500"></span>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Asistencia</label>
+                      <div class="mt-1 flex items-center">
+                        <input type="file" id="import-attendance-file" class="sr-only" accept=".csv">
+                        <label for="import-attendance-file" class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                          <i class="fas fa-upload mr-2"></i> Seleccionar archivo
+                        </label>
+                        <span id="import-attendance-filename" class="ml-3 text-sm text-gray-500"></span>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Usuarios</label>
+                      <div class="mt-1 flex items-center">
+                        <input type="file" id="import-users-file" class="sr-only" accept=".csv">
+                        <label for="import-users-file" class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                          <i class="fas fa-upload mr-2"></i> Seleccionar archivo
+                        </label>
+                        <span id="import-users-filename" class="ml-3 text-sm text-gray-500"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+            <div class="px-4 py-5 sm:p-6">
+              <h3 class="text-lg leading-6 font-medium text-gray-900">Preferencias del Sistema</h3>
+              <div class="mt-5">
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="text-base font-medium text-gray-900">Notificaciones por Email</h4>
+                      <p class="text-sm text-gray-500">Recibir notificaciones sobre asistencia y turnos</p>
+                    </div>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                      <input type="checkbox" id="toggle-notifications" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked />
+                      <label for="toggle-notifications" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="text-base font-medium text-gray-900">Modo Oscuro</h4>
+                      <p class="text-sm text-gray-500">Cambiar la apariencia del sistema</p>
+                    </div>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                      <input type="checkbox" id="toggle-dark-mode" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
+                      <label for="toggle-dark-mode" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 class="text-base font-medium text-gray-900">Idioma del Sistema</h4>
+                    <p class="text-sm text-gray-500">Seleccione el idioma preferido</p>
+                    <select id="language-select" class="mt-2 form-input block w-full sm:text-sm border-gray-300 rounded-md">
+                      <option value="es">Español</option>
+                      <option value="en">Inglés</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end">
+                  <button id="save-settings" class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
+                    Guardar Cambios
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Password Recovery Screen (Primarily for Mobile) -->
+  <div id="password-recovery" class="page-transition hidden min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <div class="flex items-center mb-5">
+        <button id="back-to-login" class="text-gray-500 hover:text-gray-700 mr-2">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="text-xl font-bold text-gray-900">Recuperar Contraseña</h2>
+      </div>
+      <p class="text-gray-600 mb-4">Ingrese su dirección de correo electrónico y le enviaremos un enlace para restablecer su contraseña.</p>
+      <form id="recovery-form" class="space-y-4">
+        <div>
+          <label for="recovery-email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+          <input type="email" id="recovery-email" name="recovery-email" class="form-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="correo@ejemplo.com" required>
+        </div>
+        <div>
+          <button type="submit" class="btn-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Enviar Enlace de Recuperación
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <!-- Add/Edit Personal Modal -->
+  <div id="personal-modal" class="fixed inset-0 overflow-y-auto hidden z-50">
+    <div class="modal-backdrop flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+      </div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div class="modal-content inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900" id="personal-modal-title">
+                Añadir Personal
+              </h3>
+              <div class="mt-4">
+                <form id="personal-form" class="space-y-4">
+                  <input type="hidden" id="personal-id">
+                  <div>
+                    <label for="personal-name" class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+                    <input type="text" id="personal-name" name="personal-name" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
+                  <div>
+                    <label for="personal-email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                    <input type="email" id="personal-email" name="personal-email" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
+                  <div>
+                    <label for="personal-role" class="block text-sm font-medium text-gray-700">Rol</label>
+                    <select id="personal-role" name="personal-role" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                      <option value="admin">Administrador</option>
+                      <option value="supervisor">Supervisor</option>
+                      <option value="operario">Operario</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Permisos</label>
+                    <div class="mt-2 space-y-2">
+                      <div class="flex items-center">
+                        <input id="permission-attendance" name="permissions[]" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" value="attendance">
+                        <label for="permission-attendance" class="ml-2 block text-sm text-gray-700">Gestionar Asistencia</label>
+                      </div>
+                      <div class="flex items-center">
+                        <input id="permission-reports" name="permissions[]" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" value="reports">
+                        <label for="permission-reports" class="ml-2 block text-sm text-gray-700">Ver Reportes</label>
+                      </div>
+                      <div class="flex items-center">
+                        <input id="permission-admin" name="permissions[]" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" value="admin">
+                        <label for="permission-admin" class="ml-2 block text-sm text-gray-700">Administración</label>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="save-personal" class="btn-primary w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white sm:ml-3 sm:w-auto sm:text-sm">
+            Guardar
+          </button>
+          <button type="button" id="cancel-personal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Attendance Modal -->
+  <div id="attendance-modal" class="fixed inset-0 overflow-y-auto hidden z-50">
+    <div class="modal-backdrop flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+      </div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div class="modal-content inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900" id="attendance-modal-title">
+                Registrar Asistencia
+              </h3>
+              <div class="mt-4">
+                <form id="attendance-form" class="space-y-4">
+                  <input type="hidden" id="attendance-id">
+                  <div>
+                    <label for="attendance-date" class="block text-sm font-medium text-gray-700">Fecha</label>
+                    <input type="text" id="attendance-date" name="attendance-date" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
+                  <div>
+                    <label for="attendance-shift" class="block text-sm font-medium text-gray-700">Turno</label>
+                    <select id="attendance-shift" name="attendance-shift" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                      <option value="morning">Mañana (8:00 AM - 2:00 PM)</option>
+                      <option value="afternoon">Tarde (2:00 PM - 8:00 PM)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="attendance-personnel" class="block text-sm font-medium text-gray-700">Personal</label>
+                    <select id="attendance-personnel" name="attendance-personnel[]" multiple class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" style="height: 120px">
+                      <option value="1">Juan Pérez</option>
+                      <option value="2">María González</option>
+                      <option value="3">Carlos Rodríguez</option>
+                      <option value="4">Ana Martínez</option>
+                      <option value="5">Luis Sánchez</option>
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">Mantenga presionada la tecla Ctrl (o Cmd en Mac) para seleccionar múltiples personas.</p>
+                  </div>
+                  <div>
+                    <label for="attendance-status" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <select id="attendance-status" name="attendance-status" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                      <option value="present">Presente</option>
+                      <option value="absent">Ausente</option>
+                      <option value="late">Tarde</option>
+                    </select>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="save-attendance" class="btn-primary w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white sm:ml-3 sm:w-auto sm:text-sm">
+            Guardar
+          </button>
+          <button type="button" id="cancel-attendance" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit User Modal -->
+  <div id="user-modal" class="fixed inset-0 overflow-y-auto hidden z-50">
+    <div class="modal-backdrop flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+      </div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div class="modal-content inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900" id="user-modal-title">
+                Registrar Usuario
+              </h3>
+              <div class="mt-4">
+                <form id="user-form" class="space-y-4">
+                  <input type="hidden" id="user-id">
+                  <div>
+                    <label for="user-name" class="block text-sm font-medium text-gray-700">Nombre de Usuario</label>
+                    <input type="text" id="user-name" name="user-name" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
+                  <div>
+                    <label for="user-email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                    <input type="email" id="user-email" name="user-email" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
+                  <div id="user-password-field">
+                    <label for="user-password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="user-password" name="user-password" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  </div>
+                  <div>
+                    <label for="user-type" class="block text-sm font-medium text-gray-700">Tipo de Usuario</label>
+                    <select id="user-type" name="user-type" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                      <option value="admin">Administrador</option>
+                      <option value="supervisor">Supervisor</option>
+                      <option value="operario">Operario</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="user-status" class="block text-sm font-medium text-gray-700">Estado</label>
+                    <select id="user-status" name="user-status" class="form-input mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                      <option value="active">Activo</option>
+                      <option value="inactive">Inactivo</option>
+                    </select>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="save-user" class="btn-primary w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white sm:ml-3 sm:w-auto sm:text-sm">
+            Guardar
+          </button>
+          <button type="button" id="cancel-user" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal" class="fixed inset-0 overflow-y-auto hidden z-50">
+    <div class="modal-backdrop flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+      </div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div class="modal-content inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+              <i class="fas fa-exclamation-triangle text-red-600"></i>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900" id="confirmation-title">
+                ¿Está seguro?
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500" id="confirmation-message">
+                  Esta acción no se puede deshacer.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" id="confirm-action" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Confirmar
+          </button>
+          <button type="button" id="cancel-action" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script id="app-script">
+    document.addEventListener('DOMContentLoaded', function() {
+      // Utility functions
+      function showToast(message, isSuccess = true) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = document.querySelector('.toast-icon i');
+        
+        toastMessage.textContent = message;
+        
+        if (isSuccess) {
+          toastIcon.className = 'fas fa-check-circle text-green-500';
+        } else {
+          toastIcon.className = 'fas fa-exclamation-circle text-red-500';
+        }
+        
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      }
+      
+      function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('hidden');
+        
+        setTimeout(() => {
+          modal.querySelector('.modal-content').classList.add('show');
+        }, 10);
+      }
+      
+      function hideModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.querySelector('.modal-content').classList.remove('show');
+        
+        setTimeout(() => {
+          modal.classList.add('hidden');
+        }, 300);
+      }
+      
+      function showSection(sectionId) {
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+          section.classList.add('hidden');
+        });
+        
+        const targetSection = document.getElementById(sectionId);
+        targetSection.classList.remove('hidden');
+        
+        // Update nav links active state
+        document.querySelectorAll('.desktop-nav-link, .mobile-nav-link').forEach(link => {
+          const isActive = link.dataset.section === sectionId;
+          
+          if (link.classList.contains('desktop-nav-link')) {
+            link.classList.toggle('border-indigo-500', isActive);
+            link.classList.toggle('text-gray-900', isActive);
+            link.classList.toggle('border-transparent', !isActive);
+            link.classList.toggle('text-gray-500', !isActive);
+          } else {
+            link.classList.toggle('bg-indigo-50', isActive);
+            link.classList.toggle('border-indigo-500', isActive);
+            link.classList.toggle('text-indigo-700', isActive);
+            link.classList.toggle('border-transparent', !isActive);
+            link.classList.toggle('text-gray-500', !isActive);
+          }
+        });
+      }
+      
+      // Initialize date for the attendance calendar
+      function setCurrentDate() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = now.toLocaleDateString('es-ES', options);
+      }
+      
+      // Authentication related functions
+      function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        if (!email || !password) {
+          showToast('Por favor complete todos los campos', false);
+          return;
+        }
+        
+        // Simulate login with localStorage
+        const user = {
+          name: 'Admin Usuario',
+          email: email,
+          role: 'admin'
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        
+        // Show dashboard
+        document.getElementById('login-screen').classList.add('hidden');
+        const dashboard = document.getElementById('dashboard');
+        dashboard.classList.remove('hidden');
+        setTimeout(() => {
+          dashboard.classList.add('page-visible');
+          showSection('dashboard-home');
+        }, 100);
+        
+        showToast('Sesión iniciada correctamente');
+      }
+      
+      function handleLogout() {
+        // Remove user from localStorage
+        localStorage.removeItem('currentUser');
+        
+        // Hide dashboard and show login
+        document.getElementById('dashboard').classList.remove('page-visible');
+        
+        setTimeout(() => {
+          document.getElementById('dashboard').classList.add('hidden');
+          const loginScreen = document.getElementById('login-screen');
+          loginScreen.classList.remove('hidden');
+          setTimeout(() => {
+            loginScreen.classList.add('page-visible');
+          }, 100);
+        }, 300);
+        
+        // Reset form
+        document.getElementById('login-form').reset();
+        
+        showToast('Sesión cerrada correctamente');
+      }
+      
+      function handlePasswordRecovery(e) {
+        e.preventDefault();
+        const email = document.getElementById('recovery-email').value;
+        
+        if (!email) {
+          showToast('Por favor ingrese su correo electrónico', false);
+          return;
+        }
+        
+        // Simulating API call
+        showToast('Se ha enviado un enlace de recuperación a su correo');
+        
+        // Go back to login screen
+        document.getElementById('password-recovery').classList.remove('page-visible');
+        
+        setTimeout(() => {
+          document.getElementById('password-recovery').classList.add('hidden');
+          const loginScreen = document.getElementById('login-screen');
+          loginScreen.classList.remove('hidden');
+          setTimeout(() => {
+            loginScreen.classList.add('page-visible');
+          }, 100);
+        }, 300);
+        
+        // Reset form
+        document.getElementById('recovery-form').reset();
+      }
+      
+      // Navigation between login and password recovery
+      function showPasswordRecovery() {
+        document.getElementById('login-screen').classList.remove('page-visible');
+        
+        setTimeout(() => {
+          document.getElementById('login-screen').classList.add('hidden');
+          const recovery = document.getElementById('password-recovery');
+          recovery.classList.remove('hidden');
+          setTimeout(() => {
+            recovery.classList.add('page-visible');
+          }, 100);
+        }, 300);
+      }
+      
+      function showLoginScreen() {
+        document.getElementById('password-recovery').classList.remove('page-visible');
+        
+        setTimeout(() => {
+          document.getElementById('password-recovery').classList.add('hidden');
+          const loginScreen = document.getElementById('login-screen');
+          loginScreen.classList.remove('hidden');
+          setTimeout(() => {
+            loginScreen.classList.add('page-visible');
+          }, 100);
+        }, 300);
+      }
+      
+      // Toggle mobile menu
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+      }
+      
+      // Toggle user dropdown menu
+      function toggleUserMenu() {
+        const userMenu = document.getElementById('user-menu');
+        userMenu.classList.toggle('hidden');
+      }
+      
+      // Personnel modal handlers
+      function openAddPersonalModal() {
+        document.getElementById('personal-modal-title').textContent = 'Añadir Personal';
+        document.getElementById('personal-id').value = '';
+        document.getElementById('personal-form').reset();
+        showModal('personal-modal');
+      }
+      
+      function openEditPersonalModal(id) {
+        document.getElementById('personal-modal-title').textContent = 'Editar Personal';
+        document.getElementById('personal-id').value = id;
+        
+        // Simulate data fetch for editing
+        if (id === "1") {
+          document.getElementById('personal-name').value = 'Juan Pérez';
+          document.getElementById('personal-email').value = 'juan.perez@ejemplo.com';
+          document.getElementById('personal-role').value = 'supervisor';
+          document.getElementById('permission-attendance').checked = true;
+          document.getElementById('permission-reports').checked = true;
+          document.getElementById('permission-admin').checked = false;
+        } else if (id === "2") {
+          document.getElementById('personal-name').value = 'María González';
+          document.getElementById('personal-email').value = 'maria.gonzalez@ejemplo.com';
+          document.getElementById('personal-role').value = 'admin';
+          document.getElementById('permission-attendance').checked = true;
+          document.getElementById('permission-reports').checked = true;
+          document.getElementById('permission-admin').checked = true;
+        } else if (id === "3") {
+          document.getElementById('personal-name').value = 'Carlos Rodríguez';
+          document.getElementById('personal-email').value = 'carlos.rodriguez@ejemplo.com';
+          document.getElementById('personal-role').value = 'operario';
+          document.getElementById('permission-attendance').checked = false;
+          document.getElementById('permission-reports').checked = false;
+          document.getElementById('permission-admin').checked = false;
+        }
+        
+        showModal('personal-modal');
+      }
+      
+      function handleSavePersonal() {
+        const id = document.getElementById('personal-id').value;
+        const name = document.getElementById('personal-name').value;
+        const email = document.getElementById('personal-email').value;
+        const role = document.getElementById('personal-role').value;
+        
+        if (!name || !email || !role) {
+          showToast('Por favor complete todos los campos obligatorios', false);
+          return;
+        }
+        
+        hideModal('personal-modal');
+        
+        if (id) {
+          showToast(`Personal ${name} actualizado correctamente`);
+        } else {
+          showToast(`Personal ${name} añadido correctamente`);
+        }
+      }
+      
+      // Attendance modal handlers
+      function openAddAttendanceModal() {
+        document.getElementById('attendance-modal-title').textContent = 'Registrar Asistencia';
+        document.getElementById('attendance-id').value = '';
+        document.getElementById('attendance-form').reset();
+        
+        // Set default date to today
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        document.getElementById('attendance-date').value = formattedDate;
+        
+        showModal('attendance-modal');
+      }
+      
+      function openEditAttendanceModal(id) {
+        document.getElementById('attendance-modal-title').textContent = 'Editar Asistencia';
+        document.getElementById('attendance-id').value = id;
+        
+        // Simulate data fetch for editing
+        document.getElementById('attendance-date').value = '2025-04-16';
+        
+        if (id === "1" || id === "2") {
+          document.getElementById('attendance-shift').value = 'morning';
+          document.getElementById('attendance-status').value = 'present';
+          
+          // Select the appropriate personnel
+          const select = document.getElementById('attendance-personnel');
+          if (id === "1") {
+            select.value = "1"; // Juan Pérez
+          } else {
+            select.value = "2"; // María González
+          }
+        } else if (id === "3") {
+          document.getElementById('attendance-shift').value = 'afternoon';
+          document.getElementById('attendance-status').value = 'absent';
+          select.value = "3"; // Carlos Rodríguez
+        }
+        
+        showModal('attendance-modal');
+      }
+      
+      function handleSaveAttendance() {
+        const id = document.getElementById('attendance-id').value;
+        const date = document.getElementById('attendance-date').value;
+        const shift = document.getElementById('attendance-shift').value;
+        
+        if (!date || !shift) {
+          showToast('Por favor complete todos los campos obligatorios', false);
+          return;
+        }
+        
+        hideModal('attendance-modal');
+        
+        if (id) {
+          showToast('Registro de asistencia actualizado correctamente');
+        } else {
+          showToast('Asistencia registrada correctamente');
+        }
+      }
+      
+      // User modal handlers
+      function openAddUserModal() {
+        document.getElementById('user-modal-title').textContent = 'Registrar Usuario';
+        document.getElementById('user-id').value = '';
+        document.getElementById('user-form').reset();
+        document.getElementById('user-password-field').style.display = 'block';
+        showModal('user-modal');
+      }
+      
+      function openEditUserModal(id) {
+        document.getElementById('user-modal-title').textContent = 'Editar Usuario';
+        document.getElementById('user-id').value = id;
+        document.getElementById('user-password-field').style.display = 'none';
+        
+        // Simulate data fetch for editing
+        if (id === "1") {
+          document.getElementById('user-name').value = 'Admin Usuario';
+          document.getElementById('user-email').value = 'admin@ejemplo.com';
+          document.getElementById('user-type').value = 'admin';
+          document.getElementById('user-status').value = 'active';
+        } else if (id === "2") {
+          document.getElementById('user-name').value = 'Juan Pérez';
+          document.getElementById('user-email').value = 'juan@ejemplo.com';
+          document.getElementById('user-type').value = 'supervisor';
+          document.getElementById('user-status').value = 'active';
+        } else if (id === "3") {
+          document.getElementById('user-name').value = 'María González';
+          document.getElementById('user-email').value = 'maria@ejemplo.com';
+          document.getElementById('user-type').value = 'operario';
+          document.getElementById('user-status').value = 'inactive';
+        }
+        
+        showModal('user-modal');
+      }
+      
+      function handleSaveUser() {
+        const id = document.getElementById('user-id').value;
+        const name = document.getElementById('user-name').value;
+        const email = document.getElementById('user-email').value;
+        const password = document.getElementById('user-password').value;
+        const type = document.getElementById('user-type').value;
+        
+        if (!name || !email || (!id && !password) || !type) {
+          showToast('Por favor complete todos los campos obligatorios', false);
+          return;
+        }
+        
+        hideModal('user-modal');
+        
+        if (id) {
+          showToast(`Usuario ${name} actualizado correctamente`);
+        } else {
+          showToast(`Usuario ${name} registrado correctamente`);
+        }
+      }
+      
+      // Delete confirmation handlers
+      function showDeleteConfirmation(type, id, name) {
+        document.getElementById('confirmation-title').textContent = `¿Eliminar ${type}?`;
+        document.getElementById('confirmation-message').textContent = `Esta acción eliminará permanentemente a "${name}". Esta acción no se puede deshacer.`;
+        
+        // Store data for the confirm action
+        document.getElementById('confirm-action').dataset.type = type;
+        document.getElementById('confirm-action').dataset.id = id;
+        
+        showModal('confirmation-modal');
+      }
+      
+      function handleConfirmDelete() {
+        const type = document.getElementById('confirm-action').dataset.type;
+        const id = document.getElementById('confirm-action').dataset.id;
+        
+        hideModal('confirmation-modal');
+        
+        if (type === 'personal') {
+          showToast('Personal eliminado correctamente');
+        } else if (type === 'attendance') {
+          showToast('Registro de asistencia eliminado correctamente');
+        } else if (type === 'user') {
+          showToast('Usuario eliminado correctamente');
+        }
+      }
+      
+      // Initialize flatpickr date picker
+      function initDatePicker() {
+        if (document.getElementById('attendance-date')) {
+          flatpickr('#attendance-date', {
+            locale: 'es',
+            dateFormat: 'Y-m-d',
+            defaultDate: new Date()
+          });
+        }
+        
+        if (document.getElementById('attendance-calendar')) {
+          flatpickr('#attendance-calendar', {
+            locale: 'es',
+            inline: true,
+            mode: 'multiple',
+            dateFormat: 'Y-m-d',
+            defaultDate: ['2025-04-16', '2025-04-17', '2025-04-18'] // Example dates with attendance
+          });
+        }
+      }
+      
+      // CSV Export/Import handlers
+      function handleExportCSV(type) {
+        showToast(`Exportando datos de ${type}...`);
+        
+        // In a real app, this would trigger a download
+        setTimeout(() => {
+          showToast(`Datos de ${type} exportados correctamente`);
+        }, 1000);
+      }
+      
+      function handleFileUpload(inputId, filenameId) {
+        const input = document.getElementById(inputId);
+        const filenameSpan = document.getElementById(filenameId);
+        
+        input.addEventListener('change', function() {
+          if (input.files.length > 0) {
+            filenameSpan.textContent = input.files[0].name;
+            showToast(`Archivo seleccionado: ${input.files[0].name}`);
+          }
+        });
+      }
+      
+      // Event listeners
+      // Login and authentication
+      document.getElementById('login-form').addEventListener('submit', handleLogin);
+      document.getElementById('logout-button').addEventListener('click', handleLogout);
+      document.getElementById('mobile-logout-button').addEventListener('click', handleLogout);
+      document.getElementById('forgot-password-link').addEventListener('click', showPasswordRecovery);
+      document.getElementById('back-to-login').addEventListener('click', showLoginScreen);
+      document.getElementById('recovery-form').addEventListener('submit', handlePasswordRecovery);
+      
+      // Navigation and menu
+      document.getElementById('mobile-menu-button').addEventListener('click', toggleMobileMenu);
+      document.getElementById('user-menu-button').addEventListener('click', toggleUserMenu);
+      
+      document.querySelectorAll('.nav-link, .desktop-nav-link, .mobile-nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+          const section = this.dataset.section;
+          showSection(section);
+          
+          // Hide mobile menu after click
+          if (document.getElementById('mobile-menu').classList.contains('md:hidden')) {
+            document.getElementById('mobile-menu').classList.add('hidden');
+          }
+        });
+      });
+      
+      // Personal modal
+      document.getElementById('add-personal-button').addEventListener('click', openAddPersonalModal);
+      document.querySelectorAll('.edit-personal-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.dataset.id;
+          openEditPersonalModal(id);
+        });
+      });
+      document.getElementById('save-personal').addEventListener('click', handleSavePersonal);
+      document.getElementById('cancel-personal').addEventListener('click', () => hideModal('personal-modal'));
+      
+      // Attendance modal
+      document.getElementById('add-attendance-button').addEventListener('click', openAddAttendanceModal);
+      document.querySelectorAll('.edit-attendance-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.dataset.id;
+          openEditAttendanceModal(id);
+        });
+      });
+      document.getElementById('save-attendance').addEventListener('click', handleSaveAttendance);
+      document.getElementById('cancel-attendance').addEventListener('click', () => hideModal('attendance-modal'));
+      
+      // User modal
+      document.getElementById('add-user-button').addEventListener('click', openAddUserModal);
+      document.querySelectorAll('.edit-user-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.dataset.id;
+          openEditUserModal(id);
+        });
+      });
+      document.getElementById('save-user').addEventListener('click', handleSaveUser);
+      document.getElementById('cancel-user').addEventListener('click', () => hideModal('user-modal'));
+      
+      // Delete handlers
+      document.querySelectorAll('.delete-personal-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.dataset.id;
+          let name = "este personal";
+          
+          if (id === "1") name = "Juan Pérez";
+          else if (id === "2") name = "María González";
+          else if (id === "3") name = "Carlos Rodríguez";
+          
+          showDeleteConfirmation('personal', id, name);
+        });
+      });
+      
+      document.querySelectorAll('.delete-attendance-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.dataset.id;
+          showDeleteConfirmation('attendance', id, 'este registro de asistencia');
+        });
+      });
+      
+      document.querySelectorAll('.delete-user-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const id = this.dataset.id;
+          let name = "este usuario";
+          
+          if (id === "1") name = "Admin Usuario";
+          else if (id === "2") name = "Juan Pérez";
+          else if (id === "3") name = "María González";
+          
+          showDeleteConfirmation('user', id, name);
+        });
+      });
+      
+      document.getElementById('confirm-action').addEventListener('click', handleConfirmDelete);
+      document.getElementById('cancel-action').addEventListener('click', () => hideModal('confirmation-modal'));
+      
+      // Settings handlers
+      document.getElementById('save-settings').addEventListener('click', function() {
+        showToast('Configuración guardada correctamente');
+      });
+      
+      document.getElementById('export-personal').addEventListener('click', () => handleExportCSV('personal'));
+      document.getElementById('export-attendance').addEventListener('click', () => handleExportCSV('asistencia'));
+      document.getElementById('export-users').addEventListener('click', () => handleExportCSV('usuarios'));
+      
+      // Initialize file upload handlers
+      handleFileUpload('import-personal-file', 'import-personal-filename');
+      handleFileUpload('import-attendance-file', 'import-attendance-filename');
+      handleFileUpload('import-users-file', 'import-users-filename');
+      
+      // Initialize datepickers
+      initDatePicker();
+      
+      // Set current date display
+      setCurrentDate();
+      
+      // Initialize the app by showing login
+      document.getElementById('login-screen').classList.add('page-visible');
+      
+      // Check if user is logged in (for demo purposes)
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('page-visible');
+        const dashboard = document.getElementById('dashboard');
+        dashboard.classList.remove('hidden');
+        dashboard.classList.add('page-visible');
+        showSection('dashboard-home');
+      }
+    });
+  </script>
+</body>
+</html>

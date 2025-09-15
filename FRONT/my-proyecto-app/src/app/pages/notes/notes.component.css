@@ -1,0 +1,109 @@
+/* Fondo y centrado de la tarjeta */
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #f3f4f6; /* gris claro */
+}
+
+/* Tarjeta */
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Encabezado */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 8px 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937; /* gris oscuro */
+}
+
+.header p {
+  margin: 0;
+  color: #6b7280; /* gris medio */
+  font-size: 14px;
+}
+
+/* Logo centrado y más grande */
+.logo {
+  display: block;
+  height: 64px;         /* ajusta el tamaño aquí */
+  max-width: 100%;
+  margin: 0 auto 8px;   /* centra la imagen */
+  object-fit: contain;  /* mantiene proporciones */
+}
+
+/* Campos */
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  width: 95%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #2563eb;   /* azul */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Botón */
+.btn {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb; /* azul */
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+/* Pie */
+.footer {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.footer a {
+  font-weight: 700;
+  font-size: 13px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: #1d4ed8;
+}

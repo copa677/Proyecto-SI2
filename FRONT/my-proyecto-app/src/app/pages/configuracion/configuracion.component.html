@@ -1,0 +1,158 @@
+<section class="py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-900">Configuración</h2>
+    <p class="mt-1 text-sm text-gray-600">Gestione la configuración del sistema</p>
+
+    <!-- Importación / Exportación -->
+    <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Importación/Exportación de Datos</h3>
+
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Exportar -->
+          <div class="bg-gray-50 p-5 rounded-lg">
+            <h4 class="text-base font-medium text-gray-900">Exportar Datos</h4>
+            <p class="mt-1 text-sm text-gray-500">Descargue los datos del sistema en formato CSV</p>
+            <div class="mt-4 space-y-3">
+              <button class="btn-ghost"
+                      (click)="exportar('personal')">
+                <i class="fas fa-download mr-2"></i> Exportar Personal
+              </button>
+              <button class="btn-ghost"
+                      (click)="exportar('asistencia')">
+                <i class="fas fa-download mr-2"></i> Exportar Asistencia
+              </button>
+              <button class="btn-ghost"
+                      (click)="exportar('usuarios')">
+                <i class="fas fa-download mr-2"></i> Exportar Usuarios
+              </button>
+            </div>
+          </div>
+
+          <!-- Importar -->
+          <div class="bg-gray-50 p-5 rounded-lg">
+            <h4 class="text-base font-medium text-gray-900">Importar Datos</h4>
+            <p class="mt-1 text-sm text-gray-500">Suba archivos CSV para importar datos al sistema</p>
+
+            <div class="mt-4 space-y-4">
+              <!-- Personal -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Personal</label>
+                <div class="mt-1 flex items-center">
+                  <input type="file"
+                         class="sr-only"
+                         id="import-personal-file"
+                         accept=".csv"
+                         (change)="onFileSelected('personal', $event)">
+                  <label for="import-personal-file" class="btn-ghost cursor-pointer">
+                    <i class="fas fa-upload mr-2"></i> Seleccionar archivo
+                  </label>
+                  <span class="ml-3 text-sm text-gray-500 truncate max-w-[14rem]">
+                    {{ files.personal?.name || '' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Asistencia -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Asistencia</label>
+                <div class="mt-1 flex items-center">
+                  <input type="file"
+                         class="sr-only"
+                         id="import-attendance-file"
+                         accept=".csv"
+                         (change)="onFileSelected('asistencia', $event)">
+                  <label for="import-attendance-file" class="btn-ghost cursor-pointer">
+                    <i class="fas fa-upload mr-2"></i> Seleccionar archivo
+                  </label>
+                  <span class="ml-3 text-sm text-gray-500 truncate max-w-[14rem]">
+                    {{ files.asistencia?.name || '' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Usuarios -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Usuarios</label>
+                <div class="mt-1 flex items-center">
+                  <input type="file"
+                         class="sr-only"
+                         id="import-users-file"
+                         accept=".csv"
+                         (change)="onFileSelected('usuarios', $event)">
+                  <label for="import-users-file" class="btn-ghost cursor-pointer">
+                    <i class="fas fa-upload mr-2"></i> Seleccionar archivo
+                  </label>
+                  <span class="ml-3 text-sm text-gray-500 truncate max-w-[14rem]">
+                    {{ files.usuarios?.name || '' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="pt-2">
+                <button class="btn-primary"
+                        (click)="importarSeleccionados()">
+                  <i class="fas fa-file-import mr-2"></i> Importar Seleccionados
+                </button>
+              </div>
+            </div>
+          </div>
+        </div> <!-- /grid -->
+      </div>
+    </div>
+
+    <!-- Preferencias -->
+    <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Preferencias del Sistema</h3>
+
+        <div class="mt-5 space-y-5">
+          <!-- Notificaciones -->
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="text-base font-medium text-gray-900">Notificaciones por Email</h4>
+              <p class="text-sm text-gray-500">Recibir notificaciones sobre asistencia y turnos</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="prefs.notificaciones">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Modo oscuro -->
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="text-base font-medium text-gray-900">Modo Oscuro</h4>
+              <p class="text-sm text-gray-500">Cambiar la apariencia del sistema</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="prefs.darkMode">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Idioma -->
+          <div>
+            <h4 class="text-base font-medium text-gray-900">Idioma del Sistema</h4>
+            <p class="text-sm text-gray-500">Seleccione el idioma preferido</p>
+            <select class="mt-2 form-input block w-full sm:text-sm rounded-md"
+                    [(ngModel)]="prefs.idioma">
+              <option value="es">Español</option>
+              <option value="en">Inglés</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button class="btn-primary" (click)="guardarPreferencias()">
+            Guardar Cambios
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast simple -->
+    <div class="toast" [class.show]="toast.show">{{ toast.msg }}</div>
+
+  </div>
+</section>

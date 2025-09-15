@@ -1,0 +1,51 @@
+<!-- notes.component.html -->
+
+<div id="login-screen" class="page">
+  <div class="card">
+    <div class="header">
+      <img
+        src="assets/login/img/login.png"
+        alt="TextilTech Logo"
+        class="logo"
+      />
+      <h1>Sistema de Manufactura de Textiles</h1>
+    </div>
+
+    <div class="field">
+      <label for="username">Usuario</label>
+      <input
+        id="username"
+        type="text"
+        placeholder="Email o nombre de usuario"
+        [(ngModel)]="username"
+        name="username"
+        (keyup.enter)="login()"
+      />
+    </div>
+
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="************"
+        [(ngModel)]="password"
+        name="password"
+        (keyup.enter)="login()"
+      />
+    </div>
+
+    <button
+      type="button"
+      class="btn"
+      (click)="login()"
+      [disabled]="!username || !password"
+    >
+      Iniciar sesión
+    </button>
+
+    <div class="footer">
+      <a routerLink="/recover_password">¿Olvidaste tu contraseña?</a>
+    </div>
+  </div>
+</div>
