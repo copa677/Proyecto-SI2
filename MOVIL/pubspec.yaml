@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   file_picker: ^10.3.3
   path_provider: ^2.1.5
+  # para hacer peticiones http
+  # Nuevo paquete
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:

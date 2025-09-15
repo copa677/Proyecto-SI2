@@ -1,4 +1,49 @@
 import 'package:flutter/material.dart';
+import '../services/personal_service.dart';
+import '../theme/app_colors.dart';
+
+/// Modelo local para representar a un empleado.
+/// Usa los campos enviados por el backend.
+class PersonalData {
+  final int idUsuario;
+  final String nombre;
+  final String direccion;
+  final String telefono;
+  final String rol;
+  final String fechaNacimiento;
+  final String estado;
+
+  PersonalData({
+    required this.idUsuario,
+    required this.nombre,
+    required this.direccion,
+    required this.telefono,
+    required this.rol,
+    required this.fechaNacimiento,
+    required this.estado,
+  });
+
+  /// Construye desde el JSON retornado por obtener_empleados.
+  factory PersonalData.fromJson(Map<String, dynamic> json) {
+    return PersonalData(
+      idUsuario: json['id_usuario'] ?? 0,
+      nombre: json['nombre_completo'] ?? '',
+      direccion: json['direccion'] ?? '',
+      telefono: json['telefono'] ?? '',
+      rol: json['rol'] ?? '',
+      fechaNacimiento: json['fecha_nacimiento'] ?? '',
+      estado: json['estado'] ?? '',
+    );
+  }
+
+  /// Iniciales para el avatar.
+  String get iniciales {
+    if (nombre.trim().isEmpty) return '';
+    final partes = nombre.split(' ');
+    if (partes.length == 1) return partes.first.substring(0, 2).toUpperCase();
+    return (partes.first[0] + partes.last[0]).toUpperCase();
+  }
+}
 
 class PersonalGestion extends StatefulWidget {
   const PersonalGestion({Key? key}) : super(key: key);
@@ -8,47 +53,43 @@ class PersonalGestion extends StatefulWidget {
 }
 
 class _PersonalGestionState extends State<PersonalGestion> {
-  final TextEditingController _searchController = TextEditingController();
-  final ScrollController _horizontalScrollController = ScrollController();
-  String _selectedRole = 'Todos los roles';
+  final PersonalService _personalService = PersonalService();
 
-  final List<String> _roles = [
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _horizontalController = ScrollController();
+
+  String _selectedRole = 'Todos los roles';
+  final List<String> _roles = const [
     'Todos los roles',
     'Supervisor',
     'Administrador',
     'Operario',
   ];
 
-  final List<PersonalData> _personalList = [
-    PersonalData(
-      id: '001',
-      nombre: 'Juan Perez',
-      email: 'juan.perez@ejemplo.com',
-      rol: 'Supervisor',
-      permisos: ['Asistencia', 'Reportes'],
-      iniciales: 'JP',
-      color: Colors.blue,
-    ),
-    PersonalData(
-      id: '002',
-      nombre: 'Maria Gonzalez',
-      email: 'maria.gonzalez@ejemplo.com',
-      rol: 'Administrador',
-      permisos: ['Asistencia', 'Reportes', 'Admin'],
-      iniciales: 'MG',
-      color: Colors.purple,
-    ),
-    PersonalData(
-      id: '003',
-      nombre: 'Carlos Rodriguez',
-      email: 'carlos.rodriguez@ejemplo.com',
-      rol: 'Operario',
-      permisos: ['Básico'],
-      iniciales: 'CR',
-      color: Colors.orange,
-    ),
-  ];
+  List<PersonalData> _personalList = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPersonal();
+  }
+
+  Future<void> _loadPersonal() async {
+    try {
+      final data = await _personalService.getEmpleados();
+      setState(() {
+        _personalList = data
+            .map<PersonalData>((e) => PersonalData.fromJson(e))
+            .toList();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al obtener personal: $e')));
+    }
+  }
+
+  /// Devuelve la lista filtrada según el rol y el texto de búsqueda.
   List<PersonalData> get filteredPersonal {
     List<PersonalData> filtered = _personalList;
 
@@ -59,15 +100,12 @@ class _PersonalGestionState extends State<PersonalGestion> {
     }
 
     if (_searchController.text.isNotEmpty) {
+      final query = _searchController.text.toLowerCase();
       filtered = filtered
           .where(
             (person) =>
-                person.nombre.toLowerCase().contains(
-                  _searchController.text.toLowerCase(),
-                ) ||
-                person.email.toLowerCase().contains(
-                  _searchController.text.toLowerCase(),
-                ),
+                person.nombre.toLowerCase().contains(query) ||
+                person.telefono.toLowerCase().contains(query),
           )
           .toList();
     }
@@ -75,34 +113,309 @@ class _PersonalGestionState extends State<PersonalGestion> {
     return filtered;
   }
 
+  /// Abre un diálogo para registrar un nuevo empleado y llama al servicio.
+  Future<void> _registrarPersonalDialog() async {
+    final formKey = GlobalKey<FormState>();
+    String nombre = '';
+    String direccion = '';
+    String telefono = '';
+    String rol = _roles[1]; // por defecto Supervisor
+    String fechaNac = '';
+    String estado = 'Activo';
+    String username = '';
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Registrar empleado'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre completo',
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese nombre' : null,
+                    onChanged: (v) => nombre = v,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Dirección'),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese dirección' : null,
+                    onChanged: (v) => direccion = v,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Teléfono'),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese teléfono' : null,
+                    onChanged: (v) => telefono = v,
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: rol,
+                    decoration: const InputDecoration(labelText: 'Rol'),
+                    items: _roles
+                        .where((r) => r != 'Todos los roles')
+                        .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                        .toList(),
+                    onChanged: (v) => rol = v ?? rol,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha de nacimiento (aaaa-mm-dd)',
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese fecha' : null,
+                    onChanged: (v) => fechaNac = v,
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: estado,
+                    decoration: const InputDecoration(labelText: 'Estado'),
+                    items: const [
+                      DropdownMenuItem(value: 'Activo', child: Text('Activo')),
+                      DropdownMenuItem(
+                        value: 'Inactivo',
+                        child: Text('Inactivo'),
+                      ),
+                    ],
+                    onChanged: (v) => estado = v ?? estado,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Usuario (username)',
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese usuario' : null,
+                    onChanged: (v) => username = v,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState?.validate() ?? false) {
+                  final datos = {
+                    'nombre_completo': nombre,
+                    'direccion': direccion,
+                    'telefono': telefono,
+                    'rol': rol,
+                    'fecha_nacimiento': fechaNac,
+                    'estado': estado,
+                    'username': username,
+                  };
+                  final ok = await _personalService.registrarEmpleado(datos);
+                  Navigator.of(context).pop();
+                  if (ok) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Empleado registrado correctamente'),
+                      ),
+                    );
+                    await _loadPersonal();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Error al registrar empleado'),
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Abre un diálogo para editar los datos de un empleado.
+  Future<void> _editarPersonalDialog(PersonalData persona) async {
+    final formKey = GlobalKey<FormState>();
+    String nombre = persona.nombre;
+    String direccion = persona.direccion;
+    String telefono = persona.telefono;
+    String rol = persona.rol;
+    String fechaNac = persona.fechaNacimiento;
+    String estado = persona.estado;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar empleado'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    initialValue: nombre,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre completo',
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese nombre' : null,
+                    onChanged: (v) => nombre = v,
+                  ),
+                  TextFormField(
+                    initialValue: direccion,
+                    decoration: const InputDecoration(labelText: 'Dirección'),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese dirección' : null,
+                    onChanged: (v) => direccion = v,
+                  ),
+                  TextFormField(
+                    initialValue: telefono,
+                    decoration: const InputDecoration(labelText: 'Teléfono'),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese teléfono' : null,
+                    onChanged: (v) => telefono = v,
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: rol,
+                    decoration: const InputDecoration(labelText: 'Rol'),
+                    items: _roles
+                        .where((r) => r != 'Todos los roles')
+                        .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                        .toList(),
+                    onChanged: (v) => rol = v ?? rol,
+                  ),
+                  TextFormField(
+                    initialValue: fechaNac,
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha de nacimiento (aaaa-mm-dd)',
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Ingrese fecha' : null,
+                    onChanged: (v) => fechaNac = v,
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: estado,
+                    decoration: const InputDecoration(labelText: 'Estado'),
+                    items: const [
+                      DropdownMenuItem(value: 'Activo', child: Text('Activo')),
+                      DropdownMenuItem(
+                        value: 'Inactivo',
+                        child: Text('Inactivo'),
+                      ),
+                    ],
+                    onChanged: (v) => estado = v ?? estado,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState?.validate() ?? false) {
+                  final datos = {
+                    'nombre_completo': nombre,
+                    'direccion': direccion,
+                    'telefono': telefono,
+                    'rol': rol,
+                    'fecha_nacimiento': fechaNac,
+                    'estado': estado,
+                    'id_usuario': persona.idUsuario,
+                  };
+                  final ok = await _personalService.actualizarEmpleado(datos);
+                  Navigator.of(context).pop();
+                  if (ok) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Empleado actualizado correctamente'),
+                      ),
+                    );
+                    await _loadPersonal();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Error al actualizar empleado'),
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Elimina un empleado después de confirmar.
+  Future<void> _eliminarPersonal(PersonalData persona) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Confirmar eliminación'),
+        content: Text(
+          '¿Eliminar a ${persona.nombre}? Esta acción borrará su usuario.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed ?? false) {
+      final ok = await _personalService.eliminarEmpleado(persona.idUsuario);
+      if (ok) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Empleado eliminado')));
+        await _loadPersonal();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al eliminar empleado')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.grisMuyClaro,
       appBar: AppBar(
         title: const Text(
           'Gestión de Personal',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF2C3E50),
+            color: AppColors.negroTexto,
           ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-
-        // botones de perfil eliminado
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.person, color: Color(0xFF2C3E50)),
-        //     onPressed: () {},
-        //   ),
-        // ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header con descripción y botón
+          // Header con descripción y botón de añadir
           Container(
             width: double.infinity,
             color: Colors.white,
@@ -112,27 +425,24 @@ class _PersonalGestionState extends State<PersonalGestion> {
               children: [
                 const Text(
                   'Administre los datos del personal de la empresa',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6C757D)),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.grisTextoSecundario,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Navegación a añadir personal
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Función añadir personal'),
-                        ),
-                      );
-                    },
+                    onPressed: _registrarPersonalDialog,
+                    //onPressed: null,
                     icon: const Icon(Icons.add, color: Colors.white),
                     label: const Text(
-                      'Añadir Personal',
+                      'Añadir personal',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007BFF),
+                      backgroundColor: AppColors.azulPrincipal,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
@@ -144,7 +454,7 @@ class _PersonalGestionState extends State<PersonalGestion> {
             ),
           ),
 
-          // Barra de búsqueda y filtros
+          // Búsqueda y filtros
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
@@ -153,27 +463,26 @@ class _PersonalGestionState extends State<PersonalGestion> {
                 // Barra de búsqueda
                 TextField(
                   controller: _searchController,
-                  onChanged: (value) => setState(() {}),
+                  onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
                     hintText: 'Buscar personal...',
                     prefixIcon: const Icon(
                       Icons.search,
-                      color: Color(0xFF6C757D),
+                      color: AppColors.grisTextoSecundario,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(6),
-                      borderSide: const BorderSide(color: Color(0xFFDEE2E6)),
+                      borderSide: const BorderSide(color: AppColors.grisLineas),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(6),
-                      borderSide: const BorderSide(color: Color(0xFFDEE2E6)),
+                      borderSide: const BorderSide(color: AppColors.grisLineas),
                     ),
                     filled: true,
                     fillColor: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 12),
-
                 // Filtro por rol
                 Row(
                   children: [
@@ -181,7 +490,7 @@ class _PersonalGestionState extends State<PersonalGestion> {
                       'Filtrar por:',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF495057),
+                        color: AppColors.negroTexto,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -189,28 +498,26 @@ class _PersonalGestionState extends State<PersonalGestion> {
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFFDEE2E6)),
+                          border: Border.all(color: AppColors.grisLineas),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: DropdownButton<String>(
                           value: _selectedRole,
                           isExpanded: true,
                           underline: Container(),
-                          onChanged: (String? newValue) {
+                          onChanged: (value) {
                             setState(() {
-                              _selectedRole = newValue!;
+                              _selectedRole = value ?? 'Todos los roles';
                             });
                           },
-                          items: _roles.map<DropdownMenuItem<String>>((
-                            String value,
-                          ) {
+                          items: _roles.map((role) {
                             return DropdownMenuItem<String>(
-                              value: value,
+                              value: role,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                 ),
-                                child: Text(value),
+                                child: Text(role),
                               ),
                             );
                           }).toList(),
@@ -223,123 +530,62 @@ class _PersonalGestionState extends State<PersonalGestion> {
             ),
           ),
 
-          // Lista de personal
+          // Tabla de resultados
           Expanded(
-            child: Container(
-              color: Colors.white,
-              child: Column(
-                children: [
-                  // Tabla completa con scroll sincronizado
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      controller: _horizontalScrollController,
-                      child: SizedBox(
-                        width: 720,
-                        child: Column(
-                          children: [
-                            // Header de la tabla
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFE9ECEF)),
-                                ),
-                              ),
-                              child: Row(
-                                children: const [
-                                  SizedBox(
-                                    width: 170,
-                                    child: Text('NOMBRE', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
-                                  ),
-                                  SizedBox(
-                                    width: 180,
-                                    child: Text('EMAIL', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
-                                  ),
-                                  SizedBox(
-                                    width: 110,
-                                    child: Text('ROL', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
-                                  ),
-                                  SizedBox(
-                                    width: 140,
-                                    child: Text('PERMISOS', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
-                                  ),
-                                  SizedBox(
-                                    width: 90,
-                                    child: Text('ACCIONES', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF495057))),
-                                  ),
-                                ],
-                              ),
+            child: SingleChildScrollView(
+              controller: _horizontalController,
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Iniciales')),
+                  DataColumn(label: Text('Nombre')),
+                  DataColumn(label: Text('Teléfono')),
+                  DataColumn(label: Text('Rol')),
+                  DataColumn(label: Text('Estado')),
+                  DataColumn(label: Text('Acciones')),
+                ],
+                rows: filteredPersonal.map((persona) {
+                  return DataRow(
+                    cells: [
+                      DataCell(
+                        CircleAvatar(
+                          backgroundColor: AppColors.azulClaro.withOpacity(0.2),
+                          child: Text(
+                            persona.iniciales,
+                            style: const TextStyle(
+                              color: AppColors.azulPrincipal,
+                              fontWeight: FontWeight.bold,
                             ),
-
-                            // Lista de empleados
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: filteredPersonal.length,
-                                itemBuilder: (context, index) {
-                                  final person = filteredPersonal[index];
-                                  return PersonalCard(person: person);
-                                },
+                          ),
+                        ),
+                      ),
+                      DataCell(Text(persona.nombre)),
+                      DataCell(Text(persona.telefono)),
+                      DataCell(Text(persona.rol)),
+                      DataCell(Text(persona.estado)),
+                      DataCell(
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.edit,
+                                color: AppColors.azulPrincipal,
                               ),
+                              onPressed: () => _editarPersonalDialog(persona),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.redAccent,
+                              ),
+                              onPressed: () => _eliminarPersonal(persona),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
-
-                  // Footer con paginación
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      border: Border(top: BorderSide(color: Color(0xFFE9ECEF))),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Mostrando ${filteredPersonal.length} de ${_personalList.length} resultados',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF6C757D),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: null,
-                              icon: const Icon(
-                                Icons.chevron_left,
-                                color: Color(0xFFADB5BD),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF007BFF),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                '1',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: null,
-                              icon: const Icon(
-                                Icons.chevron_right,
-                                color: Color(0xFFADB5BD),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                }).toList(),
               ),
             ),
           ),
@@ -351,234 +597,7 @@ class _PersonalGestionState extends State<PersonalGestion> {
   @override
   void dispose() {
     _searchController.dispose();
-    _horizontalScrollController.dispose();
+    _horizontalController.dispose();
     super.dispose();
   }
-}
-
-class PersonalCard extends StatelessWidget {
-  final PersonalData person;
-
-  const PersonalCard({Key? key, required this.person}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 720,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE9ECEF))),
-      ),
-      child: Row(
-        children: [
-          // Avatar e información personal
-          SizedBox(
-            width: 170,
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: person.color,
-                  radius: 16,
-                  child: Text(
-                    person.iniciales,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        person.nombre,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF495057),
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        'ID: ${person.id}',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF6C757D),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Email
-          SizedBox(
-            width: 180,
-            child: Text(
-              person.email,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF495057)),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
-          // Rol
-          SizedBox(
-            width: 110,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: _getRoleColor(person.rol),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                person.rol,
-                style: const TextStyle(
-                  fontSize: 10,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-
-          // Permisos
-          SizedBox(
-            width: 140,
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: person.permisos.take(2).map((permiso) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE7F3FF),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: const Color(0xFF007BFF),
-                      width: 0.5,
-                    ),
-                  ),
-                  child: Text(
-                    permiso,
-                    style: const TextStyle(
-                      fontSize: 9,
-                      color: Color(0xFF007BFF),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-
-          // Acciones
-          SizedBox(
-            width: 90,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Editar ${person.nombre}')),
-                    );
-                  },
-                  child: const Icon(
-                    Icons.edit,
-                    size: 18,
-                    color: Color(0xFF007BFF),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    _showDeleteDialog(context, person);
-                  },
-                  child: const Icon(
-                    Icons.delete,
-                    size: 18,
-                    color: Color(0xFFDC3545),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _getRoleColor(String role) {
-    switch (role) {
-      case 'Supervisor':
-        return const Color(0xFF28A745);
-      case 'Administrador':
-        return const Color(0xFF007BFF);
-      case 'Operario':
-        return const Color(0xFF6C757D);
-      default:
-        return const Color(0xFF6C757D);
-    }
-  }
-
-  void _showDeleteDialog(BuildContext context, PersonalData person) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirmar eliminación'),
-          content: Text(
-            '¿Está seguro de que desea eliminar a ${person.nombre}?',
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: const Text(
-                'Eliminar',
-                style: TextStyle(color: Color(0xFFDC3545)),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${person.nombre} eliminado')),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class PersonalData {
-  final String id;
-  final String nombre;
-  final String email;
-  final String rol;
-  final List<String> permisos;
-  final String iniciales;
-  final Color color;
-
-  PersonalData({
-    required this.id,
-    required this.nombre,
-    required this.email,
-    required this.rol,
-    required this.permisos,
-    required this.iniciales,
-    required this.color,
-  });
 }
