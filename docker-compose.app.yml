@@ -1,17 +1,17 @@
 services:
   web:
-    build: ./back_Sistema_Venta_IA_Rec.Voz/
+    build: ./BACK/
     container_name: django_backend
     command: >
       python manage.py runserver 0.0.0.0:8000
     environment:
       - POSTGRES_HOST=postgres
-      - POSTGRES_DB=DB_PuntoVenta
+      - POSTGRES_DB=WF
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=071104
+      - POSTGRES_PASSWORD=password
       - CORS_ALLOWED_ORIGINS=http://localhost:4000,http://angular-app:4000
     volumes:
-      - ./back_Sistema_Venta_IA_Rec.Voz:/app
+      - ./BACK:/app
     ports:
       - "8000:8000"
     stdin_open: true
@@ -23,7 +23,7 @@ services:
       - frontend
 
   angular-app:
-    build: ./front_Sistema_Venta_IA_Rec.Voz/
+    build: ./FRONT/my-proyecto-app/
     container_name: angular_frontend
     ports:
       - "4000:4000"
