@@ -7,14 +7,14 @@ services:
     restart: always
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=071104 
-      - POSTGRES_DB=DB_PuntoVenta
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=WF
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d DB_PuntoVenta"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d WF"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      - ./back_Sistema_Venta_IA_Rec.Voz/rp.sql:/tmp/rp.sql
+      - ./BACK/rp.sql:/tmp/rp.sql
     ports:
       - "5050:80"
     user: "5050:5050"
