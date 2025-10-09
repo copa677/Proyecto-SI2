@@ -1,4 +1,7 @@
-# Archivos a ignorar
-.env
-*.pyc
+# Ignorar archivos temporales y compilados de Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+*.sqlite3
