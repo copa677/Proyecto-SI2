@@ -58,7 +58,12 @@ export class NotesComponent {
           return;
         }
 
+        // Limpiar cualquier dato previo y guardar el nuevo token y username
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
         localStorage.setItem('token', token);
+        localStorage.setItem('username', this.username.trim()); // Guardar el username actual
+        
         this.toastr.success('¡Bienvenido!', 'Inicio de sesión exitoso', {
           positionClass: 'toast-bottom-right',
           timeOut: 2000,

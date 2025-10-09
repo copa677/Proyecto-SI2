@@ -7,6 +7,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { PersonalComponent } from './pages/personal/personal.component';
 import { AsistenciaComponent } from './pages/asistencia/asistencia.component';
 import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
+import { BitacoraComponent } from './pages/bitacora/bitacora.component';
 import { authGuard } from './guards/auth.guard';
 
 
@@ -19,6 +20,7 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'personal', component: PersonalComponent },
       { path: 'asistencia', component: AsistenciaComponent },
+      { path: 'bitacora', component: BitacoraComponent },
       { path: 'configuracion', component: ConfiguracionComponent }
     ]
   },

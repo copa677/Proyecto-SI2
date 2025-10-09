@@ -149,3 +149,91 @@ def obtener_asistencias(request):
             "error": "Error al obtener las asistencias",
             "detalle": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['PUT', 'PATCH'])
+def actualizar_asistencia(request, id_control):
+    try:
+        # Buscar la asistencia por ID
+        asist = get_object_or_404(asistencia, id_control=id_control)
+        
+        # Obtener datos del request
+        nombre = request.data.get('nombre')
+        fecha = request.data.get('fecha')
+        turno_nombre = request.data.get('turno')
+        estado = request.data.get('estado')
+        
+        # Actualizar fecha si se proporciona
+        if fecha:
+            asist.fecha = fecha
+        
+        # Actualizar estado si se proporciona
+        if estado:
+            estados_permitidos = ['Presente', 'Ausente', 'Tarde', 'Licencia']
+            if estado not in estados_permitidos:
+                return Response({
+                    "error": f"Estado debe ser uno de: {', '.join(estados_permitidos)}"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            asist.estado = estado
+        
+        # Actualizar personal si se proporciona
+        if nombre:
+            try:
+                personal_obj = personal.objects.get(nombre_completo=nombre)
+                asist.id_personal = personal_obj.id
+            except personal.DoesNotExist:
+                return Response({
+                    "error": f"El personal con nombre '{nombre}' no existe."
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Actualizar turno si se proporciona
+        if turno_nombre:
+            try:
+                turno_obj = turnos.objects.get(turno=turno_nombre, estado='activo')
+                asist.id_turno = turno_obj.id
+            except turnos.DoesNotExist:
+                return Response({
+                    "error": f"No se encontró un turno activo con el nombre '{turno_nombre}'."
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Guardar cambios
+        asist.save()
+        
+        return Response({
+            "message": "Asistencia actualizada exitosamente.",
+            "id_control": asist.id_control,
+            "fecha": asist.fecha,
+            "estado": asist.estado
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            "error": "Error al actualizar la asistencia",
+            "detalle": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['DELETE'])
+def eliminar_asistencia(request, id_control):
+    try:
+        # Buscar la asistencia por ID
+        asist = get_object_or_404(asistencia, id_control=id_control)
+        
+        # Guardar info antes de eliminar
+        info_eliminada = {
+            "id_control": asist.id_control,
+            "fecha": asist.fecha,
+            "estado": asist.estado
+        }
+        
+        # Eliminar la asistencia
+        asist.delete()
+        
+        return Response({
+            "message": "Asistencia eliminada exitosamente.",
+            "asistencia_eliminada": info_eliminada
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            "error": "Error al eliminar la asistencia",
+            "detalle": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

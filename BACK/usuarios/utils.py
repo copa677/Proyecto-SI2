@@ -41,3 +41,13 @@ def generate_jwt(user):
     }
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
     return token
+
+
+def es_administrador(user):
+    """
+    Verifica si el usuario tiene rol de administrador
+    """
+    try:
+        return user.rol == 'Administrador'
+    except AttributeError:
+        return False

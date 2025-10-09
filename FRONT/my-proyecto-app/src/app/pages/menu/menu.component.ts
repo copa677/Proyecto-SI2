@@ -25,5 +25,9 @@ export class MenuComponent implements OnInit {
   }
 
   toggleMenu() { this.showMenu = !this.showMenu; }
-  logout() { localStorage.removeItem('token'); window.location.href = '/notes'; }
+  logout() { 
+    localStorage.removeItem('token'); 
+    localStorage.removeItem('username'); 
+    window.location.href = '/notes'; 
+  }
 }

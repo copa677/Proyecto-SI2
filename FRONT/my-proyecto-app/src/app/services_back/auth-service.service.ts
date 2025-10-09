@@ -36,6 +36,7 @@ export class AuthService {
 
   private handleExpiredToken(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
     this.toastr.error('Sesión expirada', '', {
       positionClass: 'toast-bottom-right',
       timeOut: 3000

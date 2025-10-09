@@ -6,7 +6,19 @@ from .serializers import RegistroBitacora, serializerBitacora
 from django.utils import timezone
 
 
-# 📋 Listar todas las bitácoras
+# � Función auxiliar para obtener el usuario del request
+def obtener_usuario_request(request):
+    """
+    Extrae el username del request para registrar en bitácora.
+    Úsala en tus vistas agregando: username = obtener_usuario_request(request)
+    """
+    # Intentar obtener del body
+    if hasattr(request, 'data') and isinstance(request.data, dict):
+        return request.data.get('name_user') or request.data.get('username') or request.data.get('user') or 'Sistema'
+    return 'Sistema'
+
+
+# �📋 Listar todas las bitácoras
 @api_view(["GET"])
 def listar_bitacoras(request):
     bitacoras = Bitacora.objects.all().order_by("-fecha_hora")  # orden descendente
