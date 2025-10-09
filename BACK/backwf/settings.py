@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'turnos',
     'asistencias',
     'Bitacora',
+    'Lotes'
 ]
 
 MIDDLEWARE = [
