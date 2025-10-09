@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { ControlCalidad } from '../../interface/controlCalidad';
 
+
 @Injectable({
   providedIn: 'root'
 })

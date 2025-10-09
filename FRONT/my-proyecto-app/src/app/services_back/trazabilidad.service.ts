@@ -3,7 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
+<<<<<<< HEAD
 import { Trazabilidad } from '../../interface/trazabilidad';
+=======
+import { Trazabilidad } from 'src/interface/trazabilidad';
+>>>>>>> 851ddb31077d8adf4708eab4394faa5474223171
 
 @Injectable({
   providedIn: 'root'
