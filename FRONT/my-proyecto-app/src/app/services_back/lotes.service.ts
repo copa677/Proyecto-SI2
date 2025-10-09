@@ -2,58 +2,68 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface MateriaPrima {
-  id_materia: number;
-  nombre: string;
-  tipo_material: string;
-}
+import { environment } from '../../environments/environment.development';
+import { Lote } from '../../interface/lote';
+import { MateriaPrima } from '../../interface/materiaprima';
 
-export interface Lote {
-  id_lote: number;
-  codigo_lote: string;
-  fecha_recepcion: string;
-  cantidad: number;
-  estado: string;
-  id_materia: number;
-}
-
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class LotesService {
-  private apiUrl = 'http://localhost:8000/api/lotes/';
+  private myAppUrl: string;
+  private myApiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.myAppUrl = environment.endpoint;    // URL base del backend
+    this.myApiUrl = 'api/lotes';             // endpoint principal de la app Django
+  }
 
-  // Materias Primas
+  // ===========================
+  // 📦 SERVICES PARA MATERIAS PRIMAS
+  // ===========================
+
+  // GET listar materias primas
   getMateriasPrimas(): Observable<MateriaPrima[]> {
-    return this.http.get<MateriaPrima[]>(this.apiUrl + 'listar_materias/');
+    return this.http.get<MateriaPrima[]>(`${this.myAppUrl}${this.myApiUrl}/listar_materias/`);
   }
 
-  createMateriaPrima(materia: Partial<MateriaPrima>): Observable<any> {
-    return this.http.post(this.apiUrl + 'materias/insertar/', materia);
+  // POST insertar materia prima
+  insertarMateriaPrima(nuevaMateria: MateriaPrima): Observable<void> {
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}/materias/insertar/`, nuevaMateria);
   }
 
-  updateMateriaPrima(id: number, materia: Partial<MateriaPrima>): Observable<any> {
-    return this.http.put(this.apiUrl + 'materias/actualizar/' + id + '/', materia);
+  // PUT actualizar materia prima
+  actualizarMateriaPrima(id: number, materiaEditada: MateriaPrima): Observable<void> {
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/materias/actualizar/${id}/`, materiaEditada);
   }
 
-  deleteMateriaPrima(id: number): Observable<any> {
-    return this.http.delete(this.apiUrl + 'materias/eliminar/' + id + '/');
+  // DELETE eliminar materia prima
+  eliminarMateriaPrima(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.myAppUrl}${this.myApiUrl}/materias/eliminar/${id}/`);
   }
 
-  // Lotes
+  // ===========================
+  // 🧺 SERVICES PARA LOTES
+  // ===========================
+
+  // GET listar lotes
   getLotes(): Observable<Lote[]> {
-    return this.http.get<Lote[]>(this.apiUrl + 'listar_lotes/');
+    return this.http.get<Lote[]>(`${this.myAppUrl}${this.myApiUrl}/listar_lotes/`);
   }
 
-  createLote(lote: Partial<Lote>): Observable<any> {
-    return this.http.post(this.apiUrl + 'lotes/insertar/', lote);
+  // POST insertar lote
+  insertarLote(nuevoLote: Lote): Observable<void> {
+    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}/lotes/insertar/`, nuevoLote);
   }
 
-  updateLote(id: number, lote: Partial<Lote>): Observable<any> {
-    return this.http.put(this.apiUrl + 'lotes/actualizar/' + id + '/', lote);
+  // PUT actualizar lote
+  actualizarLote(id: number, loteEditado: Lote): Observable<void> {
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/lotes/actualizar/${id}/`, loteEditado);
   }
 
-  deleteLote(id: number): Observable<any> {
-    return this.http.delete(this.apiUrl + 'lotes/eliminar/' + id + '/');
+  // DELETE eliminar lote
+  eliminarLote(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.myAppUrl}${this.myApiUrl}/lotes/eliminar/${id}/`);
   }
+
 }

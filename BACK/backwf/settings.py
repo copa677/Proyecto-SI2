@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'Bitacora',
     'Lotes',
     'OrdenProduccion',
+    'Trazabilidad',
+    'ControlCalidad',
 ]
 
 MIDDLEWARE = [

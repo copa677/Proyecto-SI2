@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { LotesService, Lote, MateriaPrima } from '../../services_back/lotes.service';
+import { LotesService } from '../../services_back/lotes.service';
+import { Lote } from '../../../interface/lote';
+import { MateriaPrima } from '../../../interface/materiaprima';
 
 @Component({
   selector: 'app-lotes',
@@ -60,12 +62,12 @@ export class LotesComponent implements OnInit {
 
   saveLote() {
     if (this.formData.id_lote) {
-      this.lotesService.updateLote(this.formData.id_lote, this.formData).subscribe(() => {
+      this.lotesService.actualizarLote(this.formData.id_lote, this.formData as Lote).subscribe(() => {
         this.getLotes();
         this.showForm = false;
       });
     } else {
-      this.lotesService.createLote(this.formData).subscribe(() => {
+      this.lotesService.insertarLote(this.formData as Lote).subscribe(() => {
         this.getLotes();
         this.showForm = false;
       });
@@ -74,12 +76,12 @@ export class LotesComponent implements OnInit {
 
   saveMateria() {
     if (this.materiaFormData.id_materia) {
-      this.lotesService.updateMateriaPrima(this.materiaFormData.id_materia, this.materiaFormData).subscribe(() => {
+      this.lotesService.actualizarMateriaPrima(this.materiaFormData.id_materia, this.materiaFormData as MateriaPrima).subscribe(() => {
         this.getMateriasPrimas();
         this.showMateriaForm = false;
       });
     } else {
-      this.lotesService.createMateriaPrima(this.materiaFormData).subscribe(() => {
+      this.lotesService.insertarMateriaPrima(this.materiaFormData as MateriaPrima).subscribe(() => {
         this.getMateriasPrimas();
         this.showMateriaForm = false;
       });
@@ -88,13 +90,13 @@ export class LotesComponent implements OnInit {
 
   deleteLote(id: number) {
     if (confirm('¿Está seguro de eliminar este lote?')) {
-      this.lotesService.deleteLote(id).subscribe(() => this.getLotes());
+      this.lotesService.eliminarLote(id).subscribe(() => this.getLotes());
     }
   }
 
   deleteMateria(id: number) {
     if (confirm('¿Está seguro de eliminar esta materia prima?')) {
-      this.lotesService.deleteMateriaPrima(id).subscribe(() => this.getMateriasPrimas());
+      this.lotesService.eliminarMateriaPrima(id).subscribe(() => this.getMateriasPrimas());
     }
   }
 

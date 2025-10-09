@@ -13,5 +13,5 @@ class personal(models.Model):
 
 
     class Meta:
-        db_table = 'personal'  #  Este es el nombre real de tu tabla en la base de datos
-        managed = False       #  Esto evita que Django intente crear/modificar la tabla
+        db_table = 'personal'  
+        managed = False       
