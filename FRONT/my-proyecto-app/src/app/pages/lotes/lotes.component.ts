@@ -88,13 +88,15 @@ export class LotesComponent implements OnInit {
     }
   }
 
-  deleteLote(id: number) {
+  deleteLote(id?: number) {
+    if (typeof id !== 'number') return;
     if (confirm('¿Está seguro de eliminar este lote?')) {
       this.lotesService.eliminarLote(id).subscribe(() => this.getLotes());
     }
   }
 
-  deleteMateria(id: number) {
+  deleteMateria(id?: number) {
+    if (typeof id !== 'number') return;
     if (confirm('¿Está seguro de eliminar esta materia prima?')) {
       this.lotesService.eliminarMateriaPrima(id).subscribe(() => this.getMateriasPrimas());
     }

@@ -16,4 +16,4 @@ class OrdenProduccion(models.Model):
 
     class Meta:
         db_table = 'orden_produccion'
-        managed = False
+        managed = False
