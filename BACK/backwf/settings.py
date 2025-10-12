@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'OrdenProduccion',
     'Trazabilidad',
     'ControlCalidad',
+    'Inventario',
+    'NotaSalida',
 ]
 
 MIDDLEWARE = [

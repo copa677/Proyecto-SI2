@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { LoginService } from 'src/app/services_back/login.service';   // ← ajusta si fuera necesario
 import { Usuario } from 'src/interface/user';                         // ← ajusta si fuera necesario
 
+
 @Component({
   selector: 'app-notes',
   templateUrl: './notes.component.html',
@@ -42,7 +43,7 @@ export class NotesComponent {
       name_user: this.username as any,
       password: this.password
     };
-
+    
     this.loginService.login(user).subscribe({
       next: (response: any) => {
         // Soporta varios formatos de respuesta: {token}, {access}, "token"
