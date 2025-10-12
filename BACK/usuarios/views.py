@@ -1,11 +1,23 @@
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import usurios
 from .serializers import LoginSerializer, RegisterSerializer ,UsuarioListSerializer
 from .utils import generate_jwt
-from django.db import connection 
+from django.db import connection
 # Create your views here.
+
+@api_view(['GET'])
+def listar_permisos(request):
+    # Permisos fijos, puedes adaptar según tu modelo
+    permisos = [
+        {"id": 1, "nombre": "Insertar", "descripcion": "Permite insertar registros"},
+        {"id": 2, "nombre": "Editar", "descripcion": "Permite editar registros"},
+        {"id": 3, "nombre": "Eliminar", "descripcion": "Permite eliminar registros"},
+        {"id": 4, "nombre": "Ver", "descripcion": "Permite ver registros"}
+    ]
+    return Response(permisos, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def login(request):

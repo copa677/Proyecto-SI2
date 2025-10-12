@@ -1,0 +1,63 @@
+<div class="container mx-auto p-6">
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Notas de Salida</h2>
+    
+    <div *ngIf="notasSalida.length === 0" class="text-gray-500 text-center py-8">
+      No hay notas de salida registradas
+    </div>
+
+    <div class="grid gap-4 mb-6">
+      <div *ngFor="let nota of notasSalida" 
+           (click)="seleccionarNota(nota)"
+           class="border border-gray-300 rounded-lg p-4 hover:bg-blue-50 cursor-pointer transition"
+           [class.bg-blue-100]="notaSeleccionada?.id_salida === nota.id_salida">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm text-gray-600">
+              <strong>Fecha:</strong> {{ nota.fecha_salida }}
+            </p>
+            <p class="text-sm text-gray-600">
+              <strong>Motivo:</strong> {{ nota.motivo }}
+            </p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                [class.bg-green-100]="nota.estado === 'Completado'"
+                [class.text-green-800]="nota.estado === 'Completado'"
+                [class.bg-yellow-100]="nota.estado === 'Pendiente'"
+                [class.text-yellow-800]="nota.estado === 'Pendiente'">
+            {{ nota.estado }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="notaSeleccionada" class="mt-6 border-t pt-6">
+      <h3 class="text-xl font-semibold mb-4 text-gray-800">Detalle de Nota de Salida</h3>
+      
+      <div *ngIf="detalles.length === 0" class="text-gray-500 text-center py-4">
+        No hay detalles para esta nota de salida
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300 rounded-lg">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Materia Prima</th>
+              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Cantidad</th>
+              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Unidad</th>
+              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Lote</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let detalle of detalles" class="border-t border-gray-200">
+              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.nombre_materia_prima }}</td>
+              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.cantidad }}</td>
+              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.unidad_medida }}</td>
+              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.id_lote }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

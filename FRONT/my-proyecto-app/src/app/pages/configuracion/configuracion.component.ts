@@ -15,7 +15,6 @@ export class ConfiguracionComponent {
   // Preferencias del sistema (demo en memoria)
   prefs = {
     notificaciones: true,
-    darkMode: false,
     idioma: 'es'
   };
 
@@ -64,8 +63,6 @@ export class ConfiguracionComponent {
   guardarPreferencias() {
     // Aquí llamarías a tu API para persistir prefs
     this.ok('Preferencias guardadas');
-    // Demo: aplicar darkMode al <html> si quieres
-    document.documentElement.classList.toggle('dark', this.prefs.darkMode);
   }
 
   // === Utilidades ===
