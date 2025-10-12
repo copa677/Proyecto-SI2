@@ -7,4 +7,5 @@ urlpatterns = [
     path('ordenes/insertar/', views.insertar_orden_produccion, name='insertar_orden_produccion'),
     path('ordenes/actualizar/<int:id_orden>/', views.actualizar_orden_produccion, name='actualizar_orden_produccion'),
     path('ordenes/eliminar/<int:id_orden>/', views.eliminar_orden_produccion, name='eliminar_orden_produccion'),
+    path('ordenes/<int:id_orden>/trazabilidad/', views.obtener_trazabilidad_orden, name='obtener_trazabilidad_orden'),
 ]

@@ -21,20 +21,8 @@ export class LotesComponent implements OnInit {
   constructor(private lotesService: LotesService) {}
 
   ngOnInit(): void {
-      // Datos mockup para pruebas visuales
-      this.materiasPrimas = [
-        { id_materia: 1, nombre: 'Harina', tipo_material: 'Orgánico' },
-        { id_materia: 2, nombre: 'Azúcar', tipo_material: 'Orgánico' },
-        { id_materia: 3, nombre: 'Sal', tipo_material: 'Inorgánico' }
-      ];
-      this.lotes = [
-        { id_lote: 101, codigo_lote: 'LT-001', fecha_recepcion: '2025-10-01', cantidad: 100, estado: 'Disponible', id_materia: 1 },
-        { id_lote: 102, codigo_lote: 'LT-002', fecha_recepcion: '2025-10-03', cantidad: 50, estado: 'En Uso', id_materia: 2 },
-        { id_lote: 103, codigo_lote: 'LT-003', fecha_recepcion: '2025-10-05', cantidad: 0, estado: 'Agotado', id_materia: 3 }
-      ];
-      // Si quieres volver a usar el backend, comenta las líneas mockup y descomenta las siguientes:
-      // this.getLotes();
-      // this.getMateriasPrimas();
+    this.getLotes();
+    this.getMateriasPrimas();
   }
 
   getLotes() {
