@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
 import { Trazabilidad } from '../../interface/trazabilidad';
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 
 @Injectable({
   providedIn: 'root'
