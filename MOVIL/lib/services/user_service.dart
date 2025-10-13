@@ -15,6 +15,32 @@ class UserService {
   /// usuarios como una colección de mapas. Si la respuesta tiene
   /// código distinto de 200 lanzará una excepción.
   Future<List<dynamic>> getUsuarios() async {
+    if (debugUseMockApi) {
+      await Future.delayed(const Duration(milliseconds: 250));
+      return [
+        {
+          'id': 1,
+          'name_user': 'admin',
+          'email': 'admin@demo.com',
+          'estado': 'activo',
+          'tipo_usuario': 'Administrador',
+        },
+        {
+          'id': 2,
+          'name_user': 'supervisor',
+          'email': 'supervisor@demo.com',
+          'estado': 'activo',
+          'tipo_usuario': 'Supervisor',
+        },
+        {
+          'id': 3,
+          'name_user': 'operario1',
+          'email': 'operario1@demo.com',
+          'estado': 'inactivo',
+          'tipo_usuario': 'Operario',
+        },
+      ];
+    }
     final url = Uri.parse('$baseUrl/api/usuario/getuser');
     final response = await http.get(url);
 
@@ -38,6 +64,10 @@ class UserService {
   /// cualquier otro caso. Para saber el motivo del fallo consulta
   /// `response.body` cuando el resultado sea `false`.
   Future<bool> registerUsuario(Map<String, dynamic> datos) async {
+    if (debugUseMockApi) {
+      await Future.delayed(const Duration(milliseconds: 250));
+      return true;
+    }
     final url = Uri.parse('$baseUrl/api/usuario/register');
 
     final response = await http.post(
@@ -67,6 +97,10 @@ class UserService {
   /// devuelve otro código se retorna `false` y el detalle del error
   /// puede obtenerse en `response.body`.
   Future<bool> actualizarEmpleadoUsuario(Map<String, dynamic> datos) async {
+    if (debugUseMockApi) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      return true;
+    }
     final url = Uri.parse('$baseUrl/api/usuario/actualizarEmpleadoUsuario');
 
     final response = await http.post(

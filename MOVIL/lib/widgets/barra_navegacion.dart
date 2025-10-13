@@ -9,10 +9,10 @@ class BarraNavegacion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 9,
       child: Scaffold(
         appBar: AppBar(
-          titleSpacing: 0,
+          titleSpacing: 16, // separa el título del borde izquierdo
           title: const Text(
             'Sistema de Manufactura',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
@@ -33,6 +33,10 @@ class BarraNavegacion extends StatelessWidget {
                 Tab(text: 'Asistencia y Turnos'),
                 Tab(text: 'Usuarios'),
                 Tab(text: 'Configuración'),
+                Tab(text: 'Órdenes'),
+                Tab(text: 'Pedidos'),
+                Tab(text: 'Perfil'),
+                Tab(text: 'Pruebas'),
               ],
             ),
           ),

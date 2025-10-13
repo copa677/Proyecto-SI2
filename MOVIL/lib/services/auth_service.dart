@@ -5,6 +5,11 @@ import '../constants.dart';
 class AuthService {
   // Login
   Future<bool> login(String username, String password) async {
+    if (debugUseMockApi) {
+      // Mock: solo acepta usuario "demo" y contraseña "demo".
+      await Future.delayed(const Duration(milliseconds: 300));
+      return username == 'demo' && password == 'demo';
+    }
     final url = Uri.parse('$baseUrl/api/usuario/login');
 
     final datos = {
@@ -40,6 +45,10 @@ class AuthService {
     String email,
     String tipoUsuario,
   ) async {
+    if (debugUseMockApi) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      return true; // Simula registro exitoso
+    }
     final url = Uri.parse('$baseUrl/api/usuario/register');
 
     // Datos que vamos a enviar

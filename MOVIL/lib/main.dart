@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:textiltech/pages/login.dart';
-import 'package:textiltech/pages/formulario_personal.dart';
 import 'package:textiltech/pages/personal_g.dart';
 import 'package:textiltech/pages/asistenciasturnos.dart';
 import 'package:textiltech/pages/Usuarios.dart';
@@ -38,12 +37,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       routes: {
-        '/formulario-personal': (_) => const FormularioPersonal(),
         '/personal': (_) => const PersonalGestion(),
         '/asistencias': (_) => const AsistenciasTurnosPage(),
         '/usuarios': (_) => const UsuariosPage(),
         '/configuracion': (_) => const ConfiguracionPage(),
       },
+      // Siempre inicia en la pantalla de Login. En modo mock (debugUseMockApi)
+      // el AuthService permite autenticación offline para diseño.
       home: const Login(),
     );
   }

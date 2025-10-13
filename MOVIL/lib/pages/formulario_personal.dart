@@ -6,6 +6,8 @@ import 'package:textiltech/widgets/campo_texto.dart';
 import 'package:textiltech/services/auth_service.dart';
 // manu
 
+// NOSE ESTA USANDO, LO DEJO POR SI ACASO SE NECESITA EN UN FUTURO
+
 class FormularioPersonal extends StatefulWidget {
   const FormularioPersonal({Key? key}) : super(key: key);
 

@@ -1,6 +1,5 @@
 import 'pagina_principal.dart';
 import 'package:textiltech/pages/olvido_contrasena.dart';
-import 'package:textiltech/pages/formulario_personal.dart';
 import 'package:flutter/material.dart';
 import 'package:textiltech/widgets/boton_principal.dart';
 import 'package:textiltech/widgets/campo_texto.dart';
@@ -163,50 +162,22 @@ class _LoginState extends State<Login> {
                   ),
                   // manu
                   SizedBox(height: 16),
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 16,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const OlvidoContrasena(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          '¿Olvidaste tu contraseña?',
-                          style: TextStyle(
-                            color: Color(0xFF1862C2),
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.none,
-                          ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const OlvidoContrasena(),
                         ),
+                      );
+                    },
+                    child: const Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(
+                        color: Color(0xFF1862C2),
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.none,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Abriendo registro...'),
-                            ),
-                          );
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const FormularioPersonal(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Crear nueva cuenta',
-                          style: TextStyle(
-                            color: azulPrincipal,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
