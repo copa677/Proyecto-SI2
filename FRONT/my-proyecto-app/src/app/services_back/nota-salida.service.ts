@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class NotaSalidaService {
-  private apiUrl = 'http://localhost:8000/api/notas_salida/';
-  private detallesUrl = 'http://localhost:8000/api/detalles_salida/';
+  private apiUrl = 'http://localhost:8000/api/notasalida/notas_salida/';
+  private detallesUrl = 'http://localhost:8000/api/notasalida/detalles_salida/';
 
   constructor(private http: HttpClient) {}
 

@@ -24,6 +24,10 @@ import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
 import { PermisosComponent } from './pages/permisos/permisos.component';
 import { AsignarPermisosComponent } from './pages/asignar-permisos/asignar-permisos.component';
 import { PermisoAccionDirective } from './directives/permiso-accion.directive';
+import { TurnosComponent } from './pages/turnos/turnos.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
+import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
+import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +47,10 @@ import { PermisoAccionDirective } from './directives/permiso-accion.directive';
     PermisosComponent,
     AsignarPermisosComponent,
     PermisoAccionDirective,
+    TurnosComponent,
+    InventarioComponent,
+    ControlCalidadComponent,
+    TrazabilidadComponent,
   ],
   imports: [
     BrowserModule,

@@ -10,6 +10,7 @@ export class NotaSalidaComponent implements OnInit {
   notasSalida: any[] = [];
   detalles: any[] = [];
   notaSeleccionada: any = null;
+  modalVisible: boolean = false;
 
   constructor(private notaSalidaService: NotaSalidaService) {}
 
@@ -35,9 +36,11 @@ export class NotaSalidaComponent implements OnInit {
       next: (data: any) => {
         this.detalles = data;
         console.log('Detalles cargados:', data);
+          this.modalVisible = true;
       },
       error: (error: any) => {
         console.error('Error al cargar detalles:', error);
+          this.modalVisible = true;
       }
     });
   }

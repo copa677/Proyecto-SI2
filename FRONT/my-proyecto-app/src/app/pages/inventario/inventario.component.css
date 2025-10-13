@@ -1,0 +1,29 @@
+/* Estilos personalizados para el componente de inventario */
+.hover\:bg-gray-50:hover {
+  transition: background-color 0.2s ease-in-out;
+}
+
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Animación para el modal */
+.fixed.z-10 {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Estilos para el buscador */
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}

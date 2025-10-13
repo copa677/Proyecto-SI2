@@ -14,6 +14,10 @@ import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccio
 import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
 import { PermisosComponent } from './pages/permisos/permisos.component';
 import { AsignarPermisosComponent } from './pages/asignar-permisos/asignar-permisos.component';
+import { TurnosComponent } from './pages/turnos/turnos.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
+import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
+import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
 
 
 const routes: Routes = [
@@ -25,10 +29,14 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'personal', component: PersonalComponent },
       { path: 'asistencia', component: AsistenciaComponent },
+      { path: 'turnos', component: TurnosComponent },
       { path: 'bitacora', component: BitacoraComponent },
       { path: 'configuracion', component: ConfiguracionComponent },
       { path: 'lotes', component: LotesComponent },
+      { path: 'inventario', component: InventarioComponent },
       { path: 'ordenproduccion', component: OrdenProduccionComponent },
+      { path: 'trazabilidad', component: TrazabilidadComponent },
+      { path: 'control-calidad', component: ControlCalidadComponent },
       { path: 'nota-salida', component: NotaSalidaComponent },
       { path: 'permisos', component: PermisosComponent },
       { path: 'asignar-permisos', component: AsignarPermisosComponent },
