@@ -1,11 +1,23 @@
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import usurios
 from .serializers import LoginSerializer, RegisterSerializer ,UsuarioListSerializer
 from .utils import generate_jwt
-from django.db import connection 
+from django.db import connection
 # Create your views here.
+
+@api_view(['GET'])
+def listar_permisos(request):
+    # Permisos fijos, puedes adaptar según tu modelo
+    permisos = [
+        {"id": 1, "nombre": "Insertar", "descripcion": "Permite insertar registros"},
+        {"id": 2, "nombre": "Editar", "descripcion": "Permite editar registros"},
+        {"id": 3, "nombre": "Eliminar", "descripcion": "Permite eliminar registros"},
+        {"id": 4, "nombre": "Ver", "descripcion": "Permite ver registros"}
+    ]
+    return Response(permisos, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def login(request):
@@ -199,6 +211,85 @@ def editar_empleado_usuario(request):
 
         return Response({'mensaje': 'Empleado actualizado correctamente'}, status=status.HTTP_200_OK)
 
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['PUT', 'PATCH'])
+def actualizar_usuario(request, id_usuario):
+    try:
+        # Buscar el usuario por ID
+        usuario = usurios.objects.get(id=id_usuario)
+        
+        # Obtener datos del request
+        name_user = request.data.get('name_user')
+        email = request.data.get('email')
+        tipo_usuario = request.data.get('tipo_usuario')
+        estado = request.data.get('estado')
+        password = request.data.get('password')
+        
+        # Actualizar campos si se proporcionan
+        if name_user:
+            # Verificar que el nuevo username no exista ya (excepto si es el mismo)
+            if usurios.objects.filter(name_user=name_user).exclude(id=id_usuario).exists():
+                return Response({
+                    'error': 'El nombre de usuario ya existe'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            usuario.name_user = name_user
+        
+        if email:
+            usuario.email = email
+        
+        if tipo_usuario:
+            usuario.tipo_usuario = tipo_usuario
+        
+        if estado is not None:
+            usuario.estado = estado
+        
+        if password:
+            usuario.set_password(password)
+        
+        # Guardar cambios
+        usuario.save()
+        
+        return Response({
+            'mensaje': 'Usuario actualizado exitosamente',
+            'usuario': {
+                'id': usuario.id,
+                'name_user': usuario.name_user,
+                'email': usuario.email,
+                'tipo_usuario': usuario.tipo_usuario,
+                'estado': usuario.estado
+            }
+        }, status=status.HTTP_200_OK)
+        
+    except usurios.DoesNotExist:
+        return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['DELETE'])
+def eliminar_usuario(request, id_usuario):
+    try:
+        # Buscar el usuario por ID
+        usuario = usurios.objects.get(id=id_usuario)
+        
+        # Guardar info antes de eliminar
+        info_eliminada = {
+            'id': usuario.id,
+            'name_user': usuario.name_user,
+            'email': usuario.email
+        }
+        
+        # Eliminar el usuario
+        usuario.delete()
+        
+        return Response({
+            'mensaje': 'Usuario eliminado exitosamente',
+            'usuario_eliminado': info_eliminada
+        }, status=status.HTTP_200_OK)
+        
+    except usurios.DoesNotExist:
+        return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     

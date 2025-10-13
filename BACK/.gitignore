@@ -1,0 +1,65 @@
+# ============================
+# 🐍 ARCHIVOS DE PYTHON / DJANGO
+# ============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Evitar subir entornos virtuales
+venv/
+
+
+# Archivos de base de datos locales
+*.sqlite3
+
+# Archivos de logs o temporales
+*.log
+*.pot
+*.pyc
+*.mo
+*.pid
+*.seed
+*.bak
+*.backup
+*.tmp
+
+# Archivos generados por tests o coverage
+.coverage
+coverage/
+htmlcov/
+.tox/
+nosetests.xml
+pytest.xml
+test_output/
+tests/__pycache__/
+*/tests/__pycache__/
+
+# Migraciones compiladas (no los archivos reales .py)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+
+# Evitar archivos de cache del servidor
+*.DS_Store
+*.idea/
+*.vscode/
+*.vs/
+__MACOSX/
+
+# ============================
+# 🧱 BACKEND DJANGO
+# ============================
+# Evitar archivos autogenerados o locales
+*.pot
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+static_root/
+node_modules/
+build/
+dist/
+*.egg-info/
+*.egg
+*.manifest

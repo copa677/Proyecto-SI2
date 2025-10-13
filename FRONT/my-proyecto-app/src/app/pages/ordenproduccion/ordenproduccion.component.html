@@ -1,0 +1,111 @@
+<section class="py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Encabezado -->
+    <div class="md:flex md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Órdenes de Producción</h2>
+        <p class="mt-1 text-sm text-gray-600">Gestión de órdenes de producción del sistema</p>
+      </div>
+    </div>
+
+   
+    <!-- Tabla y acciones de órdenes de producción -->
+    <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Órdenes de Producción</h3>
+          <button class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white" (click)="openForm()">
+            <i class="fas fa-plus mr-2"></i> Nueva Orden
+          </button>
+        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let orden of ordenes" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ orden.codigo_orden }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.fecha }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.producto }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.cantidad }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      [class.bg-green-100]="orden.estado === 'Finalizada'"
+                      [class.text-green-800]="orden.estado === 'Finalizada'"
+                      [class.bg-yellow-100]="orden.estado === 'En Proceso'"
+                      [class.text-yellow-800]="orden.estado === 'En Proceso'"
+                      [class.bg-red-100]="orden.estado === 'Pendiente'"
+                      [class.text-red-800]="orden.estado === 'Pendiente'">
+                  {{ orden.estado }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(orden)">Editar</button>
+                <button class="text-red-600 hover:text-red-900" (click)="deleteOrden(orden.id_orden)">Eliminar</button>
+              </td>
+            </tr>
+            <tr *ngIf="ordenes.length === 0">
+              <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay órdenes registradas</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Formulario de Orden de Producción (idéntico a Lotes) -->
+    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center" tabindex="0" (keydown.escape)="showForm = false">
+      <div class="absolute inset-0 bg-gray-900/50" (click)="showForm = false"></div>
+      <div class="modal-content relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+          {{ formData.id_orden ? 'Editar Orden de Producción' : 'Nueva Orden de Producción' }}
+        </h3>
+        <form (ngSubmit)="saveOrden()">
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Código de Orden</label>
+              <input type="text" class="form-input mt-1 block w-full" [(ngModel)]="formData.codigo_orden" name="codigo_orden" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Fecha</label>
+              <input type="date" class="form-input mt-1 block w-full" [(ngModel)]="formData.fecha" name="fecha" required placeholder="dd/mm/aaaa" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Producto</label>
+              <input type="text" class="form-input mt-1 block w-full" [(ngModel)]="formData.producto" name="producto" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Cantidad</label>
+              <input type="number" class="form-input mt-1 block w-full" [(ngModel)]="formData.cantidad" name="cantidad" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Estado</label>
+              <select class="form-input mt-1 block w-full" [(ngModel)]="formData.estado" name="estado" required>
+                <option value="">Seleccione un estado</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Finalizada">Finalizada</option>
+                <option value="Pendiente">Pendiente</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end gap-3">
+            <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" (click)="showForm = false">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
+              Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>

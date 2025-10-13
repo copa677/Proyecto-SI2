@@ -123,4 +123,86 @@ def desactivar_turno(request, turno_id):
             "detalle": str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['PUT', 'PATCH'])
+def actualizar_turno(request, turno_id):
+    try:
+        # Buscar el turno por ID
+        turno = get_object_or_404(turnos, id=turno_id)
+        
+        # Obtener datos del request
+        descripcion = request.data.get('turno')
+        hora_entrada = request.data.get('hora_entrada')
+        hora_salida = request.data.get('hora_salida')
+        estado = request.data.get('estado')
+        
+        # Actualizar descripción si se proporciona
+        if descripcion:
+            if len(descripcion) > 10:
+                return Response({
+                    "error": "El nombre del turno no puede exceder 10 caracteres."
+                }, status=status.HTTP_400_BAD_REQUEST)
+            turno.turno = descripcion
+        
+        # Actualizar horarios si se proporcionan
+        if hora_entrada:
+            turno.hora_entrada = hora_entrada
+        if hora_salida:
+            turno.hora_salida = hora_salida
+        
+        # Validar que entrada sea anterior a salida
+        if turno.hora_entrada >= turno.hora_salida:
+            return Response({
+                "error": "La hora de entrada debe ser anterior a la hora de salida."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Actualizar estado si se proporciona
+        if estado:
+            turno.estado = estado
+        
+        # Guardar cambios
+        turno.save()
+        
+        return Response({
+            "message": "Turno actualizado exitosamente.",
+            "id": turno.id,
+            "turno": turno.turno,
+            "hora_entrada": turno.hora_entrada,
+            "hora_salida": turno.hora_salida,
+            "estado": turno.estado
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            "error": "Error al actualizar el turno",
+            "detalle": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['DELETE'])
+def eliminar_turno(request, turno_id):
+    try:
+        # Buscar el turno por ID
+        turno = get_object_or_404(turnos, id=turno_id)
+        
+        # Guardar info antes de eliminar
+        info_eliminada = {
+            "id": turno.id,
+            "turno": turno.turno,
+            "hora_entrada": str(turno.hora_entrada),
+            "hora_salida": str(turno.hora_salida)
+        }
+        
+        # Eliminar el turno
+        turno.delete()
+        
+        return Response({
+            "message": "Turno eliminado exitosamente.",
+            "turno_eliminado": info_eliminada
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            "error": "Error al eliminar el turno",
+            "detalle": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 

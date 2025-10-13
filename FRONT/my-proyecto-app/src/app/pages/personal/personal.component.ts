@@ -102,7 +102,7 @@ export class PersonalComponent implements OnInit {
   }
 
   abrirEditar(p: PersonalRow): void {
-    this.form = { ...p };
+  this.form = { ...p, id_usuario: p.id_usuario, nombre_usuario: p.nombre_usuario };
     this.editMode = true;
     this.showForm = true;
   }
@@ -135,11 +135,33 @@ export class PersonalComponent implements OnInit {
     if (!f.nombre_completo?.trim() || !f.rol?.trim()) return;
 
     if (!this.editMode) {
-      // tu backend espera: nombre_completo, direccion, telefono, rol, fecha_nacimiento, estado, username
       const fecha = f.fecha_nacimiento
-        ? new Date(f.fecha_nacimiento + 'T00:00:00') // a Date para cumplir tu interface Empleado
+        ? new Date(f.fecha_nacimiento + 'T00:00:00')
         : new Date();
-
+      const payload: Empleado = {
+        nombre_completo: f.nombre_completo.trim(),
+        direccion: f.direccion?.trim() ?? '',
+        telefono: f.telefono?.trim() ?? '',
+        rol: f.rol,
+        fecha_nacimiento: fecha,
+        estado: f.estado,
+        username: f.nombre_usuario?.trim() ?? ''
+      };
+      this.cargando = true;
+      this.empleadoSrv.registrarEmpleados(payload).subscribe({
+        next: () => {
+          this.showForm = false;
+          this.cargarEmpleados();
+        },
+        error: (err) => {
+          this.errorMsg = 'No se pudo registrar el empleado.';
+          this.cargando = false;
+        },
+      });
+    } else {
+      const fecha = f.fecha_nacimiento
+        ? new Date(f.fecha_nacimiento + 'T00:00:00')
+        : new Date();
       const payload: Empleado = {
         nombre_completo: f.nombre_completo.trim(),
         direccion: f.direccion?.trim() ?? '',
@@ -148,24 +170,20 @@ export class PersonalComponent implements OnInit {
         fecha_nacimiento: fecha,
         estado: f.estado,
         username: f.nombre_usuario?.trim() ?? '',
-        // email e id_usuario no son requeridos para registrar (los dejamos fuera)
+        id_usuario: f.id_usuario
       };
-
       this.cargando = true;
-      this.empleadoSrv.registrarEmpleados(payload).subscribe({
+      this.empleadoSrv.actualizar_Empleados(payload).subscribe({
         next: () => {
           this.showForm = false;
-          this.cargarEmpleados();     // refresca tabla
+          this.cargarEmpleados();
+          this.editMode = false;
         },
         error: (err) => {
-          this.errorMsg = 'No se pudo registrar el empleado.';
-          console.error('Error registrarEmpleados:', err);
+          this.errorMsg = 'No se pudo actualizar el empleado.';
           this.cargando = false;
         },
       });
-    } else {
-      // (Opcional) conectamos actualizar luego
-      this.showForm = false;
     }
   }
 

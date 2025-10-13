@@ -48,6 +48,13 @@ INSTALLED_APPS = [
     'personal',
     'turnos',
     'asistencias',
+    'Bitacora',
+    'Lotes',
+    'OrdenProduccion',
+    'Trazabilidad',
+    'ControlCalidad',
+    'Inventario',
+    'NotaSalida',
 ]
 
 MIDDLEWARE = [
@@ -59,10 +66,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Bitacora.middleware.BitacoraMiddleware',  # Middleware de bitácora automática
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
-
 # Si estás usando cookies o autenticación por sesión entre dominios:
 CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'backwf.urls'

@@ -136,4 +136,14 @@ export class LoginService {
         });
     });
   }
+
+  // Actualizar usuario
+  actualizarUsuario(id: number, datos: Partial<Usuario>): Observable<any> {
+    return this.http.patch<any>(`${this.myAppUrl}${this.myApiUrl}/actualizar/${id}`, datos);
+  }
+
+  // Eliminar usuario
+  eliminarUsuario(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.myAppUrl}${this.myApiUrl}/eliminar/${id}`);
+  }
 }

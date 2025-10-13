@@ -7,7 +7,13 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { PersonalComponent } from './pages/personal/personal.component';
 import { AsistenciaComponent } from './pages/asistencia/asistencia.component';
 import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
+import { BitacoraComponent } from './pages/bitacora/bitacora.component';
 import { authGuard } from './guards/auth.guard';
+import { LotesComponent } from './pages/lotes/lotes.component';
+import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccion.component';
+import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
+import { PermisosComponent } from './pages/permisos/permisos.component';
+import { AsignarPermisosComponent } from './pages/asignar-permisos/asignar-permisos.component';
 
 
 const routes: Routes = [
@@ -19,7 +25,13 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'personal', component: PersonalComponent },
       { path: 'asistencia', component: AsistenciaComponent },
-      { path: 'configuracion', component: ConfiguracionComponent }
+      { path: 'bitacora', component: BitacoraComponent },
+      { path: 'configuracion', component: ConfiguracionComponent },
+      { path: 'lotes', component: LotesComponent },
+      { path: 'ordenproduccion', component: OrdenProduccionComponent },
+      { path: 'nota-salida', component: NotaSalidaComponent },
+      { path: 'permisos', component: PermisosComponent },
+      { path: 'asignar-permisos', component: AsignarPermisosComponent },
     ]
   },
   { path: 'notes', component: NotesComponent },

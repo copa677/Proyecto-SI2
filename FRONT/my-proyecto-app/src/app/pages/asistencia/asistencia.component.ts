@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 type Estado = 'Presente' | 'Ausente' | 'Tarde' | 'Licencia';
 type Turno  = 'Mañana (8:00–14:00)' | 'Tarde (14:00–20:00)' | 'Noche (20:00–02:00)';
@@ -11,12 +12,29 @@ interface Asistencia {
   estado: Estado;
 }
 
+// Mapeo entre lo que se muestra y lo que está en la BD
+const TURNO_DISPLAY_TO_DB: Record<string, string> = {
+  'Mañana (8:00–14:00)': 'mañana',
+  'Tarde (14:00–20:00)': 'tarde',
+  'Noche (20:00–02:00)': 'noche'
+};
+
+const TURNO_DB_TO_DISPLAY: Record<string, Turno> = {
+  'mañana': 'Mañana (8:00–14:00)',
+  'tarde': 'Tarde (14:00–20:00)',
+  'noche': 'Noche (20:00–02:00)'
+};
+
 @Component({
   selector: 'app-asistencia',
   templateUrl: './asistencia.component.html',
   styleUrls: ['./asistencia.component.css']
 })
 export class AsistenciaComponent {
+  private apiUrl = 'http://localhost:8000/api/asistencias';
+  private turnosUrl = 'http://localhost:8000/api/turnos';
+  private personalUrl = 'http://localhost:8000/api/personal';
+
   // ---- Catálogos de apoyo ----
   turnosCatalogo: Turno[] = [
     'Mañana (8:00–14:00)',
@@ -25,23 +43,105 @@ export class AsistenciaComponent {
   ];
   estadosCatalogo: Estado[] = ['Presente', 'Ausente', 'Tarde', 'Licencia'];
 
+  // Lista de personal para autocompletar
+  personalList: any[] = [];
+  turnosList: any[] = [];
+
+  // Loading states
+  isLoading = false;
+  isLoadingTurnos = false;
+  isLoadingPersonal = false;
+
+  constructor(private http: HttpClient) {
+    this.cargarAsistencias();
+    this.cargarTurnos();
+    this.cargarPersonal();
+  }
+
   // ---- Filtros / búsqueda ----
   busqueda = '';
   filtroFecha = '';   // yyyy-MM-dd (input[type=date])
   filtroTurno: Turno | '' = '';
   filtroEstado: Estado | '' = '';
 
-  // ---- Datos demo (en memoria) ----
-  asistencias: Asistencia[] = [
-    { id: 1, nombre: 'Juan Pérez',    fecha: '2025-04-16', turno: 'Mañana (8:00–14:00)', estado: 'Presente' },
-    { id: 2, nombre: 'María González',fecha: '2025-04-16', turno: 'Mañana (8:00–14:00)', estado: 'Presente' },
-    { id: 3, nombre: 'Carlos Rodríguez', fecha: '2025-04-16', turno: 'Tarde (14:00–20:00)', estado: 'Ausente' },
-  ];
+  // ---- Datos (cargados desde backend) ----
+  asistencias: Asistencia[] = [];
 
   // ---- Modal / formulario ----
   showForm = false;
   editMode = false;
   form: Asistencia = this.nuevoForm();
+
+  // ---- Métodos de carga de datos ----
+  cargarAsistencias(): void {
+    this.isLoading = true;
+    this.http.get<any>(`${this.apiUrl}/listar`).subscribe({
+      next: (response) => {
+        console.log('Asistencias cargadas:', response);
+        
+        // Mapear los datos del backend al formato del frontend
+        this.asistencias = response.asistencias.map((item: any) => {
+          // Extraer solo el nombre del turno (ej: "mañana (07:00:00 - 15:00:00)" -> "mañana")
+          let turnoNombre = item.turno_completo.split(' ')[0].toLowerCase();
+          
+          // Mapear a la versión display
+          const turnoDisplay = TURNO_DB_TO_DISPLAY[turnoNombre] || 'Mañana (8:00–14:00)';
+          
+          return {
+            id: item.id_control,
+            nombre: item.nombre_personal,
+            fecha: item.fecha,
+            turno: turnoDisplay,
+            estado: item.estado as Estado
+          };
+        });
+        
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar asistencias:', error);
+        this.isLoading = false;
+        // No mostrar alert aquí, solo log, para no molestar al usuario
+      }
+    });
+  }
+
+  cargarTurnos(): void {
+    this.isLoadingTurnos = true;
+    this.http.get<any[]>(`${this.turnosUrl}/listar`).subscribe({
+      next: (turnos) => {
+        console.log('Turnos cargados:', turnos);
+        this.turnosList = turnos.filter((t: any) => t.estado === 'activo');
+        
+        // Actualizar turnosCatalogo con los turnos reales
+        this.turnosCatalogo = this.turnosList.map((t: any) => {
+          const turnoNombre = t.turno.toLowerCase();
+          return TURNO_DB_TO_DISPLAY[turnoNombre] || `${t.turno} (${t.hora_entrada} - ${t.hora_salida})`;
+        }) as Turno[];
+        
+        this.isLoadingTurnos = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar turnos:', error);
+        this.isLoadingTurnos = false;
+      }
+    });
+  }
+
+  cargarPersonal(): void {
+    this.isLoadingPersonal = true;
+    this.http.get<any[]>(`${this.personalUrl}/getEmpleados`).subscribe({
+      next: (personal) => {
+        console.log('Personal cargado:', personal);
+        this.personalList = personal;
+        this.isLoadingPersonal = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar personal:', error);
+        this.isLoadingPersonal = false;
+      }
+    });
+  }
 
   // ---- Resumen (demo “hoy”) ----
   get totalPersonal(): number {
@@ -101,18 +201,51 @@ export class AsistenciaComponent {
   }
 
   guardar(): void {
-    if (!this.form.nombre || !this.form.fecha) return;
+    if (!this.form.nombre || !this.form.fecha) {
+      alert('Por favor complete todos los campos requeridos');
+      return;
+    }
+
+    // Convertir el turno del display al valor de la BD
+    const turnoParaBD = TURNO_DISPLAY_TO_DB[this.form.turno] || 'mañana';
+
+    // Preparar datos para enviar al backend
+    const datosParaBackend = {
+      nombre: this.form.nombre,
+      fecha: this.form.fecha,
+      turno: turnoParaBD,
+      estado: this.form.estado
+    };
 
     if (this.editMode) {
+      // TODO: Implementar endpoint de actualización en el backend
       const i = this.asistencias.findIndex(x => x.id === this.form.id);
       if (i > -1) this.asistencias[i] = { ...this.form };
+      this.showForm = false;
     } else {
-      const nuevoId = this.asistencias.length
-        ? Math.max(...this.asistencias.map(x => x.id)) + 1
-        : 1;
-      this.asistencias.unshift({ ...this.form, id: nuevoId });
+      // Crear nueva asistencia
+      this.http.post(`${this.apiUrl}/agregar`, datosParaBackend).subscribe({
+        next: (response: any) => {
+          console.log('Asistencia registrada:', response);
+          alert('✅ Asistencia registrada exitosamente');
+          
+          // Recargar la lista completa desde el backend
+          this.cargarAsistencias();
+          
+          this.showForm = false;
+        },
+        error: (error) => {
+          console.error('Error al registrar asistencia:', error);
+          
+          // Mostrar mensaje de error más específico
+          let mensaje = 'Error al registrar la asistencia.';
+          if (error.error?.error) {
+            mensaje = error.error.error;
+          }
+          alert('❌ ' + mensaje);
+        }
+      });
     }
-    this.showForm = false;
   }
 
   eliminar(a: Asistencia): void {

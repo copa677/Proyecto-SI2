@@ -126,8 +126,33 @@ export class UsuariosComponent implements OnInit {
 
   guardar() {
     if (this.editMode && this.form.id) {
-      // Por ahora no hay endpoint de UPDATE en tu backend público.
-      this.toastr.info('La edición aún no está disponible desde esta pantalla.', 'Aviso');
+      // ACTUALIZAR USUARIO
+      const payloadUpdate: any = {
+        name_user: this.form.nombre?.trim(),
+        email: this.form.email?.trim()
+      };
+
+      // Solo agregar password si se proporcionó uno nuevo
+      if (this.form.password?.trim()) {
+        payloadUpdate.password = this.form.password.trim();
+      }
+
+      if (!payloadUpdate.name_user || !payloadUpdate.email) {
+        this.toastr.warning('Completa username y email', 'Campos requeridos');
+        return;
+      }
+
+      this.api.actualizarUsuario(this.form.id, payloadUpdate).subscribe({
+        next: () => {
+          this.toastr.success('Usuario actualizado correctamente', 'Éxito');
+          this.cargar();
+          this.showForm = false;
+          this.cancelar();
+        },
+        error: (err) => {
+          this.toastr.error(err.error?.error || 'Error al actualizar usuario', 'Error');
+        }
+      });
       return;
     }
 

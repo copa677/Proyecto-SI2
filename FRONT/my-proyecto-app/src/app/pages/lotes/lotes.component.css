@@ -1,0 +1,34 @@
+
+/* Unificar estilos con Bitácora */
+.btn-primary {
+  transition: all 0.2s;
+  background-image: linear-gradient(to right, #2563eb, #4f46e5);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+.form-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  outline: none;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-size: 1rem;
+}
+.form-input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+.modal-backdrop {
+  background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
+  transform: scale(0.98);
+  opacity: 1;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
