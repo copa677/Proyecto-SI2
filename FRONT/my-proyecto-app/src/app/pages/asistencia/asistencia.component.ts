@@ -31,9 +31,9 @@ const TURNO_DB_TO_DISPLAY: Record<string, Turno> = {
   styleUrls: ['./asistencia.component.css']
 })
 export class AsistenciaComponent {
-  private apiUrl = 'http://localhost:8000/api/asistencias';
-  private turnosUrl = 'http://localhost:8000/api/turnos';
-  private personalUrl = 'http://localhost:8000/api/personal';
+  private apiUrl = 'http://ec2-3-16-168-39.us-east-2.compute.amazonaws.com:8000/api/asistencias';
+  private turnosUrl = 'http://ec2-3-16-168-39.us-east-2.compute.amazonaws.com:8000/api/turnos';
+  private personalUrl = 'http://ec2-3-16-168-39.us-east-2.compute.amazonaws.com:8000/api/personal';
 
   // ---- Catálogos de apoyo ----
   turnosCatalogo: Turno[] = [
