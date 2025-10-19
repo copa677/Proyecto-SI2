@@ -17,7 +17,6 @@ import { PersonalComponent } from './pages/personal/personal.component';
 import { AsistenciaComponent } from './pages/asistencia/asistencia.component';
 import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
 import { BitacoraComponent } from './pages/bitacora/bitacora.component';
-import { BitacoraInterceptor } from './services_back/bitacora.interceptor';
 import { LotesComponent } from './pages/lotes/lotes.component';
 import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccion.component';
 import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
@@ -53,13 +52,7 @@ import { PermisoAccionDirective } from './directives/permiso-accion.directive';
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
   ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: BitacoraInterceptor,
-      multi: true
-    }
-  ],
+  
   bootstrap: [AppComponent],
 })
 export class AppModule {}

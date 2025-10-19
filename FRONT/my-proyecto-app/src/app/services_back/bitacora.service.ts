@@ -13,10 +13,13 @@ import { Bitacora } from '../../interface/bitacora';
 export class BitacoraService {
   private myAppUrl: string;
   private myApiUrl: string;
+  username: string = '';
+  IP: string = "";
+  fechaHora: string = this.getLocalDateTime();
 
   constructor(private http: HttpClient) {
-    this.myAppUrl = environment.endpoint;  // URL base del backend
-    this.myApiUrl = 'api/bitacora';        // Endpoint de la app Django
+    this.myAppUrl = environment.endpoint;
+    this.myApiUrl = 'api/bitacora';
   }
 
   // 📋 Obtener todas las bitácoras
@@ -36,6 +39,17 @@ export class BitacoraService {
       .pipe(map(response => response.ip));
   }
 
+  OptenerIP() {
+    this.getUserIP().subscribe(
+      response => {
+        this.IP = response;
+      },
+      error => {
+        console.log('Error al obtener la IP:', error);
+      }
+    );
+  }
+
   // ⏰ Obtener la fecha y hora local del usuario en formato ISO (compatible con Django)
   getLocalDateTime(): string {
     const now = new Date();
@@ -45,20 +59,32 @@ export class BitacoraService {
   }
 
   // � Obtener el usuario desde el token JWT
-  getUserFromToken(): string | null {
+  getUserFromToken(): void {
     const token = localStorage.getItem('token');
-    if (!token) return null;
+    if (!token) {
+      console.warn('No se encontró el token en el localStorage.');
+      this.username = ''; // limpiamos la variable por seguridad
+      return;
+    }
 
     const parts = token.split('.');
-    if (parts.length !== 3) return null;
+    if (parts.length !== 3) {
+      console.error('El token no tiene el formato esperado.');
+      this.username = '';
+      return;
+    }
 
     try {
       const payload = JSON.parse(this.b64urlDecode(parts[1]));
-      return payload.name_user || payload.username || null;
-    } catch {
-      return null;
+      // Guardamos directamente en la variable del servicio
+      this.username = payload.name_user || payload.username || '';
+      console.log('✅ Usuario obtenido del token:', this.username);
+    } catch (error) {
+      console.error('❌ Error al decodificar el token:', error);
+      this.username = '';
     }
   }
+
 
   // Decodifica Base64URL (JWT) de forma segura
   private b64urlDecode(input: string): string {
@@ -69,40 +95,21 @@ export class BitacoraService {
   }
 
   // 💡 Método auxiliar: Registrar bitácora automáticamente (obtiene usuario del token y IP automáticamente)
-  registrarAccion(accion: string, descripcion: string): Observable<void> {
-    const username = this.getUserFromToken();
-    if (!username) {
-      console.error('No se pudo obtener el usuario del token');
-      return new Observable(observer => {
-        observer.error('Usuario no autenticado');
-      });
-    }
-
-    return this.getUserIP().pipe(
-      switchMap(ip => {
-        const bitacora: Bitacora = {
-          username: username,
-          ip: ip,
-          fecha_hora: this.getLocalDateTime(),
-          accion: accion,
-          descripcion: descripcion
-        };
-        return this.registrarBitacora(bitacora);
-      })
-    );
-  }
-
-  // 💡 Método auxiliar alternativo: Crear objeto Bitacora básico automáticamente
-  generarBitacora(accion: string, descripcion: string): Observable<Bitacora> {
-    const username = this.getUserFromToken() || 'Usuario desconocido';
-    return this.getUserIP().pipe(
-      map(ip => ({
-        username: username,
-        ip: ip,
+  registrarAccion(accion: string, descripcion: string){
+    this.getUserFromToken();
+    this.OptenerIP();
+    // Obtenemos la IP del usuario
+    const bitacora: Bitacora = {
+        username: this.username,
+        ip: this.IP,
         fecha_hora: this.getLocalDateTime(),
         accion: accion,
         descripcion: descripcion
-      }))
-    );
+    };
+
+    // Enviamos la bitácora al backend y ejecutamos el subscribe aquí mismo
+    return this.registrarBitacora(bitacora).subscribe()
   }
+
+
 }

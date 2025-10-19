@@ -71,10 +71,7 @@ export class NotesComponent {
         this.bitacoraService.registrarAccion(
           'Inicio de sesión',
           `El usuario ${this.username.trim()} ha iniciado sesión en el sistema`
-        ).subscribe({
-          next: () => console.log('Inicio de sesión registrado en bitácora'),
-          error: (err) => console.error('Error al registrar en bitácora:', err)
-        });
+        );
         
         this.toastr.success('¡Bienvenido!', 'Inicio de sesión exitoso', {
           positionClass: 'toast-bottom-right',
