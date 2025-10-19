@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment.development';
-import { ControlCalidad } from '../../interface/controlCalidad';
+import { ControlCalidad } from '../../interface/control-calidad';
 
 @Injectable({
   providedIn: 'root'

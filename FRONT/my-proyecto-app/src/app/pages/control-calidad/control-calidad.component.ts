@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ControlCalidadService } from '../../services_back/control-calidad.service';
-import { ControlCalidad } from '../../../interface/controlCalidad';
+import { PersonalService } from '../../services_back/personal.service';
+import { TrazabilidadService } from '../../services_back/trazabilidad.service';
+import { ControlCalidad } from '../../../interface/control-calidad';
+import { Personal } from '../../../interface/personal';
+import { Trazabilidad } from '../../../interface/trazabilidad';
 
 @Component({
   selector: 'app-control-calidad',
@@ -9,15 +13,24 @@ import { ControlCalidad } from '../../../interface/controlCalidad';
 })
 export class ControlCalidadComponent implements OnInit {
   controles: ControlCalidad[] = [];
+  personales: Personal[] = [];
+  trazabilidades: Trazabilidad[] = [];
+  
   selectedControl: ControlCalidad | null = null;
+  selectedTrazabilidadDetails: Trazabilidad | null = null;
   showForm = false;
   formData: Partial<ControlCalidad> = {};
   searchTerm = '';
 
-  constructor(private controlCalidadService: ControlCalidadService) {}
+  constructor(
+    private controlCalidadService: ControlCalidadService,
+    private personalService: PersonalService,
+    private trazabilidadService: TrazabilidadService
+  ) {}
 
   ngOnInit(): void {
     this.getControles();
+    this.loadInitialData();
   }
 
   getControles() {
@@ -29,6 +42,11 @@ export class ControlCalidadComponent implements OnInit {
         console.error('Error al obtener controles:', error);
       }
     );
+  }
+
+  loadInitialData() {
+    this.personalService.getPersonales().subscribe(data => this.personales = data);
+    this.trazabilidadService.getTrazabilidades().subscribe(data => this.trazabilidades = data);
   }
 
   get filteredControles() {
@@ -46,18 +64,27 @@ export class ControlCalidadComponent implements OnInit {
 
   openForm(control?: ControlCalidad) {
     this.showForm = true;
+    this.selectedTrazabilidadDetails = null;
     this.formData = control ? { ...control } : {
       observaciones: '',
       resultado: 'Pendiente',
-      fecha_hora: new Date().toISOString(),
-      nombre_personal: '',
-      id_trazabilidad: 0
+      fecha_hora: new Date().toISOString().substring(0, 16),
+      id_personal: undefined,
+      id_trazabilidad: undefined
     };
+    if (control && control.id_trazabilidad) {
+      this.onTrazabilidadChange(control.id_trazabilidad);
+    }
+  }
+
+  onTrazabilidadChange(id_trazabilidad: number) {
+    this.selectedTrazabilidadDetails = this.trazabilidades.find(t => t.id_trazabilidad === +id_trazabilidad) || null;
   }
 
   closeForm() {
     this.showForm = false;
     this.formData = {};
+    this.selectedTrazabilidadDetails = null;
   }
 
   saveControl() {
@@ -110,5 +137,11 @@ export class ControlCalidadComponent implements OnInit {
       case 'En Revisión': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  }
+
+  getPersonalNombre(id?: number): string {
+    if (!id) return 'No asignado';
+    const personal = this.personales.find(p => p.id === id);
+    return personal ? personal.nombre_completo : 'Desconocido';
   }
 }

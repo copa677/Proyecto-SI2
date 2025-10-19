@@ -48,7 +48,7 @@ export class OrdenProduccionComponent implements OnInit {
         this.trazabilidad = Array.isArray(data) ? data : (data ? [data] : []);
         this.modalVisible = true;
       },
-      error => {
+      (error: any) => {
         this.trazabilidad = [];
         this.modalVisible = true;
       }

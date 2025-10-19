@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
 import { environment } from '../../environments/environment.development';
 import { Trazabilidad } from '../../interface/trazabilidad';
 
@@ -13,36 +12,27 @@ export class TrazabilidadService {
   private myApiUrl: string;
 
   constructor(private http: HttpClient) {
-    this.myAppUrl = environment.endpoint;        // Base URL del backend
-    this.myApiUrl = 'api/trazabilidad';          // Endpoint Django principal
+  this.myAppUrl = environment.endpoint;
+  this.myApiUrl = 'api/trazabilidad/trazabilidades/';
   }
 
-  // ===========================
-  // 🔍 TRAZABILIDAD
-  // ===========================
-
-  // GET: listar todas las trazabilidades
   getTrazabilidades(): Observable<Trazabilidad[]> {
-    return this.http.get<Trazabilidad[]>(`${this.myAppUrl}${this.myApiUrl}/trazabilidades/`);
+  return this.http.get<Trazabilidad[]>(`${this.myAppUrl}${this.myApiUrl}`);
   }
 
-  // GET: obtener una trazabilidad por id
-  getTrazabilidad(id_trazabilidad: number): Observable<Trazabilidad> {
-    return this.http.get<Trazabilidad>(`${this.myAppUrl}${this.myApiUrl}/trazabilidades/${id_trazabilidad}/`);
+  getTrazabilidad(id: number): Observable<Trazabilidad> {
+    return this.http.get<Trazabilidad>(`${this.myAppUrl}${this.myApiUrl}${id}/`);
   }
 
-  // POST: insertar una nueva trazabilidad
-  insertarTrazabilidad(nuevaTrazabilidad: Trazabilidad): Observable<void> {
-    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}/trazabilidades/insertar/`, nuevaTrazabilidad);
+  insertarTrazabilidad(trazabilidad: Trazabilidad): Observable<Trazabilidad> {
+    return this.http.post<Trazabilidad>(`${this.myAppUrl}${this.myApiUrl}`, trazabilidad);
   }
 
-  // PUT: actualizar trazabilidad existente
-  actualizarTrazabilidad(id_trazabilidad: number, trazabilidadEditada: Trazabilidad): Observable<void> {
-    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/trazabilidades/actualizar/${id_trazabilidad}/`, trazabilidadEditada);
+  actualizarTrazabilidad(id: number, trazabilidad: Trazabilidad): Observable<void> {
+    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}${id}/`, trazabilidad);
   }
 
-  // DELETE: eliminar una trazabilidad
-  eliminarTrazabilidad(id_trazabilidad: number): Observable<void> {
-    return this.http.delete<void>(`${this.myAppUrl}${this.myApiUrl}/trazabilidades/eliminar/${id_trazabilidad}/`);
+  eliminarTrazabilidad(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.myAppUrl}${this.myApiUrl}${id}/`);
   }
 }
