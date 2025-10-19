@@ -31,9 +31,9 @@ const TURNO_DB_TO_DISPLAY: Record<string, Turno> = {
   styleUrls: ['./asistencia.component.css']
 })
 export class AsistenciaComponent {
-  private apiUrl = 'http://ec2-3-16-168-39.us-east-2.compute.amazonaws.com:8000/api/asistencias';
-  private turnosUrl = 'http://ec2-3-16-168-39.us-east-2.compute.amazonaws.com:8000/api/turnos';
-  private personalUrl = 'http://ec2-3-16-168-39.us-east-2.compute.amazonaws.com:8000/api/personal';
+  private apiUrl = 'http://localhost:8000/api/asistencias';
+  private turnosUrl = 'http://localhost:8000/api/turnos';
+  private personalUrl = 'http://localhost:8000/api/personal';
 
   // ---- Catálogos de apoyo ----
   turnosCatalogo: Turno[] = [
@@ -218,26 +218,36 @@ export class AsistenciaComponent {
     };
 
     if (this.editMode) {
-      // TODO: Implementar endpoint de actualización en el backend
-      const i = this.asistencias.findIndex(x => x.id === this.form.id);
-      if (i > -1) this.asistencias[i] = { ...this.form };
-      this.showForm = false;
+      // Actualizar asistencia existente en el backend
+      this.http.put(`${this.apiUrl}/actualizar/${this.form.id}`, datosParaBackend).subscribe({
+        next: (response: any) => {
+          console.log('Asistencia actualizada:', response);
+          alert('✅ Asistencia actualizada exitosamente');
+          // Recargar la lista completa desde el backend
+          this.cargarAsistencias();
+          this.showForm = false;
+        },
+        error: (error) => {
+          console.error('Error al actualizar asistencia:', error);
+          let mensaje = 'Error al actualizar la asistencia.';
+          if (error.error?.error) {
+            mensaje = error.error.error;
+          }
+          alert('❌ ' + mensaje);
+        }
+      });
     } else {
       // Crear nueva asistencia
       this.http.post(`${this.apiUrl}/agregar`, datosParaBackend).subscribe({
         next: (response: any) => {
           console.log('Asistencia registrada:', response);
           alert('✅ Asistencia registrada exitosamente');
-          
           // Recargar la lista completa desde el backend
           this.cargarAsistencias();
-          
           this.showForm = false;
         },
         error: (error) => {
           console.error('Error al registrar asistencia:', error);
-          
-          // Mostrar mensaje de error más específico
           let mensaje = 'Error al registrar la asistencia.';
           if (error.error?.error) {
             mensaje = error.error.error;

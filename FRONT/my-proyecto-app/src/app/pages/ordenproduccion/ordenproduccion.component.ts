@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TrazabilidadService } from '../../services_back/trazabilidad.service';
 
 @Component({
   selector: 'app-ordenproduccion',
@@ -34,8 +35,25 @@ export class OrdenProduccionComponent implements OnInit {
   ];
   showForm = false;
   formData: any = {};
+  trazabilidad: any[] = [];
+  modalVisible = false;
 
-  constructor() {}
+  constructor(private trazabilidadService: TrazabilidadService) {}
+  verTrazabilidad(orden: any) {
+    // Aquí deberías obtener el id relacionado para la trazabilidad de la orden
+    // Por ejemplo, si la orden tiene un id_lote o id_trazabilidad relacionado
+    // Aquí se usa id_orden como ejemplo, ajusta según tu modelo real
+    this.trazabilidadService.getTrazabilidad(orden.id_orden).subscribe(
+      (data: any) => {
+        this.trazabilidad = Array.isArray(data) ? data : (data ? [data] : []);
+        this.modalVisible = true;
+      },
+      (error: any) => {
+        this.trazabilidad = [];
+        this.modalVisible = true;
+      }
+    );
+  }
 
   openForm(orden?: any) {
     this.showForm = true;
@@ -56,9 +74,9 @@ export class OrdenProduccionComponent implements OnInit {
     this.formData = {};
   }
 
-  deleteOrden(id: number) {
+  deleteOrden(id: number): void {
     if (confirm('¿Está seguro de eliminar esta orden?')) {
-      this.ordenes = this.ordenes.filter(o => o.id_orden !== id);
+      this.ordenes = this.ordenes.filter((o: any) => o.id_orden !== id);
     }
   }
 

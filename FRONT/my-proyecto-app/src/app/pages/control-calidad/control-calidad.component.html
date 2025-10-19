@@ -1,0 +1,162 @@
+<section class="py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Encabezado -->
+    <div class="md:flex md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Control de Calidad</h2>
+        <p class="mt-1 text-sm text-gray-600">Gestiona los controles de calidad de producción</p>
+      </div>
+      <div class="mt-4 md:mt-0">
+        <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" 
+                (click)="openForm()">
+          <i class="fas fa-plus mr-2"></i> Nuevo Control
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="mb-4">
+      <div class="relative rounded-md shadow-sm">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400"></i>
+        </div>
+        <input type="text" [(ngModel)]="searchTerm" 
+               placeholder="Buscar por resultado u observaciones..."
+               class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2">
+      </div>
+    </div>
+
+    <!-- Tabla de Controles de Calidad -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Control</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resultado</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Observaciones</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personal</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let control of filteredControles" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ control.id_control }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ control.fecha_hora | date:'M/d/yy, HH:mm':'UTC' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getResultadoClass(control.resultado)">
+                {{ control.resultado }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ control.observaciones || 'Sin observaciones' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ getPersonalNombre(control.id_personal) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(control)">
+                <i class="fas fa-edit mr-1"></i> Editar
+              </button>
+              <button class="text-red-600 hover:text-red-900" *ngIf="control.id_control !== undefined" (click)="deleteControl(control.id_control)">
+                <i class="fas fa-trash mr-1"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredControles.length === 0">
+            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay controles de calidad registrados</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal de Formulario -->
+    <div *ngIf="showForm" class="fixed z-10 inset-0 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeForm()"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                  {{ formData.id_control ? 'Editar Control' : 'Nuevo Control de Calidad' }}
+                </h3>
+                
+                <form class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Resultado</label>
+                    <select [(ngModel)]="formData.resultado" name="resultado"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                      <option value="Pendiente">Pendiente</option>
+                      <option value="En Revisión">En Revisión</option>
+                      <option value="Aprobado">Aprobado</option>
+                      <option value="Rechazado">Rechazado</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Observaciones</label>
+                    <textarea [(ngModel)]="formData.observaciones" name="observaciones" rows="4"
+                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Fecha y Hora</label>
+                    <input type="datetime-local" [(ngModel)]="formData.fecha_hora" name="fecha_hora"
+                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  </div>
+                  
+                  <div class="grid grid-cols-1 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Personal Asignado</label>
+                      <select [(ngModel)]="formData.id_personal" name="id_personal"
+                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <option [ngValue]="undefined" disabled>Seleccione un responsable</option>
+                        <option *ngFor="let p of personales" [value]="p.id">
+                          {{ p.nombre_completo }}
+                        </option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700">Trazabilidad</label>
+                      <select [(ngModel)]="formData.id_trazabilidad" name="id_trazabilidad"
+                              (change)="onTrazabilidadChange($any($event.target).value)"
+                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <option [ngValue]="undefined" disabled>Seleccione un proceso</option>
+                        <option *ngFor="let t of trazabilidades" [value]="t.id_trazabilidad">
+                          ID: {{ t.id_trazabilidad }} - Proceso: {{ t.proceso }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <div *ngIf="selectedTrazabilidadDetails" class="mt-2 p-3 bg-gray-50 rounded-lg border">
+                      <h4 class="text-xs font-semibold text-gray-700 mb-1">Detalles de la Trazabilidad:</h4>
+                      <p class="text-sm text-gray-600"><strong>ID:</strong> {{ selectedTrazabilidadDetails.id_trazabilidad }}</p>
+                      <p class="text-sm text-gray-600"><strong>Proceso:</strong> {{ selectedTrazabilidadDetails.proceso }}</p>
+                      <p class="text-sm text-gray-600"><strong>Descripción:</strong> {{ selectedTrazabilidadDetails.descripcion_proceso }}</p>
+                      <p class="text-sm text-gray-600"><strong>Responsable:</strong> {{ getPersonalNombre(selectedTrazabilidadDetails.id_personal) }}</p>
+                      <p class="text-sm text-gray-600"><strong>Inicio:</strong> {{ selectedTrazabilidadDetails.fecha_registro }} {{ selectedTrazabilidadDetails.hora_inicio }}</p>
+                      <p class="text-sm text-gray-600"><strong>Fin:</strong> {{ selectedTrazabilidadDetails.hora_fin }}</p>
+                      <p class="text-sm text-gray-600"><strong>Cantidad:</strong> {{ selectedTrazabilidadDetails.cantidad }}</p>
+                      <p class="text-sm text-gray-600"><strong>Estado:</strong> {{ selectedTrazabilidadDetails.estado }}</p>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button" (click)="saveControl()"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+              Guardar
+            </button>
+            <button type="button" (click)="closeForm()"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

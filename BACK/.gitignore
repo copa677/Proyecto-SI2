@@ -10,7 +10,6 @@ __pycache__/
 # Evitar subir entornos virtuales
 venv/
 
-
 # Archivos de base de datos locales
 *.sqlite3
 

@@ -5,7 +5,6 @@ import { environment } from '../../environments/environment.development';
 import { Lote } from '../../interface/lote';
 import { MateriaPrima } from '../../interface/materiaprima';
 
-
 @Injectable({
   providedIn: 'root'
 })

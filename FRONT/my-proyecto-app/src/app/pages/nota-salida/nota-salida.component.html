@@ -7,10 +7,7 @@
     </div>
 
     <div class="grid gap-4 mb-6">
-      <div *ngFor="let nota of notasSalida" 
-           (click)="seleccionarNota(nota)"
-           class="border border-gray-300 rounded-lg p-4 hover:bg-blue-50 cursor-pointer transition"
-           [class.bg-blue-100]="notaSeleccionada?.id_salida === nota.id_salida">
+      <div *ngFor="let nota of notasSalida" class="border border-gray-300 rounded-lg p-4 hover:bg-blue-50 cursor-pointer transition mb-2" [class.bg-blue-100]="notaSeleccionada?.id_salida === nota.id_salida">
         <div class="flex justify-between items-start">
           <div>
             <p class="text-sm text-gray-600">
@@ -18,6 +15,12 @@
             </p>
             <p class="text-sm text-gray-600">
               <strong>Motivo:</strong> {{ nota.motivo }}
+            </p>
+            <p class="text-sm text-gray-600">
+              <strong>Solicitante:</strong> {{ nota.solicitante || 'N/A' }}
+            </p>
+            <p class="text-sm text-gray-600">
+              <strong>Área:</strong> {{ nota.area || 'N/A' }}
             </p>
           </div>
           <span class="px-3 py-1 rounded-full text-xs font-semibold"
@@ -28,35 +31,58 @@
             {{ nota.estado }}
           </span>
         </div>
+        <div class="mt-2 text-right">
+          <button class="px-4 py-1 bg-indigo-600 text-white rounded shadow hover:bg-indigo-700" (click)="seleccionarNota(nota)">
+            <i class="fas fa-file-invoice mr-1"></i> Ver Detalle
+          </button>
+        </div>
       </div>
     </div>
 
-    <div *ngIf="notaSeleccionada" class="mt-6 border-t pt-6">
-      <h3 class="text-xl font-semibold mb-4 text-gray-800">Detalle de Nota de Salida</h3>
-      
-      <div *ngIf="detalles.length === 0" class="text-gray-500 text-center py-4">
-        No hay detalles para esta nota de salida
-      </div>
 
-      <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-300 rounded-lg">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Materia Prima</th>
-              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Cantidad</th>
-              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Unidad</th>
-              <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Lote</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let detalle of detalles" class="border-t border-gray-200">
-              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.nombre_materia_prima }}</td>
-              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.cantidad }}</td>
-              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.unidad_medida }}</td>
-              <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.id_lote }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Modal de Detalle Nota de Salida -->
+    <div *ngIf="modalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="max-w-2xl w-full bg-white border rounded-lg shadow p-6 relative">
+        <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl" (click)="modalVisible = false">
+          &times;
+        </button>
+        <h3 class="text-2xl font-bold mb-2 text-gray-800 flex items-center">
+          <i class="fas fa-file-invoice mr-2 text-indigo-600"></i> Factura / Detalle Nota de Salida
+        </h3>
+        <div class="mb-4">
+          <p><b>Fecha:</b> {{ notaSeleccionada.fecha_salida }}</p>
+          <p><b>Motivo:</b> {{ notaSeleccionada.motivo }}</p>
+          <p><b>Solicitante:</b> {{ notaSeleccionada.solicitante || 'N/A' }}</p>
+          <p><b>Área:</b> {{ notaSeleccionada.area || 'N/A' }}</p>
+          <p><b>Estado:</b> {{ notaSeleccionada.estado }}</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white border border-gray-300 rounded-lg mb-4">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">#</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Materia Prima</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Cantidad</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Unidad</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Lote</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let detalle of detalles; let i = index" class="border-t border-gray-200">
+                <td class="px-4 py-3 text-sm text-gray-800">{{ i + 1 }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.nombre_materia_prima }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.cantidad }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.unidad_medida }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.id_lote }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.observacion || '---' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="text-right mt-4">
+          <span class="font-bold text-lg">Total ítems: {{ detalles.length }}</span>
+        </div>
       </div>
     </div>
   </div>

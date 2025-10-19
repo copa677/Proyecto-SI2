@@ -1,49 +1,39 @@
-// src/app/services_back/inventario.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-import { environment } from '../../environments/environment.development';
-import { Inventario } from '../../interface/inventario';
+import { Inventario } from '../inventario.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventarioService {
-  private myAppUrl: string;
-  private myApiUrl: string;
+  private apiUrl = 'http://localhost:8000/api/inventario/inventario';
 
-  constructor(private http: HttpClient) {
-    this.myAppUrl = environment.endpoint;      // URL base del backend
-    this.myApiUrl = 'api/inventario';          // Endpoint principal Django
+  constructor(private http: HttpClient) { }
+
+  getInventarios(): Observable<Inventario[]> {
+    return this.http.get<Inventario[]>(`${this.apiUrl}/`);
   }
 
-  // ===========================
-  // 📦 INVENTARIO
-  // ===========================
-
-  // GET: listar todos los registros de inventario
-  getInventario(): Observable<Inventario[]> {
-    return this.http.get<Inventario[]>(`${this.myAppUrl}${this.myApiUrl}/inventario/`);
+  getInventario(id: number): Observable<Inventario> {
+    return this.http.get<Inventario>(`${this.apiUrl}/${id}/`);
   }
 
-  // GET: obtener un registro de inventario por ID
-  getInventarioById(id_inventario: number): Observable<Inventario> {
-    return this.http.get<Inventario>(`${this.myAppUrl}${this.myApiUrl}/inventario/${id_inventario}/`);
+  createInventario(inventario: Partial<Inventario>): Observable<Inventario> {
+    return this.http.post<Inventario>(`${this.apiUrl}/registrar/`, inventario);
   }
 
-  // POST: registrar nuevo inventario
-  registrarInventario(nuevoInventario: Inventario): Observable<void> {
-    return this.http.post<void>(`${this.myAppUrl}${this.myApiUrl}/inventario/registrar/`, nuevoInventario);
+  updateInventario(id: number, inventario: Partial<Inventario>): Observable<Inventario> {
+    return this.http.put<Inventario>(`${this.apiUrl}/actualizar/${id}/`, inventario);
   }
 
-  // PUT: actualizar un inventario existente
-  actualizarInventario(id_inventario: number, inventarioEditado: Inventario): Observable<void> {
-    return this.http.put<void>(`${this.myAppUrl}${this.myApiUrl}/inventario/actualizar/${id_inventario}/`, inventarioEditado);
+  deleteInventario(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/eliminar/${id}/`);
   }
 
-  // DELETE: eliminar un inventario
-  eliminarInventario(id_inventario: number): Observable<void> {
-    return this.http.delete<void>(`${this.myAppUrl}${this.myApiUrl}/inventario/eliminar/${id_inventario}/`);
-  }
+    // Nuevo método para obtener trazabilidad del lote
+    getTrazabilidadPorLote(id_lote: number): Observable<any[]> {
+      // Ajusta la URL según tu backend, aquí se asume que el endpoint acepta filtro por id_lote
+      return this.http.get<any[]>(`http://localhost:8000/api/trazabilidad/trazabilidades/?id_lote=${id_lote}`);
+    }
 }

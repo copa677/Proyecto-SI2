@@ -16,15 +16,14 @@ interface Bitacora {
   styleUrls: ['./bitacora.component.css']
 })
 export class BitacoraComponent implements OnInit {
-
   // ---- Datos ----
   bitacoras: Bitacora[] = [];
-
+  
   // ---- Filtros / búsqueda ----
   busqueda = '';
   filtroFecha = '';
   filtroAccion = '';
-
+  
   // Catálogo de acciones comunes
   accionesCatalogo: string[] = [
     'Inicio de sesión',
@@ -39,48 +38,48 @@ export class BitacoraComponent implements OnInit {
   showForm = false;
   form: Bitacora = this.nuevoForm();
 
-  // Estado de carga
+  // Loading states
   isLoading = false;
 
-  constructor(private bitacoraService: BitacoraService) { }
+  constructor(private bitacoraService: BitacoraService) {}
 
   ngOnInit(): void {
     this.cargarBitacoras();
   }
 
-  // ---- Métodos de carga ----
+  // ---- Métodos de carga de datos ----
   cargarBitacoras(): void {
     this.isLoading = true;
     this.bitacoraService.getBitacoras().subscribe({
       next: (bitacoras) => {
-        console.log('✅ Bitácoras cargadas:', bitacoras);
+        console.log('Bitácoras cargadas:', bitacoras);
         this.bitacoras = bitacoras;
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('❌ Error al cargar bitácoras:', error);
+        console.error('Error al cargar bitácoras:', error);
         this.isLoading = false;
       }
     });
   }
 
-  // ---- Lista filtrada ----
+  // ---- Lista filtrada para la tabla ----
   get filtrados(): Bitacora[] {
     return this.bitacoras.filter(b => {
       const okTexto = this.busqueda
         ? b.username.toLowerCase().includes(this.busqueda.toLowerCase()) ||
-        b.accion.toLowerCase().includes(this.busqueda.toLowerCase()) ||
-        b.descripcion.toLowerCase().includes(this.busqueda.toLowerCase())
+          b.accion.toLowerCase().includes(this.busqueda.toLowerCase()) ||
+          b.descripcion.toLowerCase().includes(this.busqueda.toLowerCase())
         : true;
-
-      const okFecha = this.filtroFecha
+      
+      const okFecha = this.filtroFecha 
         ? b.fecha_hora.startsWith(this.filtroFecha)
         : true;
-
-      const okAccion = this.filtroAccion
+      
+      const okAccion = this.filtroAccion 
         ? b.accion.toLowerCase().includes(this.filtroAccion.toLowerCase())
         : true;
-
+      
       return okTexto && okFecha && okAccion;
     });
   }
@@ -88,14 +87,11 @@ export class BitacoraComponent implements OnInit {
   // ---- Acciones UI ----
   abrirCrear(): void {
     this.form = this.nuevoForm();
-
-    // Obtener usuario desde el token
-    this.bitacoraService.getUserFromToken(); // ejecuta el procedimiento
-    if (this.bitacoraService.username) {
-      this.form.username = this.bitacoraService.username;
+    // Obtener usuario automáticamente desde el token
+    const username = this.bitacoraService.getUserFromToken();
+    if (username) {
+      this.form.username = username;
     }
-
-
     this.showForm = true;
   }
 
@@ -104,27 +100,32 @@ export class BitacoraComponent implements OnInit {
   }
 
   guardar(): void {
-    if (!this.form.accion || !this.form.descripcion) {
-      alert('Por favor ingrese la acción y la descripción.');
+    if (!this.form.accion) {
+      alert('Por favor ingrese la acción');
       return;
     }
 
-    // 🔹 Ahora registrarAccion ya hace el subscribe dentro del servicio
-    this.bitacoraService.registrarAccion(
-      this.form.accion,
-      this.form.descripcion
-    );
-
-    console.log('✅ Bitácora enviada al servicio.');
-
-    // Retroalimentación al usuario
-    alert('✅ Bitácora registrada exitosamente.');
-
-    // Refrescar datos después de un pequeño delay para esperar al backend
-    setTimeout(() => {
-      this.cargarBitacoras();
-      this.showForm = false;
-    }, 500);
+    // Usar el servicio para registrar la bitácora automáticamente
+    this.bitacoraService.registrarAccion(this.form.accion, this.form.descripcion).subscribe({
+      next: () => {
+        console.log('Bitácora registrada exitosamente');
+        alert('✅ Bitácora registrada exitosamente');
+        
+        // Recargar la lista completa desde el backend
+        this.cargarBitacoras();
+        
+        this.showForm = false;
+      },
+      error: (error) => {
+        console.error('Error al registrar bitácora:', error);
+        
+        let mensaje = 'Error al registrar la bitácora.';
+        if (error.error?.message) {
+          mensaje = error.error.message;
+        }
+        alert('❌ ' + mensaje);
+      }
+    });
   }
 
   limpiarFiltros(): void {
@@ -151,11 +152,9 @@ export class BitacoraComponent implements OnInit {
       'badge-create': accionLower.includes('creación') || accionLower.includes('crear'),
       'badge-update': accionLower.includes('modificación') || accionLower.includes('actualizar'),
       'badge-delete': accionLower.includes('eliminación') || accionLower.includes('eliminar'),
-      'badge-other': !accionLower.includes('inicio') &&
-        !accionLower.includes('cierre') &&
-        !accionLower.includes('creación') &&
-        !accionLower.includes('modificación') &&
-        !accionLower.includes('eliminación')
+      'badge-other': !accionLower.includes('inicio') && !accionLower.includes('cierre') && 
+                     !accionLower.includes('creación') && !accionLower.includes('modificación') && 
+                     !accionLower.includes('eliminación')
     };
   }
 

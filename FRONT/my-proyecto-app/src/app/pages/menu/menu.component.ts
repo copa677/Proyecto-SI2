@@ -16,7 +16,7 @@ export class MenuComponent implements OnInit {
   constructor(
     private login: LoginService,
     private bitacoraService: BitacoraService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     const username = this.login.getUsernameFromToken();
@@ -29,22 +29,23 @@ export class MenuComponent implements OnInit {
   }
 
   toggleMenu() { this.showMenu = !this.showMenu; }
-
+  
   logout() {
-  this.bitacoraService.registrarAccion(
-    'Cierre de sesión',
-    `El usuario ${this.userName} ha cerrado sesión`
-  );
-
-  // Espera un poquito antes del redirect para que el registro se complete
-  setTimeout(() => this.ejecutarLogout(), 2000);
-}
-
-
+    this.login.logout().subscribe({
+      next: () => {
+        console.log('Cierre de sesión exitoso en el backend');
+        this.ejecutarLogout();
+      },
+      error: (err) => {
+        console.error('Error en el cierre de sesión del backend:', err);
+        this.ejecutarLogout(); // Aún así, desloguear al usuario en el frontend
+      }
+    });
+  }
 
   private ejecutarLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.removeItem('token'); 
+    localStorage.removeItem('username'); 
     window.location.href = '/notes';
   }
 }

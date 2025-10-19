@@ -1,0 +1,42 @@
+/* Estilos personalizados para el componente de trazabilidad */
+.hover\:bg-gray-50:hover {
+  transition: background-color 0.2s ease-in-out;
+}
+
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Animación para el modal */
+.fixed.z-10 {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Estilos para los campos del formulario */
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Truncate text en descripción */
+.max-w-xs {
+  max-width: 20rem;
+}
+
+/* Grid responsive */
+@media (max-width: 640px) {
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}

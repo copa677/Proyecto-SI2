@@ -17,12 +17,17 @@ import { PersonalComponent } from './pages/personal/personal.component';
 import { AsistenciaComponent } from './pages/asistencia/asistencia.component';
 import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
 import { BitacoraComponent } from './pages/bitacora/bitacora.component';
+import { BitacoraInterceptor } from './services_back/bitacora.interceptor';
 import { LotesComponent } from './pages/lotes/lotes.component';
 import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccion.component';
 import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
 import { PermisosComponent } from './pages/permisos/permisos.component';
 import { AsignarPermisosComponent } from './pages/asignar-permisos/asignar-permisos.component';
 import { PermisoAccionDirective } from './directives/permiso-accion.directive';
+import { TurnosComponent } from './pages/turnos/turnos.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
+import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
+import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +47,10 @@ import { PermisoAccionDirective } from './directives/permiso-accion.directive';
     PermisosComponent,
     AsignarPermisosComponent,
     PermisoAccionDirective,
+    TurnosComponent,
+    InventarioComponent,
+    ControlCalidadComponent,
+    TrazabilidadComponent,
   ],
   imports: [
     BrowserModule,
@@ -52,7 +61,13 @@ import { PermisoAccionDirective } from './directives/permiso-accion.directive';
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
   ],
-  
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: BitacoraInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

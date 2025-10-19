@@ -1,0 +1,22 @@
+/* Estilos personalizados para el componente de turnos */
+.hover\:bg-gray-50:hover {
+  transition: background-color 0.2s ease-in-out;
+}
+
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Animación para el modal */
+.fixed.z-10 {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

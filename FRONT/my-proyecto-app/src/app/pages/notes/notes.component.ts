@@ -7,7 +7,6 @@ import { LoginService } from 'src/app/services_back/login.service';
 import { BitacoraService } from 'src/app/services_back/bitacora.service';
 import { Usuario } from 'src/interface/user';
 
-
 @Component({
   selector: 'app-notes',
   templateUrl: './notes.component.html',
@@ -45,7 +44,6 @@ export class NotesComponent {
       name_user: this.username as any,
       password: this.password
     };
-    
     this.loginService.login(user).subscribe({
       next: (response: any) => {
         // Soporta varios formatos de respuesta: {token}, {access}, "token"
@@ -71,7 +69,10 @@ export class NotesComponent {
         this.bitacoraService.registrarAccion(
           'Inicio de sesión',
           `El usuario ${this.username.trim()} ha iniciado sesión en el sistema`
-        );
+        ).subscribe({
+          next: () => console.log('Inicio de sesión registrado en bitácora'),
+          error: (err) => console.error('Error al registrar en bitácora:', err)
+        });
         
         this.toastr.success('¡Bienvenido!', 'Inicio de sesión exitoso', {
           positionClass: 'toast-bottom-right',

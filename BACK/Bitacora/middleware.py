@@ -53,42 +53,47 @@ class BitacoraMiddleware:
             # Crear descripción detallada con contexto adicional
             descripcion = self._crear_descripcion_detallada(request, response, body_data)
             
-            # Guardar en la bitácora
-            Bitacora.objects.create(
-                username=username,
-                ip=ip,
-                fecha_hora=timezone.now(),
-                accion=accion,
-                descripcion=descripcion
-            )
+            # Guardar en la bitácora usando SQL directo para evitar problemas con la secuencia
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO bitacora (username, ip, fecha_hora, accion, descripcion)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, [username, ip, timezone.now(), accion, descripcion])
+                
         except Exception as e:
             # No queremos que un error en la bitácora afecte la aplicación
             print(f"Error al registrar en bitácora: {str(e)}")
 
     def _obtener_usuario(self, request, body_data=None):
-        """Obtiene el nombre de usuario de la petición"""
-        # PRIORIDAD 1: Campo especial de bitácora (para evitar conflictos)
+        """Obtiene el nombre de usuario de la petición de forma robusta."""
+        # PRIORIDAD 1: Usuario autenticado en el request (JWT o Sesión)
+        # Si el usuario está autenticado, usamos su representación de cadena (__str__)
+        # que en el modelo 'usurios' devuelve 'name_user'. Esto es definitivo.
+        if hasattr(request, 'user') and request.user and getattr(request.user, 'is_authenticated', False):
+            user_str = str(request.user)
+            if user_str:
+                return user_str
+
+        # PRIORIDAD 2: Para acciones sin autenticación (login, registro), buscar en el body.
+        # Campo especial de bitácora para forzar un usuario.
         if body_data and isinstance(body_data, dict):
             bitacora_user = body_data.get('__bitacora_user__')
             if bitacora_user:
                 return bitacora_user
-        
-        # PRIORIDAD 2: Usuario autenticado en la sesión de Django
-        if hasattr(request, 'user') and request.user.is_authenticated:
-            return request.user.username
-        
-        # PRIORIDAD 3: Otros campos comunes (solo si no hay campo especial)
-        if body_data and isinstance(body_data, dict):
+            
+            # Campos comunes de usuario en el body.
             username = body_data.get('name_user') or body_data.get('username') or body_data.get('user')
             if username:
                 return username
-        
-        # PRIORIDAD 4: Si viene en POST (form-data)
+
+        # PRIORIDAD 3: Datos de formulario (form-data).
         if request.method == 'POST':
             username = request.POST.get('name_user') or request.POST.get('username') or request.POST.get('user')
             if username:
                 return username
-        
+                
+        # Si no se encuentra de ninguna forma, es anónimo.
         return 'Anónimo'
 
     def _obtener_ip(self, request):

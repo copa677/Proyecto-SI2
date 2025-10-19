@@ -1,13 +1,50 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/Front
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import usurios
 from .serializers import LoginSerializer, RegisterSerializer ,UsuarioListSerializer
+<<<<<<< HEAD
 from .utils import generate_jwt
 from django.db import connection
 # Create your views here.
 
+=======
+from .utils import generate_jwt, jwt_required
+from django.db import connection
+
+# Create your views here.
+
+@jwt_required
+@api_view(['POST'])
+def logout(request):
+    """
+    Vista para cerrar sesión.
+    El frontend es responsable de eliminar el token.
+    Esta vista registra el evento en la Bitácora.
+    """
+    from django.utils import timezone
+    try:
+        ip = request.META.get('REMOTE_ADDR', '0.0.0.0')
+        username = request.user.name_user
+        
+        # Registrar directamente con SQL para evitar problemas de secuencia
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO bitacora (username, ip, fecha_hora, accion, descripcion)
+                VALUES (%s, %s, %s, %s, %s)
+            """, [username, ip, timezone.now(), 'CIERRE_SESION', f'El usuario {username} cerró sesión.'])
+        
+    except Exception as e:
+        # No bloqueamos el logout si falla la bitácora
+        print(f'Error al registrar cierre de sesión en bitácora: {str(e)}')
+    
+    return Response({'mensaje': 'Cierre de sesión exitoso'}, status=status.HTTP_200_OK)
+
+>>>>>>> origin/Front
 @api_view(['GET'])
 def listar_permisos(request):
     # Permisos fijos, puedes adaptar según tu modelo
@@ -292,6 +329,3 @@ def eliminar_usuario(request, id_usuario):
         return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-
-
