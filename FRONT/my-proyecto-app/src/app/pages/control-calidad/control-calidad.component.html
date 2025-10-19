@@ -43,7 +43,7 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <tr *ngFor="let control of filteredControles" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ control.id_control }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ control.fehca_hora | date:'short' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ control.fecha_hora | date:'M/d/yy, HH:mm':'UTC' }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getResultadoClass(control.resultado)">
                 {{ control.resultado }}
@@ -100,7 +100,7 @@
                   
                   <div>
                     <label class="block text-sm font-medium text-gray-700">Fecha y Hora</label>
-                    <input type="datetime-local" [(ngModel)]="formData.fehca_hora" name="fehca_hora"
+                    <input type="datetime-local" [(ngModel)]="formData.fecha_hora" name="fecha_hora"
                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                   </div>
                   

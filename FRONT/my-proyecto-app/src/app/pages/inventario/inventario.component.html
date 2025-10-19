@@ -59,9 +59,7 @@
               <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(inventario)">
                 <i class="fas fa-edit mr-1"></i> Editar
               </button>
-                <button class="text-green-600 hover:text-green-900 mr-3" (click)="verTrazabilidad(inventario)">
-                  <i class="fas fa-search mr-1"></i> Trazabilidad
-                </button>
+                <!-- Botón de trazabilidad eliminado -->
               <button class="text-red-600 hover:text-red-900" (click)="deleteInventario(inventario.id_inventario)">
                 <i class="fas fa-trash mr-1"></i> Eliminar
               </button>
@@ -87,7 +85,7 @@
                   {{ formData.id_inventario ? 'Editar Item' : 'Nuevo Item' }}
                 </h3>
                 
-                <form class="space-y-4">
+                <form class="space-y-4" (ngSubmit)="saveInventario()" #inventarioForm="ngForm" autocomplete="off">
                   <div>
                     <label class="block text-sm font-medium text-gray-700">Producto</label>
                     <input type="text" [(ngModel)]="formData.nombre_materia_prima" name="nombre_materia_prima"
@@ -126,7 +124,7 @@
             </div>
           </div>
           <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button" (click)="saveInventario()"
+            <button type="button" (click)="saveInventario()" name="guardar"
                     class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
               Guardar
             </button>
@@ -142,23 +140,4 @@
   </div>
 </section>
 
-  <!-- Modal de Trazabilidad -->
-  <div *ngIf="modalVisible" class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div class="modal-content bg-white p-6 rounded shadow-lg w-full max-w-md">
-      <h3 class="text-lg font-bold mb-4">Trazabilidad del Lote</h3>
-      <div *ngIf="trazabilidad && trazabilidad.length > 0; else noTrazabilidad">
-        <div *ngFor="let traza of trazabilidad">
-          <p><b>Proceso:</b> {{ traza.proceso }}</p>
-          <p><b>Descripción:</b> {{ traza.descripcion_proceso }}</p>
-          <p><b>Fecha registro:</b> {{ traza.fecha_registro | date:'short' }}</p>
-          <p><b>Cantidad:</b> {{ traza.cantidad }}</p>
-          <p><b>Estado:</b> {{ traza.estado }}</p>
-          <hr>
-        </div>
-      </div>
-      <ng-template #noTrazabilidad>
-        <p>No hay trazabilidad registrada para este lote.</p>
-      </ng-template>
-      <button class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded" (click)="modalVisible = false">Cerrar</button>
-    </div>
-  </div>
+  <!-- Modal de trazabilidad eliminado -->

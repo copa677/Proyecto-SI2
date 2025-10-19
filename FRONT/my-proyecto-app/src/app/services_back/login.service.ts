@@ -146,4 +146,8 @@ export class LoginService {
   eliminarUsuario(id: number): Observable<any> {
     return this.http.delete<any>(`${this.myAppUrl}${this.myApiUrl}/eliminar/${id}`);
   }
+
+  logout(): Observable<any> {
+    return this.http.post<any>(`${this.myAppUrl}${this.myApiUrl}/logout/`, {});
+  }
 }

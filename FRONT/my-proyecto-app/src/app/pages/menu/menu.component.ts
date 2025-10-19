@@ -31,18 +31,14 @@ export class MenuComponent implements OnInit {
   toggleMenu() { this.showMenu = !this.showMenu; }
   
   logout() {
-    // Registrar en bitácora antes de cerrar sesión
-    this.bitacoraService.registrarAccion(
-      'Cierre de sesión',
-      `El usuario ${this.userName} ha cerrado sesión en el sistema`
-    ).subscribe({
+    this.login.logout().subscribe({
       next: () => {
-        console.log('Cierre de sesión registrado en bitácora');
+        console.log('Cierre de sesión exitoso en el backend');
         this.ejecutarLogout();
       },
       error: (err) => {
-        console.error('Error al registrar en bitácora:', err);
-        this.ejecutarLogout(); // Continuar con logout aunque falle el registro
+        console.error('Error en el cierre de sesión del backend:', err);
+        this.ejecutarLogout(); // Aún así, desloguear al usuario en el frontend
       }
     });
   }

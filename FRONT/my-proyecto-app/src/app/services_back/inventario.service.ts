@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Inventario } from '../../interface/inventario';
+import { Inventario } from '../inventario.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventarioService {
-  private apiUrl = 'http://localhost:8000/api/inventario';
+  private apiUrl = 'http://localhost:8000/api/inventario/inventario';
 
   constructor(private http: HttpClient) { }
 
   getInventarios(): Observable<Inventario[]> {
-    return this.http.get<Inventario[]>(`${this.apiUrl}/inventario/`);
+    return this.http.get<Inventario[]>(`${this.apiUrl}/`);
   }
 
   getInventario(id: number): Observable<Inventario> {
@@ -20,15 +20,15 @@ export class InventarioService {
   }
 
   createInventario(inventario: Partial<Inventario>): Observable<Inventario> {
-    return this.http.post<Inventario>(`${this.apiUrl}/crear_inventario/`, inventario);
+    return this.http.post<Inventario>(`${this.apiUrl}/registrar/`, inventario);
   }
 
   updateInventario(id: number, inventario: Partial<Inventario>): Observable<Inventario> {
-    return this.http.put<Inventario>(`${this.apiUrl}/actualizar_inventario/${id}/`, inventario);
+    return this.http.put<Inventario>(`${this.apiUrl}/actualizar/${id}/`, inventario);
   }
 
   deleteInventario(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/eliminar_inventario/${id}/`);
+    return this.http.delete(`${this.apiUrl}/eliminar/${id}/`);
   }
 
     // Nuevo método para obtener trazabilidad del lote

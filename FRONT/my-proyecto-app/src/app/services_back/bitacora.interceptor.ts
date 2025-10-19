@@ -21,18 +21,18 @@ export class BitacoraInterceptor implements HttpInterceptor {
       });
     }
 
-    // Solo agregar el usuario de bitácora en peticiones que modifican datos
-    const metodosConBody = ['POST', 'PUT', 'PATCH'];
-    
-    if (username && metodosConBody.includes(req.method)) {
-      // Clonar el request y agregar __bitacora_user__ al body
-      // Usamos un nombre especial para evitar conflictos con campos del usuario
-      let body = clonedReq.body || {};
-      body = { ...body, __bitacora_user__: username };
-      
-      clonedReq = clonedReq.clone({
-        body: body
-      });
+    // Agregar __bitacora_user__ en todas las peticiones si hay usuario
+    if (username) {
+      if (clonedReq.method === 'GET' || clonedReq.method === 'DELETE') {
+        // Para GET/DELETE, agregar como parámetro de query especial
+        const params = clonedReq.params.set('__bitacora_user__', username);
+        clonedReq = clonedReq.clone({ params });
+      } else {
+        // Para POST/PUT/PATCH, agregar al body
+        let body = clonedReq.body || {};
+        body = { ...body, __bitacora_user__: username };
+        clonedReq = clonedReq.clone({ body });
+      }
     }
 
     return next.handle(clonedReq);

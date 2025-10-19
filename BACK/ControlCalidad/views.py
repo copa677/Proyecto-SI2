@@ -43,7 +43,7 @@ def insertar_control_calidad(request):
         nuevo_control = ControlCalidad.objects.create(
             observaciones=serializer.validated_data['observaciones'],
             resultado=serializer.validated_data['resultado'],
-            fehca_hora=serializer.validated_data['fehca_hora'],
+            fecha_hora=serializer.validated_data['fecha_hora'],
             id_personal=persona.id,
             id_trazabilidad=serializer.validated_data['id_trazabilidad']
         )
@@ -73,7 +73,7 @@ def actualizar_control_calidad(request, id_control):
         # Actualizar campos
         control.observaciones = serializer.validated_data['observaciones']
         control.resultado = serializer.validated_data['resultado']
-        control.fehca_hora = serializer.validated_data['fehca_hora']
+        control.fecha_hora = serializer.validated_data['fecha_hora']
         control.id_personal = persona.id
         control.id_trazabilidad = serializer.validated_data['id_trazabilidad']
         control.save()

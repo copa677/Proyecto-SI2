@@ -95,7 +95,12 @@ def eliminar_nota_salida(request, id_salida):
 @api_view(['GET'])
 def listar_detalles_salida(request, id_salida):
     detalles = DetalleNotaSalida.objects.filter(id_salida=id_salida)
+    print(f"[DEBUG] Detalles encontrados para id_salida={id_salida}: {list(detalles)}")
+    # Mostrar todos los registros de la tabla para depuración
+    todos = DetalleNotaSalida.objects.all()
+    print(f"[DEBUG] Todos los registros en DetalleNotaSalida: {list(todos)}")
     serializer = DetalleNotaSalidaSerializer(detalles, many=True)
+    print(f"[DEBUG] Datos serializados: {serializer.data}")
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

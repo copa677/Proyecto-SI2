@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { InventarioService } from '../../services_back/inventario.service';
-import { Inventario } from '../../../interface/inventario';
+import { Inventario } from '../../inventario.interface';
 
 @Component({
   selector: 'app-inventario',
@@ -11,7 +11,16 @@ export class InventarioComponent implements OnInit {
   inventarios: Inventario[] = [];
   selectedInventario: Inventario | null = null;
   showForm = false;
-  formData: Partial<Inventario> = {};
+  formData: Partial<Inventario> = {
+    id_inventario: undefined,
+    nombre_materia_prima: '',
+    cantidad_actual: undefined,
+    unidad_medida: '',
+    ubicacion: '',
+    estado: '',
+    fecha_actualizacion: '',
+    id_lote: undefined
+  };
   searchTerm = '';
   modalVisible = false;
   trazabilidad: any[] = [];
@@ -48,15 +57,26 @@ export class InventarioComponent implements OnInit {
 
   openForm(inventario?: Inventario) {
     this.showForm = true;
-    this.formData = inventario ? { ...inventario } : {
-      nombre_materia_prima: '',
-      cantidad_actual: '',
-      unidad_medida: '',
-      ubicacion: '',
-      estado: 'Activo',
-      fecha_actualizacion: '',
-      id_lote: 0
-    };
+    if (inventario) {
+      // Asegurarse que cantidad_actual sea number
+      let cantidad: number | undefined = undefined;
+      if (typeof inventario.cantidad_actual === 'string') {
+        cantidad = parseFloat((inventario.cantidad_actual as string).replace(',', '.'));
+      } else if (typeof inventario.cantidad_actual === 'number') {
+        cantidad = inventario.cantidad_actual;
+      }
+      this.formData = { ...inventario, cantidad_actual: cantidad };
+    } else {
+      this.formData = {
+        nombre_materia_prima: '',
+        cantidad_actual: undefined,
+        unidad_medida: '',
+        ubicacion: '',
+        estado: 'Activo',
+        fecha_actualizacion: '',
+        id_lote: undefined
+      };
+    }
   }
 
   closeForm() {
@@ -79,26 +99,51 @@ export class InventarioComponent implements OnInit {
     }
 
   saveInventario() {
+    console.log('saveInventario llamado');
+    console.log('formData antes de procesar:', this.formData);
+    
+    // Asegurar que cantidad_actual sea número y no string con coma
+    // Normalizar cantidad_actual para que siempre sea number o undefined
+    if (typeof this.formData.cantidad_actual === 'string') {
+      const normalizado = (this.formData.cantidad_actual as string).replace(',', '.');
+      this.formData.cantidad_actual = normalizado === '' ? undefined : parseFloat(normalizado);
+    }
+    
+    console.log('formData después de normalizar:', this.formData);
+    
     if (this.formData.id_inventario) {
       // Actualizar inventario existente
-      this.inventarioService.updateInventario(this.formData.id_inventario, this.formData).subscribe(
-        () => {
+      const data: Partial<Inventario> = { ...this.formData };
+      console.log('Actualizando inventario con ID:', this.formData.id_inventario);
+      console.log('Datos a enviar:', data);
+      
+      this.inventarioService.updateInventario(this.formData.id_inventario, data).subscribe(
+        (response) => {
+          console.log('Inventario actualizado exitosamente:', response);
           this.getInventarios();
           this.closeForm();
         },
         error => {
           console.error('Error al actualizar inventario:', error);
+          alert('Error al actualizar inventario. Revisa la consola para más detalles.');
         }
       );
     } else {
       // Crear nuevo inventario
-      this.inventarioService.createInventario(this.formData).subscribe(
-        () => {
+      const data: Partial<Inventario> = { ...this.formData };
+      console.log('Creando nuevo inventario');
+      console.log('Datos a enviar:', data);
+      
+      this.inventarioService.createInventario(data).subscribe(
+        (response) => {
+          console.log('Inventario creado exitosamente:', response);
           this.getInventarios();
           this.closeForm();
         },
         error => {
           console.error('Error al crear inventario:', error);
+          console.error('Detalles del error:', error.error);
+          alert('Error al crear inventario. Revisa la consola para más detalles.');
         }
       );
     }

@@ -49,7 +49,7 @@ export class ControlCalidadComponent implements OnInit {
     this.formData = control ? { ...control } : {
       observaciones: '',
       resultado: 'Pendiente',
-      fehca_hora: new Date().toISOString(),
+      fecha_hora: new Date().toISOString(),
       nombre_personal: '',
       id_trazabilidad: 0
     };

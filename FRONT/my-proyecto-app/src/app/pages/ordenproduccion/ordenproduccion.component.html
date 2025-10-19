@@ -49,6 +49,9 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(orden)">Editar</button>
+                <button class="text-green-600 hover:text-green-900 mr-3" (click)="verTrazabilidad(orden)">
+                  <i class="fas fa-search mr-1"></i> Trazabilidad
+                </button>
                 <button class="text-red-600 hover:text-red-900" (click)="deleteOrden(orden.id_orden)">Eliminar</button>
               </td>
             </tr>
@@ -59,6 +62,28 @@
         </table>
       </div>
     </div>
+
+    <!-- Modal de Trazabilidad -->
+    <div *ngIf="modalVisible" class="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="modal-content bg-white p-6 rounded shadow-lg w-full max-w-md">
+        <h3 class="text-lg font-bold mb-4">Trazabilidad de la Orden</h3>
+        <div *ngIf="trazabilidad && trazabilidad.length > 0; else noTrazabilidad">
+          <div *ngFor="let traza of trazabilidad">
+            <p><b>Proceso:</b> {{ traza.proceso }}</p>
+            <p><b>Descripción:</b> {{ traza.descripcion_proceso }}</p>
+            <p><b>Fecha registro:</b> {{ traza.fecha_registro | date:'short' }}</p>
+            <p><b>Cantidad:</b> {{ traza.cantidad }}</p>
+            <p><b>Estado:</b> {{ traza.estado }}</p>
+            <hr>
+          </div>
+        </div>
+        <ng-template #noTrazabilidad>
+          <p>No hay trazabilidad registrada para esta orden.</p>
+        </ng-template>
+        <button class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded" (click)="modalVisible = false">Cerrar</button>
+      </div>
+    </div>
+    <!-- El modal termina aquí -->
 
     <!-- Modal Formulario de Orden de Producción (idéntico a Lotes) -->
     <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center" tabindex="0" (keydown.escape)="showForm = false">
