@@ -14,7 +14,8 @@ from Trazabilidad.serializers import TrazabilidadSerializer
 # Importamos modelos para nota de salida e inventario
 from NotaSalida.models import NotaSalida, DetalleNotaSalida
 from Inventario.models import Inventario
-from datetime import date
+from personal.models import personal
+from datetime import date, datetime, time
 
 # 🟢 LISTAR TODAS LAS ÓRDENES
 @api_view(['GET'])
@@ -74,7 +75,16 @@ def crear_orden_con_materias(request):
         id_personal=data['id_personal']
     )
     
-    # 2️⃣ Crear nota de salida automáticamente
+    # 2️⃣ Obtener información del personal responsable
+    try:
+        persona = personal.objects.get(id=data['id_personal'])
+        nombre_solicitante = persona.nombre_completo
+        area_solicitante = persona.rol  # Usamos el rol como área
+    except personal.DoesNotExist:
+        nombre_solicitante = "N/A"
+        area_solicitante = "N/A"
+    
+    # 3️⃣ Crear nota de salida automáticamente
     nota_salida = NotaSalida.objects.create(
         fecha_salida=date.today(),
         motivo=f'Producción: {data["producto_modelo"]} - {data["cod_orden"]}',
@@ -82,7 +92,7 @@ def crear_orden_con_materias(request):
         id_personal=data['id_personal']
     )
     
-    # 3️⃣ Procesar cada materia prima
+    # 4️⃣ Procesar cada materia prima con consumo FIFO de lotes
     materias_usadas = []
     for materia_data in data['materias_primas']:
         id_inventario = materia_data['id_inventario']
@@ -98,39 +108,73 @@ def crear_orden_con_materias(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Verificar stock suficiente
-        if inventario_item.cantidad_actual < cantidad_requerida:
+        nombre_materia = inventario_item.nombre_materia_prima
+        unidad = inventario_item.unidad_medida
+        
+        # 🔹 Obtener todos los lotes disponibles de esta materia prima, ordenados por id_lote (FIFO)
+        lotes_disponibles = Inventario.objects.filter(
+            nombre_materia_prima=nombre_materia,
+            cantidad_actual__gt=0
+        ).order_by('id_lote')
+        
+        # Verificar stock total disponible
+        stock_total = sum(item.cantidad_actual for item in lotes_disponibles)
+        if stock_total < cantidad_requerida:
             transaction.set_rollback(True)
             return Response(
-                {'error': f'Stock insuficiente para {inventario_item.nombre_materia_prima}. Disponible: {inventario_item.cantidad_actual}, Requerido: {cantidad_requerida}'},
+                {'error': f'Stock insuficiente para {nombre_materia}. Disponible: {stock_total}, Requerido: {cantidad_requerida}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Crear detalle de nota de salida
-        DetalleNotaSalida.objects.create(
-            id_salida=nota_salida.id_salida,
-            id_lote=inventario_item.id_lote,
-            nombre_materia_prima=inventario_item.nombre_materia_prima,
-            cantidad=cantidad_requerida,
-            unidad_medida=inventario_item.unidad_medida
-        )
+        # 🔹 Consumir de los lotes disponibles (FIFO)
+        cantidad_restante = cantidad_requerida
+        lotes_consumidos = []
         
-        # Descontar del inventario
-        inventario_item.cantidad_actual -= cantidad_requerida
-        inventario_item.save()
+        for inv_item in lotes_disponibles:
+            if cantidad_restante <= 0:
+                break
+            
+            cantidad_a_consumir = min(inv_item.cantidad_actual, cantidad_restante)
+            
+            # Crear detalle de nota de salida para este lote
+            DetalleNotaSalida.objects.create(
+                id_salida=nota_salida.id_salida,
+                id_lote=inv_item.id_lote,
+                nombre_materia_prima=nombre_materia,
+                cantidad=cantidad_a_consumir,
+                unidad_medida=unidad
+            )
+            
+            # Descontar del inventario
+            inv_item.cantidad_actual -= cantidad_a_consumir
+            inv_item.save()
+            
+            # Registrar lote consumido
+            lotes_consumidos.append({
+                'id_lote': inv_item.id_lote,
+                'cantidad': float(cantidad_a_consumir)
+            })
+            
+            cantidad_restante -= cantidad_a_consumir
         
-        # Registrar trazabilidad
+        # 5️⃣ Registrar trazabilidad automática (una por materia prima)
         Trazabilidad.objects.create(
-            id_lote=inventario_item.id_lote,
-            id_orden=orden.id_orden,
-            cantidad_usada=cantidad_requerida,
-            fecha_registro=date.today()
+            proceso='Consumo de Materia Prima',
+            descripcion_proceso=f'Consumo de {nombre_materia} para orden {data["cod_orden"]} (FIFO: {len(lotes_consumidos)} lote(s))',
+            fecha_registro=datetime.now(),
+            hora_inicio=time(0, 0),  # Hora predeterminada
+            hora_fin=time(0, 0),     # Hora predeterminada
+            cantidad=int(cantidad_requerida),
+            estado='Completado',
+            id_personal=data['id_personal'],
+            id_orden=orden.id_orden
         )
         
+        # Registrar en la lista de materias usadas para la respuesta
         materias_usadas.append({
-            'nombre': inventario_item.nombre_materia_prima,
-            'cantidad': float(cantidad_requerida),
-            'lote': inventario_item.id_lote
+            'nombre': nombre_materia,
+            'cantidad_total': float(cantidad_requerida),
+            'lotes_consumidos': lotes_consumidos
         })
     
     return Response({
@@ -138,6 +182,8 @@ def crear_orden_con_materias(request):
         'id_orden': orden.id_orden,
         'cod_orden': orden.cod_orden,
         'id_nota_salida': nota_salida.id_salida,
+        'solicitante': nombre_solicitante,
+        'area': area_solicitante,
         'materias_consumidas': materias_usadas
     }, status=status.HTTP_201_CREATED)
 

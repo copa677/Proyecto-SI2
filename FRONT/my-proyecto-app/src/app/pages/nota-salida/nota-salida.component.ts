@@ -39,7 +39,12 @@ export class NotaSalidaComponent implements OnInit {
   cargarNotasSalida() {
     this.notaSalidaService.getNotasSalida().subscribe({
       next: (data: any) => {
-        this.notasSalida = data;
+        // Si las notas no traen solicitante/área, inicializar como N/A
+        this.notasSalida = (data || []).map((nota: any) => ({
+          ...nota,
+          solicitante: nota.solicitante || 'N/A',
+          area: nota.area || 'N/A'
+        }));
       },
       error: (error: any) => {
         console.error('Error al cargar notas de salida:', error);
@@ -70,14 +75,22 @@ export class NotaSalidaComponent implements OnInit {
   }
 
   seleccionarNota(nota: any) {
-    this.notaSeleccionada = nota;
     this.notaSalidaService.getDetallesSalida(nota.id_salida).subscribe({
       next: (data: any) => {
-        this.detalles = data;
+        this.notaSeleccionada = {
+          ...nota,
+          fecha_salida: data.fecha,
+          motivo: data.motivo,
+          solicitante: data.solicitante,
+          area: data.area,
+          estado: data.estado
+        };
+        this.detalles = data.detalles || [];
         this.modalVisible = true;
       },
       error: (error: any) => {
         console.error('Error al cargar detalles:', error);
+        this.detalles = [];
         this.modalVisible = true;
       }
     });

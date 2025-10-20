@@ -37,28 +37,59 @@ def crear_nota_salida_con_detalles(request):
         detalles_data = nota_data['detalles']
         for detalle_data in detalles_data:
             id_inventario = detalle_data['id_inventario']
-            cantidad_salida = detalle_data['cantidad']
+            cantidad_solicitada = detalle_data['cantidad']
 
             try:
                 inventario_item = Inventario.objects.get(id_inventario=id_inventario)
             except Inventario.DoesNotExist:
                 raise serializers.ValidationError(f"El item de inventario con id {id_inventario} no existe.")
 
-            if inventario_item.cantidad_actual < cantidad_salida:
-                raise serializers.ValidationError(f"No hay suficiente stock para {inventario_item.nombre_materia_prima}.")
-
-            # Crear el detalle de la nota de salida
-            DetalleNotaSalida.objects.create(
-                id_salida=nota.id_salida,
-                id_lote=inventario_item.id_lote,
-                nombre_materia_prima=inventario_item.nombre_materia_prima,
-                cantidad=cantidad_salida,
-                unidad_medida=inventario_item.unidad_medida
-            )
-
-            # Actualizar inventario
-            inventario_item.cantidad_actual -= cantidad_salida
-            inventario_item.save()
+            nombre_materia = inventario_item.nombre_materia_prima
+            unidad = inventario_item.unidad_medida
+            
+            # 🔹 Obtener todos los lotes disponibles de esta materia prima, ordenados por fecha (FIFO)
+            # Primero obtenemos el id_materia del lote actual
+            try:
+                lote_actual = Lote.objects.get(id_lote=inventario_item.id_lote)
+                id_materia = lote_actual.id_materia
+            except Lote.DoesNotExist:
+                raise serializers.ValidationError(f"No se encontró el lote asociado al inventario.")
+            
+            # Obtener todos los lotes de esta materia prima con inventario disponible
+            lotes_disponibles = Inventario.objects.filter(
+                nombre_materia_prima=nombre_materia,
+                cantidad_actual__gt=0
+            ).select_related().order_by('id_lote')
+            
+            # Verificar stock total disponible
+            stock_total = sum(item.cantidad_actual for item in lotes_disponibles)
+            if stock_total < cantidad_solicitada:
+                raise serializers.ValidationError(
+                    f"Stock insuficiente para {nombre_materia}. Solicitado: {cantidad_solicitada}, Disponible: {stock_total}"
+                )
+            
+            # 🔹 Consumir de los lotes disponibles (FIFO)
+            cantidad_restante = cantidad_solicitada
+            for inv_item in lotes_disponibles:
+                if cantidad_restante <= 0:
+                    break
+                
+                cantidad_a_consumir = min(inv_item.cantidad_actual, cantidad_restante)
+                
+                # Crear el detalle de la nota de salida para este lote
+                DetalleNotaSalida.objects.create(
+                    id_salida=nota.id_salida,
+                    id_lote=inv_item.id_lote,
+                    nombre_materia_prima=nombre_materia,
+                    cantidad=cantidad_a_consumir,
+                    unidad_medida=unidad
+                )
+                
+                # Actualizar inventario
+                inv_item.cantidad_actual -= cantidad_a_consumir
+                inv_item.save()
+                
+                cantidad_restante -= cantidad_a_consumir
 
         return Response({'mensaje': 'Nota de salida creada correctamente', 'id_salida': nota.id_salida}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -66,8 +97,30 @@ def crear_nota_salida_con_detalles(request):
 @api_view(['GET'])
 def listar_notas_salida(request):
     notas = NotaSalida.objects.all()
-    serializer = NotaSalidaSerializer(notas, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # Enriquecer cada nota con información del personal
+    notas_data = []
+    for nota in notas:
+        nota_dict = {
+            'id_salida': nota.id_salida,
+            'fecha_salida': nota.fecha_salida,
+            'motivo': nota.motivo,
+            'estado': nota.estado,
+            'id_personal': nota.id_personal
+        }
+        
+        # Obtener información del personal
+        try:
+            persona = personal.objects.get(id=nota.id_personal)
+            nota_dict['solicitante'] = persona.nombre_completo
+            nota_dict['area'] = persona.rol
+        except personal.DoesNotExist:
+            nota_dict['solicitante'] = 'N/A'
+            nota_dict['area'] = 'N/A'
+        
+        notas_data.append(nota_dict)
+    
+    return Response(notas_data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -141,14 +194,38 @@ def eliminar_nota_salida(request, id_salida):
 
 @api_view(['GET'])
 def listar_detalles_salida(request, id_salida):
+    """
+    Lista los detalles de una nota de salida con información adicional
+    """
+    # Obtener la nota de salida para información adicional
+    try:
+        nota = NotaSalida.objects.get(id_salida=id_salida)
+        try:
+            persona = personal.objects.get(id=nota.id_personal)
+            solicitante = persona.nombre_completo
+            area = persona.rol
+        except personal.DoesNotExist:
+            solicitante = "N/A"
+            area = "N/A"
+    except NotaSalida.DoesNotExist:
+        return Response({'error': 'Nota de salida no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # Obtener detalles
     detalles = DetalleNotaSalida.objects.filter(id_salida=id_salida)
-    print(f"[DEBUG] Detalles encontrados para id_salida={id_salida}: {list(detalles)}")
-    # Mostrar todos los registros de la tabla para depuración
-    todos = DetalleNotaSalida.objects.all()
-    print(f"[DEBUG] Todos los registros en DetalleNotaSalida: {list(todos)}")
+    
+    # Serializar detalles
     serializer = DetalleNotaSalidaSerializer(detalles, many=True)
-    print(f"[DEBUG] Datos serializados: {serializer.data}")
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # Agregar información adicional a la respuesta
+    return Response({
+        'fecha': nota.fecha_salida,
+        'motivo': nota.motivo,
+        'solicitante': solicitante,
+        'area': area,
+        'estado': nota.estado,
+        'detalles': serializer.data,
+        'total_items': len(serializer.data)
+    }, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

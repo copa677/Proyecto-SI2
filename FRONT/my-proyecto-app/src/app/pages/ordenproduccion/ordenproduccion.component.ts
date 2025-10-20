@@ -21,7 +21,7 @@ export class OrdenProduccionComponent implements OnInit {
     color: '',
     talla: '',
     cantidad_total: 0,
-    id_personal: '',
+    responsable: '',
     materias_primas: []
   };
   
@@ -90,7 +90,7 @@ export class OrdenProduccionComponent implements OnInit {
       color: 'Blanco',
       talla: 'M',
       cantidad_total: 1,
-      id_personal: this.personal.length > 0 ? this.personal[0].id_personal : '',
+  responsable: this.personal.length > 0 ? this.personal[0].id : '',
       materias_primas: [{ id_inventario: '', cantidad: 0 }]
     };
     this.showForm = true;
@@ -124,7 +124,7 @@ export class OrdenProduccionComponent implements OnInit {
       return;
     }
 
-    if (!this.formData.id_personal) {
+    if (!this.formData.responsable) {
       alert('Debe seleccionar un responsable.');
       return;
     }
@@ -161,7 +161,7 @@ export class OrdenProduccionComponent implements OnInit {
       color: this.formData.color,
       talla: this.formData.talla,
       cantidad_total: parseInt(this.formData.cantidad_total),
-      id_personal: parseInt(this.formData.id_personal),
+      id_personal: parseInt(this.formData.responsable),
       materias_primas: materiasValidas
     };
 
