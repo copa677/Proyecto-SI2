@@ -25,3 +25,14 @@ class RegistrarDetalleNotaSalidaSerializer(serializers.Serializer):
     cod_lote = serializers.CharField()
     cantidad = serializers.DecimalField(max_digits=10, decimal_places=2)
     unidad_medida = serializers.CharField(max_length=50)
+
+class DetalleNotaSalidaCreateSerializer(serializers.Serializer):
+    id_inventario = serializers.IntegerField()
+    cantidad = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+class NotaSalidaConDetallesSerializer(serializers.Serializer):
+    fecha_salida = serializers.DateField()
+    motivo = serializers.CharField()
+    id_personal = serializers.IntegerField()
+    area = serializers.CharField()
+    detalles = DetalleNotaSalidaCreateSerializer(many=True)

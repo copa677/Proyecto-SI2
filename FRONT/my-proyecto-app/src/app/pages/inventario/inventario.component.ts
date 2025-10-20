@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { InventarioService } from '../../services_back/inventario.service';
+import { LotesService } from '../../services_back/lotes.service';
 import { Inventario } from '../../inventario.interface';
+import { MateriaPrima } from '../../../interface/materiaprima';
+import { Lote } from '../../../interface/lote';
 
 @Component({
   selector: 'app-inventario',
@@ -11,7 +14,7 @@ export class InventarioComponent implements OnInit {
   inventarios: Inventario[] = [];
   selectedInventario: Inventario | null = null;
   showForm = false;
-  formData: Partial<Inventario> = {
+  formData: Partial<Inventario> & { loteInput?: string } = {
     id_inventario: undefined,
     nombre_materia_prima: '',
     cantidad_actual: undefined,
@@ -19,16 +22,38 @@ export class InventarioComponent implements OnInit {
     ubicacion: '',
     estado: '',
     fecha_actualizacion: '',
-    id_lote: undefined
+    id_lote: undefined,
+    loteInput: ''
   };
   searchTerm = '';
   modalVisible = false;
   trazabilidad: any[] = [];
+  
+  // Listas para autocompletar
+  materiasPrimas: MateriaPrima[] = [];
+  lotes: Lote[] = [];
+  filteredMateriasPrimas: MateriaPrima[] = [];
+  filteredLotes: Lote[] = [];
+  showMateriaSuggestions = false;
+  showLoteSuggestions = false;
+  
+  // Opciones para otros campos
+  unidadesMedida = ['kg', 'g', 'l', 'ml', 'm', 'cm', 'unidad', 'caja', 'paquete'];
+  ubicaciones = ['Almacén A', 'Almacén B', 'Almacén C', 'Zona de Corte', 'Zona de Costura'];
+  filteredUnidades: string[] = [];
+  filteredUbicaciones: string[] = [];
+  showUnidadSuggestions = false;
+  showUbicacionSuggestions = false;
 
-  constructor(private inventarioService: InventarioService) {}
+  constructor(
+    private inventarioService: InventarioService,
+    private lotesService: LotesService
+  ) {}
 
   ngOnInit(): void {
     this.getInventarios();
+    this.loadMateriasPrimas();
+    this.loadLotes();
   }
 
   getInventarios() {
@@ -38,6 +63,28 @@ export class InventarioComponent implements OnInit {
       },
       error => {
         console.error('Error al obtener inventarios:', error);
+      }
+    );
+  }
+  
+  loadMateriasPrimas() {
+    this.lotesService.getMateriasPrimas().subscribe(
+      (data: MateriaPrima[]) => {
+        this.materiasPrimas = data;
+      },
+      error => {
+        console.error('Error al cargar materias primas:', error);
+      }
+    );
+  }
+  
+  loadLotes() {
+    this.lotesService.getLotes().subscribe(
+      (data: Lote[]) => {
+        this.lotes = data;
+      },
+      error => {
+        console.error('Error al cargar lotes:', error);
       }
     );
   }
@@ -111,7 +158,7 @@ export class InventarioComponent implements OnInit {
     
     console.log('formData después de normalizar:', this.formData);
     
-    if (this.formData.id_inventario) {
+  if (this.formData.id_inventario) {
       // Actualizar inventario existente
       const data: Partial<Inventario> = { ...this.formData };
       console.log('Actualizando inventario con ID:', this.formData.id_inventario);
@@ -130,10 +177,26 @@ export class InventarioComponent implements OnInit {
       );
     } else {
       // Crear nuevo inventario
-      const data: Partial<Inventario> = { ...this.formData };
+      // Solo enviar los campos requeridos por el backend
+      const selectedLote = this.lotes.find(l => l.id_lote === this.formData.id_lote);
+      if (!selectedLote) {
+        alert('Debes seleccionar un lote válido.');
+        return;
+      }
+      // Si no hay fecha_actualizacion, usar la fecha y hora actual en formato ISO
+      let fechaActual = this.formData.fecha_actualizacion;
+      if (!fechaActual || fechaActual === '') {
+        fechaActual = new Date().toISOString();
+      }
+      const data = {
+        cod_lote: selectedLote.codigo_lote,
+        unidad_medida: this.formData.unidad_medida,
+        ubicacion: this.formData.ubicacion,
+        estado: this.formData.estado,
+        fecha_actualizacion: fechaActual
+      };
       console.log('Creando nuevo inventario');
       console.log('Datos a enviar:', data);
-      
       this.inventarioService.createInventario(data).subscribe(
         (response) => {
           console.log('Inventario creado exitosamente:', response);
@@ -172,5 +235,82 @@ export class InventarioComponent implements OnInit {
       case 'Agotado': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  }
+  
+  // Métodos de autocompletar para Materia Prima
+  onMateriaPrimaInput(value: string) {
+    if (value && value.length > 0) {
+      this.filteredMateriasPrimas = this.materiasPrimas.filter(m => 
+        m.nombre.toLowerCase().includes(value.toLowerCase())
+      );
+      this.showMateriaSuggestions = this.filteredMateriasPrimas.length > 0;
+    } else {
+      this.showMateriaSuggestions = false;
+    }
+  }
+  
+  selectMateriaPrima(materia: MateriaPrima) {
+    this.formData.nombre_materia_prima = materia.nombre;
+    this.showMateriaSuggestions = false;
+  }
+  
+  // Métodos de autocompletar para Lote
+  onLoteInput(value: any) {
+    const searchValue = value ? value.toString().toLowerCase() : '';
+    if (searchValue && searchValue.length > 0) {
+      this.filteredLotes = this.lotes.filter(l => {
+        const codigoMatch = l.codigo_lote.toLowerCase().includes(searchValue);
+        const idMatch = l.id_lote?.toString().includes(searchValue);
+        return codigoMatch || idMatch;
+      });
+      this.showLoteSuggestions = this.filteredLotes.length > 0;
+    } else {
+      this.showLoteSuggestions = false;
+    }
+  }
+  
+  selectLote(lote: Lote) {
+  this.formData.id_lote = lote.id_lote;
+  this.formData.loteInput = lote.codigo_lote;
+  // Autocompletar el nombre de la materia prima asociada al lote
+  const materia = this.materiasPrimas.find(m => m.id_materia === lote.id_materia);
+  this.formData.nombre_materia_prima = materia ? materia.nombre : '';
+  // Autocompletar la cantidad con la cantidad del lote
+  this.formData.cantidad_actual = lote.cantidad;
+  this.showLoteSuggestions = false;
+  }
+  
+  // Métodos de autocompletar para Unidad de Medida
+  onUnidadInput(value: string) {
+    if (value && value.length > 0) {
+      this.filteredUnidades = this.unidadesMedida.filter(u => 
+        u.toLowerCase().includes(value.toLowerCase())
+      );
+      this.showUnidadSuggestions = this.filteredUnidades.length > 0;
+    } else {
+      this.showUnidadSuggestions = false;
+    }
+  }
+  
+  selectUnidad(unidad: string) {
+    this.formData.unidad_medida = unidad;
+    this.showUnidadSuggestions = false;
+  }
+  
+  // Métodos de autocompletar para Ubicación
+  onUbicacionInput(value: string) {
+    if (value && value.length > 0) {
+      this.filteredUbicaciones = this.ubicaciones.filter(u => 
+        u.toLowerCase().includes(value.toLowerCase())
+      );
+      this.showUbicacionSuggestions = this.filteredUbicaciones.length > 0;
+    } else {
+      this.showUbicacionSuggestions = false;
+    }
+  }
+  
+  selectUbicacion(ubicacion: string) {
+    this.formData.ubicacion = ubicacion;
+    this.showUbicacionSuggestions = false;
   }
 }

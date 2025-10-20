@@ -92,26 +92,103 @@
         <!-- Body -->
         <form class="flex-1 flex flex-col" (ngSubmit)="saveInventario()" #inventarioForm="ngForm" autocomplete="off">
           <div class="px-4 py-4 overflow-y-auto flex-1 space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Producto</label>
-              <input type="text" [(ngModel)]="formData.nombre_materia_prima" name="nombre_materia_prima"
-                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <!-- Campo Lote con autocompletar (primero) -->
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700">Lote</label>
+              <input type="text" 
+                     [(ngModel)]="formData.loteInput" 
+                     name="loteInput"
+                     (input)="onLoteInput($any($event.target).value)"
+                     (focus)="onLoteInput(formData.loteInput || '')"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                     placeholder="ID o código de lote...">
+              <!-- Sugerencias de Lote -->
+              <div *ngIf="showLoteSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                <div *ngFor="let lote of filteredLotes" 
+                     (click)="selectLote(lote)"
+                     class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                  <span class="block font-medium">{{ lote.codigo_lote }}</span>
+                  <span class="text-xs text-gray-500 hover:text-indigo-200">ID: {{ lote.id_lote }} | Cantidad: {{ lote.cantidad }}</span>
+                </div>
+              </div>
             </div>
+            <!-- Campo Producto (Materia Prima) autocompletado automáticamente -->
             <div>
+              <label class="block text-sm font-medium text-gray-700">Producto (Materia Prima)</label>
+              <input type="text" 
+                     [(ngModel)]="formData.nombre_materia_prima" 
+                     name="nombre_materia_prima"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100"
+                     placeholder="Selecciona un lote..." readonly>
+            </div>
+            
+            <!-- Campo Unidad de Medida con autocompletar -->
+            <div class="relative">
               <label class="block text-sm font-medium text-gray-700">Unidad de Medida</label>
-              <input type="text" [(ngModel)]="formData.unidad_medida" name="unidad_medida"
-                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              <input type="text" 
+                     [(ngModel)]="formData.unidad_medida" 
+                     name="unidad_medida"
+                     (input)="onUnidadInput($any($event.target).value)"
+                     (focus)="onUnidadInput(formData.unidad_medida || '')"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                     placeholder="kg, g, l, unidad...">
+              <!-- Sugerencias de Unidad -->
+              <div *ngIf="showUnidadSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-40 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                <div *ngFor="let unidad of filteredUnidades" 
+                     (click)="selectUnidad(unidad)"
+                     class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                  {{ unidad }}
+                </div>
+              </div>
             </div>
+            
             <div>
               <label class="block text-sm font-medium text-gray-700">Cantidad</label>
               <input type="number" [(ngModel)]="formData.cantidad_actual" name="cantidad_actual"
                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
             </div>
-            <div>
+            
+            <!-- Campo Ubicación con autocompletar -->
+            <div class="relative">
               <label class="block text-sm font-medium text-gray-700">Ubicación</label>
-              <input type="text" [(ngModel)]="formData.ubicacion" name="ubicacion"
-                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              <input type="text" 
+                     [(ngModel)]="formData.ubicacion" 
+                     name="ubicacion"
+                     (input)="onUbicacionInput($any($event.target).value)"
+                     (focus)="onUbicacionInput(formData.ubicacion || '')"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                     placeholder="Almacén, zona...">
+              <!-- Sugerencias de Ubicación -->
+              <div *ngIf="showUbicacionSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-40 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                <div *ngFor="let ubicacion of filteredUbicaciones" 
+                     (click)="selectUbicacion(ubicacion)"
+                     class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                  {{ ubicacion }}
+                </div>
+              </div>
             </div>
+            
+            <!-- Campo ID Lote con autocompletar -->
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700">Lote</label>
+              <input type="number" 
+                     [(ngModel)]="formData.id_lote" 
+                     name="id_lote"
+                     (input)="onLoteInput($any($event.target).value)"
+                     (focus)="onLoteInput(formData.id_lote)"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                     placeholder="ID o código de lote...">
+              <!-- Sugerencias de Lote -->
+              <div *ngIf="showLoteSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                <div *ngFor="let lote of filteredLotes" 
+                     (click)="selectLote(lote)"
+                     class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                  <span class="block font-medium">{{ lote.codigo_lote }}</span>
+                  <span class="text-xs text-gray-500 hover:text-indigo-200">ID: {{ lote.id_lote }} | Cantidad: {{ lote.cantidad }}</span>
+                </div>
+              </div>
+            </div>
+            
             <div>
               <label class="block text-sm font-medium text-gray-700">Estado</label>
               <select [(ngModel)]="formData.estado" name="estado"

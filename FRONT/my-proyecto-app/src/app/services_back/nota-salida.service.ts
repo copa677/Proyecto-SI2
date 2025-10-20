@@ -22,4 +22,8 @@ export class NotaSalidaService {
   getDetallesSalida(id_salida: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.myAppUrl}${this.detallesApiUrl}${id_salida}/`);
   }
+
+  createNotaSalida(nota: any): Observable<any> {
+    return this.http.post<any>(`${this.myAppUrl}${this.myApiUrl}crear/`, nota);
+  }
 }

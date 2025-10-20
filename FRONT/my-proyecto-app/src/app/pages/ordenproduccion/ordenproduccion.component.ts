@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { TrazabilidadService } from '../../services_back/trazabilidad.service';
+import { OrdenProduccionService, OrdenProduccion, CrearOrdenConMaterias } from '../../services_back/ordenproduccion.service';
+import { InventarioService } from '../../services_back/inventario.service';
+import { PersonalService } from '../../services_back/personal.service';
 
 @Component({
   selector: 'app-ordenproduccion',
@@ -7,80 +9,229 @@ import { TrazabilidadService } from '../../services_back/trazabilidad.service';
   styleUrls: ['./ordenproduccion.component.css']
 })
 export class OrdenProduccionComponent implements OnInit {
-  ordenes = [
-    {
-      id_orden: 1,
-      codigo_orden: 'OP-001',
-      fecha: '2025-10-01',
-      producto: 'Pan Integral',
-      cantidad: 500,
-      estado: 'En Proceso'
-    },
-    {
-      id_orden: 2,
-      codigo_orden: 'OP-002',
-      fecha: '2025-10-03',
-      producto: 'Galletas',
-      cantidad: 300,
-      estado: 'Finalizada'
-    },
-    {
-      id_orden: 3,
-      codigo_orden: 'OP-003',
-      fecha: '2025-10-05',
-      producto: 'Bizcocho',
-      cantidad: 200,
-      estado: 'Pendiente'
-    }
-  ];
+  ordenes: OrdenProduccion[] = [];
   showForm = false;
-  formData: any = {};
+  showTrazabilidadModal = false;
+  formData: any = {
+    cod_orden: '',
+    fecha_inicio: '',
+    fecha_fin: '',
+    fecha_entrega: '',
+    producto_modelo: '',
+    color: '',
+    talla: '',
+    cantidad_total: 0,
+    id_personal: '',
+    materias_primas: []
+  };
+  
+  // Catálogos
+  inventario: any[] = [];
+  personal: any[] = [];
   trazabilidad: any[] = [];
-  modalVisible = false;
+  
+  // Opciones de productos
+  productosModelo = ['Camisa', 'Polera', 'Camiseta'];
+  colores = ['Blanco', 'Negro', 'Azul', 'Rojo', 'Verde', 'Amarillo', 'Gris'];
+  tallas = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-  constructor(private trazabilidadService: TrazabilidadService) {}
-  verTrazabilidad(orden: any) {
-    // Aquí deberías obtener el id relacionado para la trazabilidad de la orden
-    // Por ejemplo, si la orden tiene un id_lote o id_trazabilidad relacionado
-    // Aquí se usa id_orden como ejemplo, ajusta según tu modelo real
-    this.trazabilidadService.getTrazabilidad(orden.id_orden).subscribe(
-      (data: any) => {
-        this.trazabilidad = Array.isArray(data) ? data : (data ? [data] : []);
-        this.modalVisible = true;
-      },
-      (error: any) => {
-        this.trazabilidad = [];
-        this.modalVisible = true;
-      }
-    );
+  constructor(
+    private ordenService: OrdenProduccionService,
+    private inventarioService: InventarioService,
+    private personalService: PersonalService
+  ) {}
+
+  ngOnInit(): void {
+    this.cargarOrdenes();
+    this.cargarInventario();
+    this.cargarPersonal();
   }
 
-  openForm(orden?: any) {
+  cargarOrdenes() {
+    this.ordenService.getOrdenes().subscribe({
+      next: (data) => {
+        this.ordenes = data;
+      },
+      error: (error) => {
+        console.error('Error al cargar órdenes:', error);
+      }
+    });
+  }
+
+  cargarInventario() {
+    this.inventarioService.getInventarios().subscribe({
+      next: (data) => {
+        this.inventario = data;
+      },
+      error: (error) => {
+        console.error('Error al cargar inventario:', error);
+      }
+    });
+  }
+
+  cargarPersonal() {
+    this.personalService.getPersonales().subscribe({
+      next: (data) => {
+        this.personal = data;
+      },
+      error: (error) => {
+        console.error('Error al cargar personal:', error);
+      }
+    });
+  }
+
+  openForm() {
+    this.formData = {
+      cod_orden: this.generarCodigoOrden(),
+      fecha_inicio: new Date().toISOString().slice(0, 10),
+      fecha_fin: '',
+      fecha_entrega: '',
+      producto_modelo: 'Camisa',
+      color: 'Blanco',
+      talla: 'M',
+      cantidad_total: 1,
+      id_personal: this.personal.length > 0 ? this.personal[0].id_personal : '',
+      materias_primas: [{ id_inventario: '', cantidad: 0 }]
+    };
     this.showForm = true;
-    this.formData = orden ? { ...orden } : {};
+  }
+
+  closeForm() {
+    this.showForm = false;
+  }
+
+  generarCodigoOrden(): string {
+    const fecha = new Date();
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `OP${year}${month}${day}-${random}`;
+  }
+
+  addMateriaPrima() {
+    this.formData.materias_primas.push({ id_inventario: '', cantidad: 0 });
+  }
+
+  removeMateriaPrima(index: number) {
+    this.formData.materias_primas.splice(index, 1);
   }
 
   saveOrden() {
-    if (this.formData.id_orden) {
-      // Editar orden existente
-      const idx = this.ordenes.findIndex(o => o.id_orden === this.formData.id_orden);
-      if (idx > -1) this.ordenes[idx] = { ...this.formData };
-    } else {
-      // Crear nueva orden
-      const newId = Math.max(...this.ordenes.map(o => o.id_orden), 0) + 1;
-      this.ordenes.push({ ...this.formData, id_orden: newId });
+    // Validaciones
+    if (!this.formData.cod_orden || !this.formData.producto_modelo) {
+      alert('Complete los campos obligatorios.');
+      return;
     }
-    this.showForm = false;
-    this.formData = {};
+
+    if (!this.formData.id_personal) {
+      alert('Debe seleccionar un responsable.');
+      return;
+    }
+
+    if (!this.formData.fecha_inicio) {
+      alert('Debe especificar la fecha de inicio.');
+      return;
+    }
+
+    if (!this.formData.materias_primas || this.formData.materias_primas.length === 0) {
+      alert('Debe agregar al menos una materia prima.');
+      return;
+    }
+
+    // Filtrar materias primas válidas y convertir a números
+    const materiasValidas = this.formData.materias_primas
+      .filter((m: any) => m.id_inventario && m.cantidad > 0)
+      .map((m: any) => ({
+        id_inventario: parseInt(m.id_inventario),
+        cantidad: parseFloat(m.cantidad)
+      }));
+
+    if (materiasValidas.length === 0) {
+      alert('Debe agregar al menos una materia prima válida.');
+      return;
+    }
+
+    const ordenData: CrearOrdenConMaterias = {
+      cod_orden: this.formData.cod_orden,
+      fecha_inicio: this.formData.fecha_inicio,
+      fecha_fin: this.formData.fecha_fin || this.formData.fecha_inicio,
+      fecha_entrega: this.formData.fecha_entrega || this.formData.fecha_inicio,
+      producto_modelo: this.formData.producto_modelo,
+      color: this.formData.color,
+      talla: this.formData.talla,
+      cantidad_total: parseInt(this.formData.cantidad_total),
+      id_personal: parseInt(this.formData.id_personal),
+      materias_primas: materiasValidas
+    };
+
+    console.log('Datos a enviar:', ordenData);
+
+    this.ordenService.createOrdenConMaterias(ordenData).subscribe({
+      next: (response) => {
+        console.log('Orden creada:', response);
+        alert(`Orden creada exitosamente. Nota de salida N° ${response.id_nota_salida} generada automáticamente.`);
+        this.cargarOrdenes();
+        this.closeForm();
+      },
+      error: (error) => {
+        console.error('Error al crear orden:', error);
+        console.error('Detalles del error:', error.error);
+        alert('Error al crear orden: ' + (error.error?.error || JSON.stringify(error.error) || 'Error desconocido'));
+      }
+    });
   }
 
-  deleteOrden(id: number): void {
+  deleteOrden(id: number) {
     if (confirm('¿Está seguro de eliminar esta orden?')) {
-      this.ordenes = this.ordenes.filter((o: any) => o.id_orden !== id);
+      this.ordenService.deleteOrden(id).subscribe({
+        next: () => {
+          this.cargarOrdenes();
+        },
+        error: (error) => {
+          console.error('Error al eliminar orden:', error);
+        }
+      });
     }
   }
 
-  ngOnInit(): void {
-    // Módulo pendiente de implementación en el backend
+  verTrazabilidad(orden: OrdenProduccion) {
+    if (!orden.id_orden) return;
+    
+    this.ordenService.getTrazabilidad(orden.id_orden).subscribe({
+      next: (data) => {
+        this.trazabilidad = data.trazabilidades || [];
+        this.showTrazabilidadModal = true;
+      },
+      error: (error) => {
+        console.error('Error al cargar trazabilidad:', error);
+        this.trazabilidad = [];
+        this.showTrazabilidadModal = true;
+      }
+    });
+  }
+
+  closeTrazabilidadModal() {
+    this.showTrazabilidadModal = false;
+  }
+
+  getEstadoClass(estado: string): string {
+    switch (estado) {
+      case 'En Proceso': return 'bg-blue-100 text-blue-800';
+      case 'Completada': return 'bg-green-100 text-green-800';
+      case 'Pendiente': return 'bg-yellow-100 text-yellow-800';
+      case 'Cancelada': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  getNombreMateria(id: number): string {
+    const item = this.inventario.find(i => i.id_inventario === id);
+    return item ? item.nombre_materia_prima : 'N/A';
+  }
+
+  getStockDisponible(id: number): number {
+    const item = this.inventario.find(i => i.id_inventario === id);
+    return item ? item.cantidad_actual : 0;
   }
 }

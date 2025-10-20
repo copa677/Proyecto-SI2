@@ -1,20 +1,67 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import serializers
 from .models import NotaSalida, DetalleNotaSalida
 from .serializers import (
     NotaSalidaSerializer,
     RegistrarNotaSalidaSerializer,
     DetalleNotaSalidaSerializer,
-    RegistrarDetalleNotaSalidaSerializer
+    RegistrarDetalleNotaSalidaSerializer,
+    NotaSalidaConDetallesSerializer
 )
 from Lotes.models import Lote, MateriaPrima
 from Inventario.models import Inventario
 from personal.models import personal
+from django.db import transaction
 
 # ============================================================
 # 🟢 CRUD NOTA SALIDA (CABECERA)
 # ============================================================
+
+@api_view(['POST'])
+@transaction.atomic
+def crear_nota_salida_con_detalles(request):
+    serializer = NotaSalidaConDetallesSerializer(data=request.data)
+    if serializer.is_valid():
+        # Crear la nota de salida
+        nota_data = serializer.validated_data
+        nota = NotaSalida.objects.create(
+            fecha_salida=nota_data['fecha_salida'],
+            motivo=nota_data['motivo'],
+            id_personal=nota_data['id_personal'],
+            estado='Completado', # O el estado que corresponda
+            # area no está en el modelo NotaSalida
+        )
+
+        detalles_data = nota_data['detalles']
+        for detalle_data in detalles_data:
+            id_inventario = detalle_data['id_inventario']
+            cantidad_salida = detalle_data['cantidad']
+
+            try:
+                inventario_item = Inventario.objects.get(id_inventario=id_inventario)
+            except Inventario.DoesNotExist:
+                raise serializers.ValidationError(f"El item de inventario con id {id_inventario} no existe.")
+
+            if inventario_item.cantidad_actual < cantidad_salida:
+                raise serializers.ValidationError(f"No hay suficiente stock para {inventario_item.nombre_materia_prima}.")
+
+            # Crear el detalle de la nota de salida
+            DetalleNotaSalida.objects.create(
+                id_salida=nota.id_salida,
+                id_lote=inventario_item.id_lote,
+                nombre_materia_prima=inventario_item.nombre_materia_prima,
+                cantidad=cantidad_salida,
+                unidad_medida=inventario_item.unidad_medida
+            )
+
+            # Actualizar inventario
+            inventario_item.cantidad_actual -= cantidad_salida
+            inventario_item.save()
+
+        return Response({'mensaje': 'Nota de salida creada correctamente', 'id_salida': nota.id_salida}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def listar_notas_salida(request):
