@@ -104,21 +104,47 @@
                 <label class="block text-sm font-medium text-gray-700">Cantidad</label>
                 <input type="number" step="0.01" class="form-input mt-1 block w-full" [(ngModel)]="formData.cantidad" name="cantidad" required />
               </div>
-              <div>
+              <!-- Campo Estado con autocompletar -->
+              <div class="relative">
                 <label class="block text-sm font-medium text-gray-700">Estado</label>
-                <select class="form-input mt-1 block w-full" [(ngModel)]="formData.estado" name="estado" required>
-                  <option value="">Seleccione un estado</option>
-                  <option value="Disponible">Disponible</option>
-                  <option value="En Uso">En Uso</option>
-                  <option value="Agotado">Agotado</option>
-                </select>
+                <input type="text" 
+                       class="form-input mt-1 block w-full" 
+                       [(ngModel)]="formData.estado" 
+                       name="estado"
+                       (input)="onEstadoInput($any($event.target).value)"
+                       (focus)="onEstadoInput(formData.estado || '')"
+                       placeholder="Escribe para buscar..."
+                       required />
+                <!-- Sugerencias de Estado -->
+                <div *ngIf="showEstadoSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-40 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  <div *ngFor="let estado of filteredEstados" 
+                       (click)="selectEstado(estado)"
+                       class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                    {{ estado }}
+                  </div>
+                </div>
               </div>
-              <div>
+              
+              <!-- Campo Materia Prima con autocompletar -->
+              <div class="relative">
                 <label class="block text-sm font-medium text-gray-700">Materia Prima</label>
-                <select class="form-input mt-1 block w-full" [(ngModel)]="formData.id_materia" name="id_materia" required>
-                  <option value="">Seleccione una materia prima</option>
-                  <option *ngFor="let materia of materiasPrimas" [value]="materia.id_materia">{{ materia.nombre }}</option>
-                </select>
+                <input type="text" 
+                       class="form-input mt-1 block w-full" 
+                       [(ngModel)]="formData.materiaInput" 
+                       name="materiaInput"
+                       (input)="onMateriaInput($any($event.target).value)"
+                       (focus)="onMateriaInput(formData.materiaInput || '')"
+                       placeholder="ID o nombre de materia prima..."
+                       required />
+                <!-- Sugerencias de Materia Prima -->
+                <div *ngIf="showMateriaSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  <div *ngFor="let materia of filteredMaterias" 
+                       (click)="selectMateria(materia)"
+                       class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                    <span class="block font-medium">{{ materia.nombre }}</span>
+                    <span class="text-xs text-gray-500 hover:text-indigo-200">ID: {{ materia.id_materia }} | Tipo: {{ materia.tipo_material }}</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
