@@ -2,15 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthPermisosService {
-  private apiUrl = 'http://localhost:8000/api/usuario';
+  private myAppUrl: string;
+  private myApiUrl: string;
   private permisosCache: string[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.myAppUrl = environment.endpoint;
+    this.myApiUrl = 'api/usuario';
+  }
 
   cargarPermisos(): Observable<string[]> {
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
@@ -20,7 +25,7 @@ export class AuthPermisosService {
       return of([]);
     }
 
-    return this.http.get<any>(`${this.apiUrl}/permisos/${idUsuario}/`).pipe(
+    return this.http.get<any>(`${this.myAppUrl}${this.myApiUrl}/permisos/${idUsuario}/`).pipe(
       map((response): string[] => {
   this.permisosCache = response?.permisos ?? [];
   return this.permisosCache;

@@ -28,7 +28,7 @@
     </div>
 
     <!-- Tabla de Trazabilidad -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="bg-white shadow overflow-x-auto sm:rounded-lg">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -49,7 +49,7 @@
           <tr *ngFor="let traz of filteredTrazabilidades" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ traz.id_trazabilidad }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ traz.proceso }}</td>
-            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ traz.descripcion_proceso }}</td>
+            <td class="px-6 py-4 text-sm text-gray-500 truncate">{{ traz.descripcion_proceso }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ traz.fecha_registro | date:'shortDate' }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ traz.hora_inicio }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ traz.hora_fin }}</td>
@@ -62,7 +62,7 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ traz.id_personal }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ traz.id_orden }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(traz)">
+                <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(traz)">
                 <i class="fas fa-edit mr-1"></i> Editar
               </button>
               <button class="text-red-600 hover:text-red-900" *ngIf="traz.id_trazabilidad !== undefined" (click)="deleteTrazabilidad(traz.id_trazabilidad)">
@@ -71,98 +71,85 @@
             </td>
           </tr>
           <tr *ngIf="filteredTrazabilidades.length === 0">
-            <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay registros de trazabilidad</td>
+            <td colspan="11" class="px-6 py-4 text-center text-sm text-gray-500">No hay registros de trazabilidad</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Modal de Formulario -->
-    <div *ngIf="showForm" class="fixed z-10 inset-0 overflow-y-auto">
-      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeForm()"></div>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
-              <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  {{ formData.id_trazabilidad ? 'Editar Trazabilidad' : 'Nueva Trazabilidad' }}
-                </h3>
-                
-                <form class="space-y-4">
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Proceso</label>
-                      <input type="text" [(ngModel)]="formData.proceso" name="proceso"
-                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Estado</label>
-                      <select [(ngModel)]="formData.estado" name="estado"
-                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Proceso">En Proceso</option>
-                        <option value="Completado">Completado</option>
-                        <option value="Cancelado">Cancelado</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Descripción del Proceso</label>
-                    <textarea [(ngModel)]="formData.descripcion_proceso" name="descripcion_proceso" rows="3"
-                              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                  </div>
-                  
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Hora Inicio</label>
-                      <input type="time" [(ngModel)]="formData.hora_inicio" name="hora_inicio"
-                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Hora Fin</label>
-                      <input type="time" [(ngModel)]="formData.hora_fin" name="hora_fin"
-                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                  </div>
-                  
-                  <div class="grid grid-cols-3 gap-4">
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">Cantidad</label>
-                      <input type="number" [(ngModel)]="formData.cantidad" name="cantidad"
-                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">ID Personal</label>
-                      <input type="number" [(ngModel)]="formData.id_personal" name="id_personal"
-                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700">ID Orden</label>
-                      <input type="number" [(ngModel)]="formData.id_orden" name="id_orden"
-                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                  </div>
-                </form>
-              </div>
+    <!-- Modal Crear/Editar -->
+    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center" (keydown.escape)="closeForm()" tabindex="0">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-gray-900/50" (click)="closeForm()"></div>
+      <!-- Modal -->
+      <div class="relative w-full max-w-lg bg-white rounded-lg shadow-xl mx-2 flex flex-col max-h-[90vh]">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ formData.id_trazabilidad ? 'Editar Trazabilidad' : 'Nueva Trazabilidad' }}
+          </h3>
+          <button class="text-gray-400 hover:text-gray-600" (click)="closeForm()" aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <!-- Body -->
+        <div class="px-4 py-4 overflow-y-auto flex-1">
+          <form class="space-y-4" (ngSubmit)="saveTrazabilidad()" #trazabilidadForm="ngForm" autocomplete="off">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Proceso</label>
+              <input type="text" [(ngModel)]="formData.proceso" name="proceso"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
             </div>
-          </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button" (click)="saveTrazabilidad()"
-                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-              Guardar
-            </button>
-            <button type="button" (click)="closeForm()"
-                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-              Cancelar
-            </button>
-          </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Estado</label>
+              <select [(ngModel)]="formData.estado" name="estado"
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="Pendiente">Pendiente</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Completado">Completado</option>
+                <option value="Cancelado">Cancelado</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Descripción del Proceso</label>
+              <textarea [(ngModel)]="formData.descripcion_proceso" name="descripcion_proceso" rows="3"
+                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Hora Inicio</label>
+              <input type="time" [(ngModel)]="formData.hora_inicio" name="hora_inicio"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Hora Fin</label>
+              <input type="time" [(ngModel)]="formData.hora_fin" name="hora_fin"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Cantidad</label>
+              <input type="number" [(ngModel)]="formData.cantidad" name="cantidad"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">ID Personal</label>
+              <input type="number" [(ngModel)]="formData.id_personal" name="id_personal"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">ID Orden</label>
+              <input type="number" [(ngModel)]="formData.id_orden" name="id_orden"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <!-- Footer (sticky on mobile) -->
+            <div class="px-4 py-3 border-t border-gray-200 flex flex-row justify-end gap-3 bg-white">
+              <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" (click)="closeForm()">
+                Cancelar
+              </button>
+              <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                <i class="fas fa-save -ml-1 mr-2"></i>Guardar
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

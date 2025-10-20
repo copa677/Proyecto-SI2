@@ -12,6 +12,14 @@ export class MenuComponent implements OnInit {
   userName = '';
 
   showMenu = false;
+  isMobileMenuOpen = false;
+
+  mobileSubmenus: { [key: string]: boolean } = {
+    personal: false,
+    usuarios: false,
+    produccion: false,
+    reportes: false
+  };
 
   constructor(
     private login: LoginService,
@@ -29,6 +37,18 @@ export class MenuComponent implements OnInit {
   }
 
   toggleMenu() { this.showMenu = !this.showMenu; }
+
+  toggleMobileMenu() { this.isMobileMenuOpen = !this.isMobileMenuOpen; }
+
+  toggleMobileSubmenu(submenu: string) {
+    // Optional: close other submenus when one is opened
+    // for (const key in this.mobileSubmenus) {
+    //   if (key !== submenu) {
+    //     this.mobileSubmenus[key] = false;
+    //   }
+    // }
+    this.mobileSubmenus[submenu] = !this.mobileSubmenus[submenu];
+  }
   
   logout() {
     this.login.logout().subscribe({

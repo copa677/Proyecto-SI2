@@ -29,7 +29,8 @@
 
     <!-- Tabla de Inventario -->
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-      <table class="min-w-full divide-y divide-gray-200">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
@@ -70,70 +71,67 @@
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
-    <!-- Modal de Formulario -->
-    <div *ngIf="showForm" class="fixed z-10 inset-0 overflow-y-auto">
-      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeForm()"></div>
-        
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
-              <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  {{ formData.id_inventario ? 'Editar Item' : 'Nuevo Item' }}
-                </h3>
-                
-                <form class="space-y-4" (ngSubmit)="saveInventario()" #inventarioForm="ngForm" autocomplete="off">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Producto</label>
-                    <input type="text" [(ngModel)]="formData.nombre_materia_prima" name="nombre_materia_prima"
-                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Unidad de Medida</label>
-                    <input type="text" [(ngModel)]="formData.unidad_medida" name="unidad_medida"
-                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Cantidad</label>
-                    <input type="number" [(ngModel)]="formData.cantidad_actual" name="cantidad_actual"
-                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Ubicación</label>
-                    <input type="text" [(ngModel)]="formData.ubicacion" name="ubicacion"
-                           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Estado</label>
-                    <select [(ngModel)]="formData.estado" name="estado"
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                      <option value="Disponible">Disponible</option>
-                      <option value="Stock Bajo">Stock Bajo</option>
-                      <option value="Agotado">Agotado</option>
-                    </select>
-                  </div>
-                </form>
-              </div>
+    <!-- Modal Crear/Editar -->
+    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center" (keydown.escape)="closeForm()" tabindex="0">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-gray-900/50" (click)="closeForm()"></div>
+      <!-- Modal -->
+      <div class="relative w-full max-w-lg bg-white rounded-lg shadow-xl mx-2 flex flex-col max-h-[90vh]">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">
+            {{ formData.id_inventario ? 'Editar Item' : 'Nuevo Item' }}
+          </h3>
+          <button class="text-gray-400 hover:text-gray-600" (click)="closeForm()" aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <!-- Body -->
+        <form class="flex-1 flex flex-col" (ngSubmit)="saveInventario()" #inventarioForm="ngForm" autocomplete="off">
+          <div class="px-4 py-4 overflow-y-auto flex-1 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Producto</label>
+              <input type="text" [(ngModel)]="formData.nombre_materia_prima" name="nombre_materia_prima"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Unidad de Medida</label>
+              <input type="text" [(ngModel)]="formData.unidad_medida" name="unidad_medida"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Cantidad</label>
+              <input type="number" [(ngModel)]="formData.cantidad_actual" name="cantidad_actual"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Ubicación</label>
+              <input type="text" [(ngModel)]="formData.ubicacion" name="ubicacion"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Estado</label>
+              <select [(ngModel)]="formData.estado" name="estado"
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="Disponible">Disponible</option>
+                <option value="Stock Bajo">Stock Bajo</option>
+                <option value="Agotado">Agotado</option>
+              </select>
             </div>
           </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button" (click)="saveInventario()" name="guardar"
-                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-              Guardar
-            </button>
-            <button type="button" (click)="closeForm()"
-                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          <!-- Footer (always visible) -->
+          <div class="px-4 py-3 border-t border-gray-200 flex flex-row justify-end gap-3 bg-white">
+            <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" (click)="closeForm()">
               Cancelar
             </button>
+            <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+              <i class="fas fa-save -ml-1 mr-2"></i>Guardar
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
 
