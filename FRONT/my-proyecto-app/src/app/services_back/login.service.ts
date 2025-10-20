@@ -148,6 +148,11 @@ export class LoginService {
   }
 
   logout(): Observable<any> {
-    return this.http.post<any>(`${this.myAppUrl}${this.myApiUrl}/logout/`, {});
+    const token = localStorage.getItem('token');
+    const headers: { [key: string]: string } = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return this.http.post<any>(`${this.myAppUrl}${this.myApiUrl}/logout/`, {}, { headers });
   }
 }

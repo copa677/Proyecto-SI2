@@ -1,9 +1,8 @@
 // src/app/services_back/auth-permisos.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
@@ -15,8 +14,8 @@ export class AuthPermisosService {
   private permisosCache: string[] = [];
 
   constructor(private http: HttpClient) {
-    this.myAppUrl = environment.endpoint;     // Base URL del backend
-    this.myApiUrl = 'api/usuario';            // Endpoint de la app Django
+    this.myAppUrl = environment.endpoint;
+    this.myApiUrl = 'api/usuario';
   }
 
   // 📥 Cargar permisos del usuario logueado
@@ -30,9 +29,9 @@ export class AuthPermisosService {
     }
 
     return this.http.get<any>(`${this.myAppUrl}${this.myApiUrl}/permisos/${idUsuario}/`).pipe(
-      map(response => {
-        this.permisosCache = response?.permisos ?? [];
-        return this.permisosCache;
+      map((response): string[] => {
+  this.permisosCache = response?.permisos ?? [];
+  return this.permisosCache;
       }),
       catchError(error => {
         console.error('Error al cargar permisos:', error);

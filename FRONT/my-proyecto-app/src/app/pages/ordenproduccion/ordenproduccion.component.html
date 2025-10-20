@@ -13,14 +13,15 @@
     <!-- Tabla y acciones de órdenes de producción -->
     <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
           <h3 class="text-lg font-medium text-gray-900">Órdenes de Producción</h3>
           <button class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white" (click)="openForm()">
             <i class="fas fa-plus mr-2"></i> Nueva Orden
           </button>
         </div>
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
@@ -60,6 +61,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
 

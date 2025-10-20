@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { PermisosService } from '../../services_back/permisos.service';
 import { HttpClient } from '@angular/common/http';
-import { LoginService } from '../../services_back/login.service';
- @Component({
+import { environment } from '../../../environments/environment.development';
+
+@Component({
   selector: 'app-asignar-permisos',
   templateUrl: './asignar-permisos.component.html',
   styleUrls: ['./asignar-permisos.component.css']
 })
 export class AsignarPermisosComponent implements OnInit {
+  private myAppUrl = environment.endpoint;
   usuarios: any[] = [];
   permisos: any[] = [];
   usuarioSeleccionado: any = null;
@@ -19,7 +21,6 @@ export class AsignarPermisosComponent implements OnInit {
 
   constructor(
     private permisosService: PermisosService,
-    private loginService: LoginService,
     private http: HttpClient
   ) {}
 
@@ -29,7 +30,7 @@ export class AsignarPermisosComponent implements OnInit {
   }
 
   cargarUsuarios() {
-  this.loginService.getuser().subscribe({
+  this.http.get<any[]>(`${this.myAppUrl}api/usuario/getuser`).subscribe({
       next: (data: any) => {
         this.usuarios = data;
       },
