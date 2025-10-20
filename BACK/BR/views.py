@@ -13,7 +13,7 @@ BASE_DIR = settings.BASE_DIR
 DB_NAME = os.environ.get("DB_NAME", "WF")
 DB_USER = os.environ.get("DB_USER", "postgres")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "password")
-DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT", "5432")
 
 BACKUP_DIR = os.path.join(BASE_DIR, "backups")
@@ -32,12 +32,19 @@ def backup_database(request):
         env["PGPASSWORD"] = DB_PASSWORD
 
         # 🧠 Comando pg_dump
-        command = (
-            f'"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe" '
-            f'-h {DB_HOST} -p {DB_PORT} -U {DB_USER} -Fc -f "{filepath}" {DB_NAME}'
+        subprocess.run(
+            [
+        "pg_dump",
+                "-h", DB_HOST,
+                "-p", DB_PORT,
+                "-U", DB_USER,
+                "-Fc",
+                "-f", filepath,
+                DB_NAME
+            ],
+        env=env,
+        check=True
         )
-
-        subprocess.run(command, shell=True, env=env, check=True)
 
         # 📁 Verifica que el archivo realmente se creó
         if not os.path.exists(filepath):
