@@ -14,6 +14,7 @@ from Trazabilidad.serializers import TrazabilidadSerializer
 # Importamos modelos para nota de salida e inventario
 from NotaSalida.models import NotaSalida, DetalleNotaSalida
 from Inventario.models import Inventario
+from Lotes.models import Lote, MateriaPrima
 from personal.models import personal
 from datetime import date, datetime, time
 
@@ -111,14 +112,26 @@ def crear_orden_con_materias(request):
         nombre_materia = inventario_item.nombre_materia_prima
         unidad = inventario_item.unidad_medida
         
-        # 🔹 Obtener todos los lotes disponibles de esta materia prima, ordenados por id_lote (FIFO)
-        lotes_disponibles = Inventario.objects.filter(
-            nombre_materia_prima=nombre_materia,
-            cantidad_actual__gt=0
+        # 🔹 Obtener todos los LOTES disponibles de esta materia prima, ordenados por id_lote (FIFO)
+        # Primero obtener el id_materia
+        try:
+            materia = MateriaPrima.objects.get(nombre=nombre_materia)
+            id_materia = materia.id_materia
+        except MateriaPrima.DoesNotExist:
+            transaction.set_rollback(True)
+            return Response(
+                {'error': f'No se encontró la materia prima {nombre_materia}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Obtener lotes disponibles con cantidad > 0, ordenados por id (FIFO)
+        lotes_disponibles = Lote.objects.filter(
+            id_materia=id_materia,
+            cantidad__gt=0
         ).order_by('id_lote')
         
         # Verificar stock total disponible
-        stock_total = sum(item.cantidad_actual for item in lotes_disponibles)
+        stock_total = sum(lote.cantidad for lote in lotes_disponibles)
         if stock_total < cantidad_requerida:
             transaction.set_rollback(True)
             return Response(
@@ -130,28 +143,41 @@ def crear_orden_con_materias(request):
         cantidad_restante = cantidad_requerida
         lotes_consumidos = []
         
-        for inv_item in lotes_disponibles:
+        for lote in lotes_disponibles:
             if cantidad_restante <= 0:
                 break
             
-            cantidad_a_consumir = min(inv_item.cantidad_actual, cantidad_restante)
+            # ✅ Asegurar que no se descuente más de lo disponible
+            cantidad_a_consumir = min(lote.cantidad, cantidad_restante)
+            
+            # Solo procesar si hay algo que consumir
+            if cantidad_a_consumir <= 0:
+                continue
             
             # Crear detalle de nota de salida para este lote
             DetalleNotaSalida.objects.create(
                 id_salida=nota_salida.id_salida,
-                id_lote=inv_item.id_lote,
+                id_lote=lote.id_lote,
                 nombre_materia_prima=nombre_materia,
                 cantidad=cantidad_a_consumir,
                 unidad_medida=unidad
             )
             
-            # Descontar del inventario
-            inv_item.cantidad_actual -= cantidad_a_consumir
-            inv_item.save()
+            # 🔹 Descontar de la tabla LOTES
+            lote.cantidad -= cantidad_a_consumir
+            if lote.cantidad < 0:
+                lote.cantidad = 0
+            lote.save()
+            
+            # 🔹 Descontar del INVENTARIO total
+            inventario_item.cantidad_actual -= cantidad_a_consumir
+            if inventario_item.cantidad_actual < 0:
+                inventario_item.cantidad_actual = 0
+            inventario_item.save()
             
             # Registrar lote consumido
             lotes_consumidos.append({
-                'id_lote': inv_item.id_lote,
+                'id_lote': lote.id_lote,
                 'cantidad': float(cantidad_a_consumir)
             })
             
