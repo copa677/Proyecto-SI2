@@ -24,6 +24,7 @@ import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
 import { PermisosComponent } from './pages/permisos/permisos.component';
 import { AsignarPermisosComponent } from './pages/asignar-permisos/asignar-permisos.component';
 import { PermisoAccionDirective } from './directives/permiso-accion.directive';
+import { CanDoDirective } from './directives/can-do.directive';
 import { TurnosComponent } from './pages/turnos/turnos.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
 import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
@@ -47,6 +48,7 @@ import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.compone
     PermisosComponent,
     AsignarPermisosComponent,
     PermisoAccionDirective,
+    CanDoDirective,
     TurnosComponent,
     InventarioComponent,
     ControlCalidadComponent,

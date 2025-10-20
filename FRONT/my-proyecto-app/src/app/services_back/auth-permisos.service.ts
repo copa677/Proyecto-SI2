@@ -1,3 +1,9 @@
+/**
+ * @deprecated Este servicio ha sido consolidado en PermissionService.
+ * Por favor, usa PermissionService en su lugar.
+ * Este archivo se mantiene temporalmente para referencia pero será eliminado en versiones futuras.
+ */
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';

@@ -81,7 +81,7 @@
         <a routerLink="/menu/dashboard" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Dashboard</a>
 
         <!-- Grupo: Gestión de Personal -->
-        <div>
+        <div *ngIf="permissionService.hasPermission('gestionar_personal')">
           <button (click)="toggleMobileSubmenu('personal')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
             <span>Gestión de Personal</span>
             <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['personal']"></i>
@@ -94,7 +94,7 @@
         </div>
 
         <!-- Grupo: Gestión de Usuarios -->
-        <div>
+        <div *ngIf="permissionService.hasPermission('asignar_roles')">
           <button (click)="toggleMobileSubmenu('usuarios')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
             <span>Gestión de Usuarios</span>
             <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['usuarios']"></i>
@@ -162,7 +162,7 @@
         <a routerLink="/menu/dashboard" routerLinkActive="border-indigo-500 text-gray-900"
           class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Dashboard</a>
 
-        <div class="relative group">
+        <div class="relative group" *ngIf="permissionService.hasPermission('gestionar_personal')">
           <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
             Gestión de Personal
             <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
@@ -175,7 +175,7 @@
           </div>
         </div>
 
-        <div class="relative group">
+        <div class="relative group" *ngIf="permissionService.hasPermission('asignar_roles')">
           <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
             Gestión de Usuarios
             <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>

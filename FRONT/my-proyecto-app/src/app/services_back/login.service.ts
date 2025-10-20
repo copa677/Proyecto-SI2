@@ -78,6 +78,21 @@ export class LoginService {
     }
   }
 
+  public getRoleFromToken(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    try {
+      const payload = JSON.parse(this.b64urlDecode(parts[1]));
+      return payload.tipo_usuario || null; 
+    } catch {
+      return null;
+    }
+  }
+
 
 
   recover_password(email: string): Observable<string> {

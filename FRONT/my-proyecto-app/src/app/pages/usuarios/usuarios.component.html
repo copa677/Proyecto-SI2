@@ -9,7 +9,8 @@
       </div>
       <div class="mt-4 md:mt-0">
         <!-- Abre modal en modo creación -->
-        <button class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
+        <button *appCanDo="'insertar'; ventana: 'Usuarios'"
+                class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
                 (click)="abrirCrear()">
           <i class="fas fa-user-plus -ml-1 mr-2"></i>Registrar Usuario
         </button>
@@ -89,7 +90,8 @@
                 {{ u.tipo }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button class="text-indigo-600 hover:text-indigo-900 mr-3"
+                <button *appCanDo="'editar'; ventana: 'Usuarios'"
+                        class="text-indigo-600 hover:text-indigo-900 mr-3"
                         (click)="abrirEditar(u)">
                   <i class="fas fa-edit"></i> Editar
                 </button>
@@ -139,7 +141,8 @@
           </div>
         </div>
         <div class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3">
-          <button class="text-indigo-600 hover:text-indigo-900 text-sm font-medium" (click)="abrirEditar(u)">
+          <button *appCanDo="'editar'; ventana: 'Usuarios'"
+                  class="text-indigo-600 hover:text-indigo-900 text-sm font-medium" (click)="abrirEditar(u)">
             <i class="fas fa-edit"></i> Editar
           </button>
           
