@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EmpleadoService } from '../../services_back/empleado.service';
 import { Empleado } from 'src/interface/empleado';
+import { ToastrService } from 'ngx-toastr';
 
 type Rol = 'Administrador' | 'Supervisor' | 'Operario';
 type Estado = 'activo' | 'inactivo';
@@ -34,7 +35,10 @@ export class PersonalComponent implements OnInit {
 
   form: PersonalRow = this.vacio();
 
-  constructor(private empleadoSrv: EmpleadoService) {}  // <-- INYECTAMOS
+  constructor(
+    private empleadoSrv: EmpleadoService,
+    private toastr: ToastrService
+  ) { }  // <-- INYECTAMOS
 
   ngOnInit(): void {
     this.cargarEmpleados();
@@ -58,8 +62,8 @@ export class PersonalComponent implements OnInit {
             typeof e.fecha_nacimiento === 'string'
               ? e.fecha_nacimiento.slice(0, 10)
               : (e.fecha_nacimiento instanceof Date
-                  ? e.fecha_nacimiento.toISOString().slice(0, 10)
-                  : ''),
+                ? e.fecha_nacimiento.toISOString().slice(0, 10)
+                : ''),
         }));
         this.cargando = false;
       },
@@ -102,7 +106,7 @@ export class PersonalComponent implements OnInit {
   }
 
   abrirEditar(p: PersonalRow): void {
-  this.form = { ...p, id_usuario: p.id_usuario, nombre_usuario: p.nombre_usuario };
+    this.form = { ...p, id_usuario: p.id_usuario, nombre_usuario: p.nombre_usuario };
     this.editMode = true;
     this.showForm = true;
   }
@@ -150,10 +154,12 @@ export class PersonalComponent implements OnInit {
       this.cargando = true;
       this.empleadoSrv.registrarEmpleados(payload).subscribe({
         next: () => {
+          this.toastr.success('Empleado registrado correctamente', 'Éxito');
           this.showForm = false;
           this.cargarEmpleados();
         },
         error: (err) => {
+          this.toastr.error('No se pudo registrar el empleado', 'Error');
           this.errorMsg = 'No se pudo registrar el empleado.';
           this.cargando = false;
         },
@@ -175,11 +181,13 @@ export class PersonalComponent implements OnInit {
       this.cargando = true;
       this.empleadoSrv.actualizar_Empleados(payload).subscribe({
         next: () => {
+          this.toastr.info('Empleado actualizado correctamente', 'Actualizado');
           this.showForm = false;
           this.cargarEmpleados();
           this.editMode = false;
         },
         error: (err) => {
+          this.toastr.error('No se pudo actualizar el empleado', 'Error');
           this.errorMsg = 'No se pudo actualizar el empleado.';
           this.cargando = false;
         },

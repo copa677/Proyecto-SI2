@@ -5,7 +5,7 @@ from django.db import IntegrityError, DataError
 from django.shortcuts import get_object_or_404
 from datetime import time
 from .models import turnos
-from .serializers import TurnosSerializer
+from .serializers import TurnosSerializer, Turnos2Serializer
 
 @api_view(['POST'])
 def agregar_turno(request):
@@ -87,7 +87,7 @@ def agregar_turno(request):
 @api_view(['GET'])
 def obtener_turnos(request):
     turnos_list = turnos.objects.all()
-    serializer = TurnosSerializer(turnos_list, many=True)
+    serializer = Turnos2Serializer(turnos_list, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['PATCH'])
@@ -97,7 +97,7 @@ def desactivar_turno(request, turno_id):
         turno = get_object_or_404(turnos, id=turno_id)
         
         # Verificar si ya está inactivo
-        if turno.estado == 'Inactivo':
+        if turno.estado == 'inactivo':
             return Response({
                 "message": "El turno ya está inactivo.",
                 "id": turno.id,

@@ -126,6 +126,7 @@ export class UsuariosComponent implements OnInit {
     this.showForm = false;
   }
 
+  // ====== BACKUP ======
   generarBackup() {
     this.brService.generarBackup().subscribe({
       next: (blob) => {
@@ -135,15 +136,16 @@ export class UsuariosComponent implements OnInit {
         a.download = `respaldo_${new Date().toISOString().slice(0, 19).replace(/[-T:]/g, '')}.dump`;
         a.click();
         window.URL.revokeObjectURL(url);
+        this.toastr.success('Respaldo generado correctamente', 'Éxito');
       },
       error: (err) => {
         console.error('❌ Error al generar backup:', err);
-        alert('Error al generar el respaldo.');
+        this.toastr.error('Error al generar el respaldo', 'Error');
       }
     });
   }
 
-  // Método para abrir diálogo de Restore
+  // ====== RESTORE ======
   abrirRestore() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -152,12 +154,16 @@ export class UsuariosComponent implements OnInit {
       const file = input.files?.[0];
       if (file) {
         this.brService.restaurarBackup(file).subscribe({
-          next: () => alert('✅ Restauración completada correctamente.'),
+          next: () => {
+            this.toastr.success('Restauración completada correctamente', 'Éxito');
+          },
           error: (err) => {
             console.error('❌ Error al restaurar:', err);
-            alert('❌ Error al restaurar la base de datos.');
+            this.toastr.error('Error al restaurar la base de datos', 'Error');
           }
         });
+      } else {
+        this.toastr.warning('No se seleccionó ningún archivo', 'Atención');
       }
     };
     input.click();

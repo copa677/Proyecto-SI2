@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TurnosService } from '../../services_back/turnos.service';
 import { Turno } from '../../../interface/turno';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-turnos',
@@ -13,36 +14,24 @@ export class TurnosComponent implements OnInit {
   showForm = false;
   formData: Partial<Turno> = {};
 
-  constructor(private turnosService: TurnosService) {}
+  constructor(private turnosService: TurnosService, private toastr: ToastrService) { }
 
   ngOnInit(): void {
     this.getTurnos();
   }
 
   getTurnos() {
-    this.turnosService.getTurnos().subscribe(
-      (data: Turno[]) => {
-        this.turnos = data;
-      },
-      (error: any) => {
-        console.error('Error al obtener turnos:', error);
-      }
-    );
-  }
-
-  selectTurno(turno: Turno) {
-    this.selectedTurno = turno;
-    this.showForm = false;
+    this.turnosService.getTurnos().subscribe({
+      next: (data) => (this.turnos = data),
+      error: () => this.toastr.error('No se pudieron cargar los turnos', 'Error')
+    });
   }
 
   openForm(turno?: Turno) {
     this.showForm = true;
-    this.formData = turno ? { ...turno } : {
-      turno: '',
-      hora_entrada: '',
-      hora_salida: '',
-      estado: 'Activo'
-    };
+    this.formData = turno
+      ? { ...turno }
+      : { turno: '', hora_entrada: '', hora_salida: '', estado: 'activo' };
   }
 
   closeForm() {
@@ -51,44 +40,41 @@ export class TurnosComponent implements OnInit {
   }
 
   saveTurno() {
+    const payload = {
+      ...this.formData,
+      estado: (this.formData.estado || 'activo').toString().toLowerCase()
+    };
+
     if (this.formData.id) {
-      // Actualizar turno existente
-      this.turnosService.updateTurno(this.formData.id, this.formData).subscribe(
-        () => {
+      this.turnosService.updateTurno(this.formData.id, payload).subscribe({
+        next: () => {
+          this.toastr.success('Turno actualizado correctamente', 'Éxito');
           this.getTurnos();
           this.closeForm();
         },
-        (error: any) => {
-          console.error('Error al actualizar turno:', error);
-        }
-      );
+        error: () => this.toastr.error('Error al actualizar el turno', 'Error')
+      });
     } else {
-      // Crear nuevo turno
-      this.turnosService.createTurno(this.formData).subscribe(
-        () => {
+      this.turnosService.createTurno(payload).subscribe({
+        next: () => {
+          this.toastr.success('Turno creado correctamente', 'Éxito');
           this.getTurnos();
           this.closeForm();
         },
-        (error: any) => {
-          console.error('Error al crear turno:', error);
-        }
-      );
+        error: () => this.toastr.error('Error al crear el turno', 'Error')
+      });
     }
   }
 
+
   deleteTurno(id: number) {
-    if (confirm('¿Está seguro de eliminar este turno?')) {
-      this.turnosService.deleteTurno(id).subscribe(
-        () => {
-          this.getTurnos();
-          if (this.selectedTurno?.id === id) {
-            this.selectedTurno = null;
-          }
-        },
-        (error: any) => {
-          console.error('Error al eliminar turno:', error);
-        }
-      );
-    }
+    if (!confirm('¿Desea eliminar este turno?')) return;
+    this.turnosService.deleteTurno(id).subscribe({
+      next: () => {
+        this.toastr.success('Turno eliminado correctamente', 'Éxito');
+        this.getTurnos();
+      },
+      error: () => this.toastr.error('Error al eliminar el turno', 'Error')
+    });
   }
 }

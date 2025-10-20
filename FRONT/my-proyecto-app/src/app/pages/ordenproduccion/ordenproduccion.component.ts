@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { OrdenProduccionService, OrdenProduccion, CrearOrdenConMaterias } from '../../services_back/ordenproduccion.service';
 import { InventarioService } from '../../services_back/inventario.service';
 import { PersonalService } from '../../services_back/personal.service';
@@ -25,12 +26,10 @@ export class OrdenProduccionComponent implements OnInit {
     materias_primas: []
   };
   
-  // Catálogos
   inventario: any[] = [];
   personal: any[] = [];
   trazabilidad: any[] = [];
-  
-  // Opciones de productos
+
   productosModelo = ['Camisa', 'Polera', 'Camiseta'];
   colores = ['Blanco', 'Negro', 'Azul', 'Rojo', 'Verde', 'Amarillo', 'Gris'];
   tallas = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -38,7 +37,8 @@ export class OrdenProduccionComponent implements OnInit {
   constructor(
     private ordenService: OrdenProduccionService,
     private inventarioService: InventarioService,
-    private personalService: PersonalService
+    private personalService: PersonalService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -54,6 +54,7 @@ export class OrdenProduccionComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar órdenes:', error);
+        this.toastr.error('No se pudieron cargar las órdenes de producción', 'Error');
       }
     });
   }
@@ -65,6 +66,7 @@ export class OrdenProduccionComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar inventario:', error);
+        this.toastr.error('No se pudo cargar el inventario', 'Error');
       }
     });
   }
@@ -76,6 +78,7 @@ export class OrdenProduccionComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar personal:', error);
+        this.toastr.error('No se pudo cargar el personal', 'Error');
       }
     });
   }
@@ -90,7 +93,7 @@ export class OrdenProduccionComponent implements OnInit {
       color: 'Blanco',
       talla: 'M',
       cantidad_total: 1,
-  responsable: this.personal.length > 0 ? this.personal[0].id : '',
+      responsable: this.personal.length > 0 ? this.personal[0].id : '',
       materias_primas: [{ id_inventario: '', cantidad: 0 }]
     };
     this.showForm = true;
@@ -118,28 +121,26 @@ export class OrdenProduccionComponent implements OnInit {
   }
 
   saveOrden() {
-    // Validaciones
     if (!this.formData.cod_orden || !this.formData.producto_modelo) {
-      alert('Complete los campos obligatorios.');
+      this.toastr.warning('Complete los campos obligatorios', 'Atención');
       return;
     }
 
     if (!this.formData.responsable) {
-      alert('Debe seleccionar un responsable.');
+      this.toastr.warning('Debe seleccionar un responsable', 'Atención');
       return;
     }
 
     if (!this.formData.fecha_inicio) {
-      alert('Debe especificar la fecha de inicio.');
+      this.toastr.warning('Debe especificar la fecha de inicio', 'Atención');
       return;
     }
 
     if (!this.formData.materias_primas || this.formData.materias_primas.length === 0) {
-      alert('Debe agregar al menos una materia prima.');
+      this.toastr.warning('Debe agregar al menos una materia prima', 'Atención');
       return;
     }
 
-    // Filtrar materias primas válidas y convertir a números
     const materiasValidas = this.formData.materias_primas
       .filter((m: any) => m.id_inventario && m.cantidad > 0)
       .map((m: any) => ({
@@ -148,7 +149,7 @@ export class OrdenProduccionComponent implements OnInit {
       }));
 
     if (materiasValidas.length === 0) {
-      alert('Debe agregar al menos una materia prima válida.');
+      this.toastr.warning('Debe agregar al menos una materia prima válida', 'Atención');
       return;
     }
 
@@ -165,19 +166,15 @@ export class OrdenProduccionComponent implements OnInit {
       materias_primas: materiasValidas
     };
 
-    console.log('Datos a enviar:', ordenData);
-
     this.ordenService.createOrdenConMaterias(ordenData).subscribe({
       next: (response) => {
-        console.log('Orden creada:', response);
-        alert(`Orden creada exitosamente. Nota de salida N° ${response.id_nota_salida} generada automáticamente.`);
+        this.toastr.success(`Orden creada exitosamente. Nota de salida N° ${response.id_nota_salida} generada automáticamente.`, 'Éxito');
         this.cargarOrdenes();
         this.closeForm();
       },
       error: (error) => {
         console.error('Error al crear orden:', error);
-        console.error('Detalles del error:', error.error);
-        alert('Error al crear orden: ' + (error.error?.error || JSON.stringify(error.error) || 'Error desconocido'));
+        this.toastr.error(error.error?.error || 'Error al crear orden', 'Error');
       }
     });
   }
@@ -186,10 +183,12 @@ export class OrdenProduccionComponent implements OnInit {
     if (confirm('¿Está seguro de eliminar esta orden?')) {
       this.ordenService.deleteOrden(id).subscribe({
         next: () => {
+          this.toastr.success('Orden eliminada correctamente', 'Éxito');
           this.cargarOrdenes();
         },
         error: (error) => {
           console.error('Error al eliminar orden:', error);
+          this.toastr.error('Error al eliminar la orden', 'Error');
         }
       });
     }
@@ -202,11 +201,13 @@ export class OrdenProduccionComponent implements OnInit {
       next: (data) => {
         this.trazabilidad = data.trazabilidades || [];
         this.showTrazabilidadModal = true;
+        this.toastr.info('Trazabilidad cargada correctamente', 'Información');
       },
       error: (error) => {
         console.error('Error al cargar trazabilidad:', error);
         this.trazabilidad = [];
         this.showTrazabilidadModal = true;
+        this.toastr.error('Error al cargar trazabilidad', 'Error');
       }
     });
   }

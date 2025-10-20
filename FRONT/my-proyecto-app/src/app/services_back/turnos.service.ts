@@ -25,14 +25,14 @@ export class TurnosService {
   }
 
   createTurno(turno: Partial<Turno>): Observable<Turno> {
-    return this.http.post<Turno>(`${this.myAppUrl}${this.myApiUrl}/crear_turno/`, turno);
+    return this.http.post<Turno>(`${this.myAppUrl}${this.myApiUrl}/agregar`, turno);
   }
 
   updateTurno(id: number, turno: Partial<Turno>): Observable<Turno> {
-    return this.http.put<Turno>(`${this.myAppUrl}${this.myApiUrl}/actualizar_turno/${id}/`, turno);
+    return this.http.put<Turno>(`${this.myAppUrl}${this.myApiUrl}/actualizar/${id}`, turno);
   }
 
   deleteTurno(id: number): Observable<any> {
-    return this.http.delete(`${this.myAppUrl}${this.myApiUrl}/eliminar_turno/${id}/`);
+    return this.http.delete(`${this.myAppUrl}${this.myApiUrl}/eliminar/${id}`);
   }
 }
