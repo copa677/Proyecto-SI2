@@ -1,18 +1,8 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/Front
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import usurios
 from .serializers import LoginSerializer, RegisterSerializer ,UsuarioListSerializer
-<<<<<<< HEAD
-from .utils import generate_jwt
-from django.db import connection
-# Create your views here.
-
-=======
 from .utils import generate_jwt, jwt_required
 from django.db import connection
 
@@ -44,7 +34,6 @@ def logout(request):
     
     return Response({'mensaje': 'Cierre de sesión exitoso'}, status=status.HTTP_200_OK)
 
->>>>>>> origin/Front
 @api_view(['GET'])
 def listar_permisos(request):
     # Permisos fijos, puedes adaptar según tu modelo

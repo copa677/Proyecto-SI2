@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { PermisosService } from '../../services_back/permisos.service';
 import { HttpClient } from '@angular/common/http';
-
-@Component({
+import { LoginService } from '../../services_back/login.service';
+ @Component({
   selector: 'app-asignar-permisos',
   templateUrl: './asignar-permisos.component.html',
   styleUrls: ['./asignar-permisos.component.css']
@@ -19,6 +19,7 @@ export class AsignarPermisosComponent implements OnInit {
 
   constructor(
     private permisosService: PermisosService,
+    private loginService: LoginService,
     private http: HttpClient
   ) {}
 
@@ -28,7 +29,7 @@ export class AsignarPermisosComponent implements OnInit {
   }
 
   cargarUsuarios() {
-  this.http.get<any[]>('http://localhost:8000/api/usuario/getuser').subscribe({
+  this.loginService.getuser().subscribe({
       next: (data: any) => {
         this.usuarios = data;
       },

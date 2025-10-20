@@ -43,11 +43,7 @@ def insertar_control_calidad(request):
         nuevo_control = ControlCalidad.objects.create(
             observaciones=serializer.validated_data['observaciones'],
             resultado=serializer.validated_data['resultado'],
-<<<<<<< HEAD
-            fehca_hora=serializer.validated_data['fehca_hora'],
-=======
             fecha_hora=serializer.validated_data['fecha_hora'],
->>>>>>> origin/Front
             id_personal=persona.id,
             id_trazabilidad=serializer.validated_data['id_trazabilidad']
         )

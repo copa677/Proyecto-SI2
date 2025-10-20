@@ -1,18 +1,20 @@
 import os
 import subprocess
 from datetime import datetime
+from django.http import FileResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
+
 BASE_DIR = settings.BASE_DIR
 
-# Leer variables del entorno (desde tu .env)
-DB_NAME = os.environ.get("DB_NAME")
-DB_USER = os.environ.get("DB_USER")
-DB_PASSWORD = os.environ.get("DB_PASSWORD")
-DB_HOST = os.environ.get("DB_HOST")
-DB_PORT = os.environ.get("DB_PORT")
+# Variables de entorno
+DB_NAME = os.environ.get("DB_NAME", "WF")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "password")
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_PORT = os.environ.get("DB_PORT", "5432")
 
 BACKUP_DIR = os.path.join(BASE_DIR, "backups")
 os.makedirs(BACKUP_DIR, exist_ok=True)
@@ -20,23 +22,37 @@ os.makedirs(BACKUP_DIR, exist_ok=True)
 
 @api_view(['GET'])
 def backup_database(request):
-    """Genera un archivo .dump de la base de datos"""
+    """Genera un archivo .dump, lo guarda y lo ofrece para descargar"""
     try:
+        # 📄 Nombre único con timestamp
         filename = f"{DB_NAME}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.dump"
         filepath = os.path.join(BACKUP_DIR, filename)
 
         env = os.environ.copy()
         env["PGPASSWORD"] = DB_PASSWORD
 
-        # ⚙️ En Windows se debe usar shell=True
-        subprocess.run(
-            f'"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe" -h {DB_HOST} -p {DB_PORT} -U {DB_USER} -Fc -f "{filepath}" {DB_NAME}',
-            shell=True,      # ✅ necesario para que Windows encuentre pg_dump
-            env=env,
-            check=True
+        # 🧠 Comando pg_dump
+        command = (
+            f'"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe" '
+            f'-h {DB_HOST} -p {DB_PORT} -U {DB_USER} -Fc -f "{filepath}" {DB_NAME}'
         )
 
-        return Response({"message": f"✅ Backup creado: {filename}"}, status=status.HTTP_200_OK)
+        subprocess.run(command, shell=True, env=env, check=True)
+
+        # 📁 Verifica que el archivo realmente se creó
+        if not os.path.exists(filepath):
+            return Response(
+                {"error": "No se generó el archivo de respaldo."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        # ✅ Enviar el archivo al usuario (descarga directa)
+        response = FileResponse(
+            open(filepath, 'rb'),
+            as_attachment=True,
+            filename=filename
+        )
+        return response
 
     except subprocess.CalledProcessError as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

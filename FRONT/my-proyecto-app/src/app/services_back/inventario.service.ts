@@ -31,9 +31,9 @@ export class InventarioService {
     return this.http.delete(`${this.apiUrl}/eliminar/${id}/`);
   }
 
-    // Nuevo método para obtener trazabilidad del lote
-    getTrazabilidadPorLote(id_lote: number): Observable<any[]> {
-      // Ajusta la URL según tu backend, aquí se asume que el endpoint acepta filtro por id_lote
-      return this.http.get<any[]>(`http://localhost:8000/api/trazabilidad/trazabilidades/?id_lote=${id_lote}`);
-    }
+  // Nuevo método para obtener trazabilidad del lote
+  getTrazabilidadPorLote(id_lote: number): Observable<any[]> {
+    // Ajusta la URL según tu backend, aquí se asume que el endpoint acepta filtro por id_lote
+    return this.http.get<any[]>(`http://localhost:8000/api/trazabilidad/trazabilidades/?id_lote=${id_lote}`);
+  }
 }
