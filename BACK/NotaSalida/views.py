@@ -13,7 +13,9 @@ from .serializers import (
 from Lotes.models import Lote, MateriaPrima
 from Inventario.models import Inventario
 from personal.models import personal
+from Trazabilidad.models import TrazabilidadLote
 from django.db import transaction
+from datetime import datetime
 
 # ============================================================
 # 🟢 CRUD NOTA SALIDA (CABECERA)
@@ -100,6 +102,29 @@ def crear_nota_salida_con_detalles(request):
                 if inventario_item.cantidad_actual < 0:
                     inventario_item.cantidad_actual = 0
                 inventario_item.save()
+                
+                # 🔹 REGISTRAR TRAZABILIDAD DE LOTE
+                # Obtener información del personal
+                try:
+                    persona = personal.objects.get(id=nota_data['id_personal'])
+                    nombre_usuario = persona.nombre_completo
+                except personal.DoesNotExist:
+                    nombre_usuario = "N/A"
+                
+                TrazabilidadLote.objects.create(
+                    id_lote=lote.id_lote,
+                    id_materia=id_materia,
+                    nombre_materia=nombre_materia,
+                    codigo_lote=lote.codigo_lote,
+                    cantidad_consumida=cantidad_a_consumir,
+                    unidad_medida=unidad,
+                    tipo_operacion='nota_salida',
+                    id_operacion=nota.id_salida,
+                    codigo_operacion=f"NS-{nota.id_salida}",
+                    fecha_consumo=datetime.now(),
+                    id_usuario=nota_data['id_personal'],
+                    nombre_usuario=nombre_usuario
+                )
                 
                 cantidad_restante -= cantidad_a_consumir
 

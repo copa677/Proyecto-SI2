@@ -115,4 +115,23 @@ export class TrazabilidadComponent implements OnInit {
       default: return 'bg-gray-100 text-gray-800';
     }
   }
+
+  calcularProgreso(horaInicio: string, horaFin: string): number {
+    if (!horaInicio || !horaFin) return 0;
+    
+    const ahora = new Date();
+    const hoy = ahora.toISOString().split('T')[0];
+    
+    const inicio = new Date(`${hoy}T${horaInicio}`);
+    const fin = new Date(`${hoy}T${horaFin}`);
+    const actual = ahora;
+    
+    if (actual < inicio) return 0;
+    if (actual > fin) return 100;
+    
+    const totalTiempo = fin.getTime() - inicio.getTime();
+    const tiempoTranscurrido = actual.getTime() - inicio.getTime();
+    
+    return Math.round((tiempoTranscurrido / totalTiempo) * 100);
+  }
 }
