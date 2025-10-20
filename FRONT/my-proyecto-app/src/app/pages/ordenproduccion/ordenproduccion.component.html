@@ -63,29 +63,88 @@
     <!-- Modal de Trazabilidad -->
     <div *ngIf="showTrazabilidadModal" class="fixed inset-0 z-50 flex items-center justify-center" (keydown.escape)="closeTrazabilidadModal()" tabindex="0">
       <div class="absolute inset-0 bg-gray-900/50" (click)="closeTrazabilidadModal()"></div>
-      <div class="relative w-full max-w-2xl bg-white rounded-lg shadow-xl mx-2 p-6">
-        <div class="flex items-center justify-between mb-4">
+      <div class="relative w-full max-w-3xl bg-white rounded-lg shadow-xl mx-4 max-h-[85vh] flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h3 class="text-lg font-semibold text-gray-900">Trazabilidad de la Orden</h3>
           <button class="text-gray-400 hover:text-gray-600" (click)="closeTrazabilidadModal()">
             <i class="fas fa-times"></i>
           </button>
         </div>
         
-        <div *ngIf="trazabilidad && trazabilidad.length > 0; else noTrazabilidad" class="space-y-3">
-          <div *ngFor="let traza of trazabilidad" class="border border-gray-200 rounded-lg p-4">
-            <div class="grid grid-cols-2 gap-2 text-sm">
-              <div><span class="font-medium">Lote:</span> {{ traza.id_lote }}</div>
-              <div><span class="font-medium">Cantidad Usada:</span> {{ traza.cantidad_usada }}</div>
-              <div><span class="font-medium">Fecha Registro:</span> {{ traza.fecha_registro | date:'short' }}</div>
+        <!-- Body -->
+        <div class="flex-1 overflow-y-auto px-6 py-4">
+          <div *ngIf="trazabilidad && trazabilidad.length > 0; else noTrazabilidad" class="space-y-4">
+            <div *ngFor="let traza of trazabilidad; let i = index" 
+                 class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+              
+              <!-- Header del proceso -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <span class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 text-sm font-semibold">
+                    {{ i + 1 }}
+                  </span>
+                  <div>
+                    <h4 class="text-base font-semibold text-gray-900">{{ traza.proceso }}</h4>
+                    <p class="text-xs text-gray-500">{{ traza.fecha_registro | date:'dd/MM/yyyy' }}</p>
+                  </div>
+                </div>
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      [ngClass]="traza.estado === 'Completado' ? 'bg-green-100 text-green-800' : 
+                                 traza.estado === 'En Proceso' ? 'bg-blue-100 text-blue-800' : 
+                                 traza.estado === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'">
+                  {{ traza.estado }}
+                </span>
+              </div>
+              
+              <!-- Descripción mejorada -->
+              <div class="mb-3 p-3 bg-gray-50 rounded border-l-4 border-indigo-500">
+                <p class="text-sm text-gray-700">{{ traza.descripcion_proceso }}</p>
+              </div>
+              
+              <!-- Detalles en grid -->
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span class="text-gray-500">Horario:</span>
+                  <span class="ml-2 font-medium text-gray-900">{{ traza.hora_inicio }} - {{ traza.hora_fin }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Cantidad:</span>
+                  <span class="ml-2 font-medium text-indigo-600">{{ traza.cantidad }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Personal:</span>
+                  <span class="ml-2 font-medium text-gray-900">{{ traza.nombre_personal || 'ID: ' + traza.id_personal }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Rol:</span>
+                  <span class="ml-2 font-medium text-gray-900">{{ traza.rol_personal || 'N/A' }}</span>
+                </div>
+              </div>
+              
+              <!-- Barra de progreso para procesos en curso -->
+              <div *ngIf="traza.estado === 'En Proceso'" class="mt-3 pt-3 border-t border-gray-200">
+                <div class="flex justify-between text-xs text-gray-600 mb-1">
+                  <span>Progreso</span>
+                  <span class="font-semibold">{{ calcularProgreso(traza.hora_inicio, traza.hora_fin) }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-blue-500 h-2 rounded-full transition-all"
+                       [style.width.%]="calcularProgreso(traza.hora_inicio, traza.hora_fin)"></div>
+                </div>
+              </div>
             </div>
           </div>
+          
+          <ng-template #noTrazabilidad>
+            <div class="text-center py-8">
+              <p class="text-gray-500">No hay trazabilidad registrada para esta orden.</p>
+            </div>
+          </ng-template>
         </div>
         
-        <ng-template #noTrazabilidad>
-          <p class="text-gray-500 text-center py-4">No hay trazabilidad registrada para esta orden.</p>
-        </ng-template>
-        
-        <div class="mt-6 flex justify-end">
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
           <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700" (click)="closeTrazabilidadModal()">
             Cerrar
           </button>

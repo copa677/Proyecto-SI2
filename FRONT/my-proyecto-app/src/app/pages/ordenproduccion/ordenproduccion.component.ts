@@ -234,4 +234,23 @@ export class OrdenProduccionComponent implements OnInit {
     const item = this.inventario.find(i => i.id_inventario === id);
     return item ? item.cantidad_actual : 0;
   }
+
+  calcularProgreso(horaInicio: string, horaFin: string): number {
+    if (!horaInicio || !horaFin) return 0;
+    
+    const ahora = new Date();
+    const hoy = ahora.toISOString().split('T')[0];
+    
+    const inicio = new Date(`${hoy}T${horaInicio}`);
+    const fin = new Date(`${hoy}T${horaFin}`);
+    const actual = ahora;
+    
+    if (actual < inicio) return 0;
+    if (actual > fin) return 100;
+    
+    const totalTiempo = fin.getTime() - inicio.getTime();
+    const tiempoTranscurrido = actual.getTime() - inicio.getTime();
+    
+    return Math.round((tiempoTranscurrido / totalTiempo) * 100);
+  }
 }

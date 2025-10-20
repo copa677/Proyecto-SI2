@@ -178,18 +178,31 @@ def crear_orden_con_materias(request):
             # Registrar lote consumido
             lotes_consumidos.append({
                 'id_lote': lote.id_lote,
+                'codigo_lote': lote.codigo_lote,
                 'cantidad': float(cantidad_a_consumir)
             })
             
             cantidad_restante -= cantidad_a_consumir
         
         # 5️⃣ Registrar trazabilidad automática (una por materia prima)
+        # Crear descripción detallada
+        lotes_detalle = ', '.join([f"Lote {lc['codigo_lote']}: {lc['cantidad']} {unidad}" for lc in lotes_consumidos])
+        descripcion_detallada = (
+            f"Se consumió {cantidad_requerida} {unidad} de {nombre_materia} para la producción de "
+            f"{data['cantidad_total']} unidades de {data['producto_modelo']} ({data['color']}/{data['talla']}). "
+            f"Material extraído de {len(lotes_consumidos)} lote(s): {lotes_detalle}. "
+            f"Responsable: {nombre_solicitante}."
+        )
+        
+        # Obtener hora actual del sistema
+        hora_actual = datetime.now().time()
+        
         Trazabilidad.objects.create(
-            proceso='Consumo de Materia Prima',
-            descripcion_proceso=f'Consumo de {nombre_materia} para orden {data["cod_orden"]} (FIFO: {len(lotes_consumidos)} lote(s))',
+            proceso=f'Consumo de Materia Prima - {nombre_materia}',
+            descripcion_proceso=descripcion_detallada,
             fecha_registro=datetime.now(),
-            hora_inicio=time(0, 0),  # Hora predeterminada
-            hora_fin=time(0, 0),     # Hora predeterminada
+            hora_inicio=hora_actual,
+            hora_fin=hora_actual,
             cantidad=int(cantidad_requerida),
             estado='Completado',
             id_personal=data['id_personal'],
@@ -260,9 +273,35 @@ def obtener_trazabilidad_orden(request, id_orden):
     if not trazas.exists():
         return Response({'mensaje': 'No hay trazabilidades registradas para esta orden'}, status=status.HTTP_200_OK)
 
-    serializer = TrazabilidadSerializer(trazas, many=True)
+    # Enriquecer con información del personal
+    trazas_data = []
+    for traza in trazas:
+        traza_dict = {
+            'id_trazabilidad': traza.id_trazabilidad,
+            'proceso': traza.proceso,
+            'descripcion_proceso': traza.descripcion_proceso,
+            'fecha_registro': traza.fecha_registro,
+            'hora_inicio': traza.hora_inicio,
+            'hora_fin': traza.hora_fin,
+            'cantidad': traza.cantidad,
+            'estado': traza.estado,
+            'id_personal': traza.id_personal,
+            'id_orden': traza.id_orden
+        }
+        
+        # Obtener nombre del personal
+        try:
+            persona = personal.objects.get(id=traza.id_personal)
+            traza_dict['nombre_personal'] = persona.nombre_completo
+            traza_dict['rol_personal'] = persona.rol
+        except personal.DoesNotExist:
+            traza_dict['nombre_personal'] = 'N/A'
+            traza_dict['rol_personal'] = 'N/A'
+        
+        trazas_data.append(traza_dict)
+    
     return Response({
         'orden': orden.cod_orden,
         'total_trazabilidades': trazas.count(),
-        'trazabilidades': serializer.data
+        'trazabilidades': trazas_data
     }, status=status.HTTP_200_OK)

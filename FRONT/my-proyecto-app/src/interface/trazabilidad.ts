@@ -10,6 +10,8 @@ export interface Trazabilidad {
     estado: string;
     id_personal: number;
     id_orden: number;
+    nombre_personal?: string;  // Nuevo campo
+    rol_personal?: string;      // Nuevo campo
 
     // Fields for control-calidad component (as optional)
     id_lote?: number;
