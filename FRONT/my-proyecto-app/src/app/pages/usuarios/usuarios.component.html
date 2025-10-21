@@ -28,11 +28,11 @@
         </button>
 
         <!-- 🔹 Botón Registrar -->
-        <button
-          class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
-          (click)="abrirCrear()">
-          <i class="fas fa-user-plus -ml-1 mr-2"></i>
-          Registrar Usuario
+        
+        <button *appCanDo="'insertar'; ventana: 'Usuarios'"
+                class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
+                (click)="abrirCrear()">
+          <i class="fas fa-user-plus -ml-1 mr-2"></i>Registrar Usuario
         </button>
       </div>
     </div>
@@ -107,7 +107,13 @@
                 {{ u.tipo }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<<<<<<< HEAD
                 <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="abrirEditar(u)">
+=======
+                <button *appCanDo="'editar'; ventana: 'Usuarios'"
+                        class="text-indigo-600 hover:text-indigo-900 mr-3"
+                        (click)="abrirEditar(u)">
+>>>>>>> origin/Front
                   <i class="fas fa-edit"></i> Editar
                 </button>
 
@@ -159,7 +165,8 @@
           </div>
         </div>
         <div class="border-t border-gray-200 px-4 py-3 flex justify-end space-x-3">
-          <button class="text-indigo-600 hover:text-indigo-900 text-sm font-medium" (click)="abrirEditar(u)">
+          <button *appCanDo="'editar'; ventana: 'Usuarios'"
+                  class="text-indigo-600 hover:text-indigo-900 text-sm font-medium" (click)="abrirEditar(u)">
             <i class="fas fa-edit"></i> Editar
           </button>
 
@@ -195,6 +202,24 @@
       <div *ngIf="!editMode">
         <label class="block text-sm font-medium text-gray-700">Password</label>
         <input type="password" class="form-input mt-1 block w-full" [(ngModel)]="form.password" placeholder="********">
+      </div>
+
+      <!-- Tipo de Usuario -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Tipo de Usuario</label>
+        <select class="form-input mt-1 block w-full" [(ngModel)]="form.tipo">
+          <option value="admin">Administrador</option>
+          <option value="empleado">Empleado</option>
+        </select>
+      </div>
+
+      <!-- Estado -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Estado</label>
+        <select class="form-input mt-1 block w-full" [(ngModel)]="form.estado">
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
       </div>
     </div>
 

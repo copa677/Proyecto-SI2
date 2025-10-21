@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../../services_back/login.service';
 import { BitacoraService } from '../../services_back/bitacora.service';
+import { PermissionService } from '../../services_back/permission.service';
 
 @Component({
   selector: 'app-menu',
@@ -23,7 +24,8 @@ export class MenuComponent implements OnInit {
 
   constructor(
     private login: LoginService,
-    private bitacoraService: BitacoraService
+    private bitacoraService: BitacoraService,
+    public permissionService: PermissionService // Inyectar y hacer público
   ) {}
 
   ngOnInit(): void {
@@ -31,9 +33,11 @@ export class MenuComponent implements OnInit {
     if (username && username.trim().length > 0) {
       this.userName = username.trim();
       this.userInitial = this.userName.charAt(0).toUpperCase();
-      // si prefieres dos iniciales:
-      // this.userInitial = this.userName.split(/\s+/).slice(0,2).map(s => s[0]).join('').toUpperCase();
     }
+
+    // Inicializar el rol en el servicio de permisos
+  const role = this.login.getRoleFromToken();
+  this.permissionService.setUserRole(role ?? '');
   }
 
   toggleMenu() { this.showMenu = !this.showMenu; }

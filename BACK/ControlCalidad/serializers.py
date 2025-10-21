@@ -18,9 +18,8 @@ class ControlCalidadSerializer(serializers.Serializer):
             return None
 
 class InsertarControlCalidadSerializer(serializers.Serializer):
-    id_control = serializers.IntegerField()
     observaciones = serializers.CharField()
     resultado = serializers.CharField(max_length=100)
     fecha_hora = serializers.DateTimeField()
-    nombre_personal = serializers.CharField()
+    id_personal = serializers.IntegerField()
     id_trazabilidad = serializers.IntegerField()

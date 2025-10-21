@@ -36,6 +36,7 @@ def generate_jwt(user):
     payload = {
         'id': user.id,
         'name_user': user.name_user,
+        'tipo_usuario': user.tipo_usuario,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
         'iat': datetime.datetime.utcnow()
     }

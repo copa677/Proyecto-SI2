@@ -31,13 +31,13 @@ def obtener_control_calidad(request, id_control):
 def insertar_control_calidad(request):
     serializer = InsertarControlCalidadSerializer(data=request.data)
     if serializer.is_valid():
-        nombre_personal = serializer.validated_data.get('nombre_personal')
+        id_personal = serializer.validated_data.get('id_personal')
 
-        # Buscar al personal por su nombre
+        # Verificar que el personal existe
         try:
-            persona = personal.objects.get(nombre_completo=nombre_personal)
+            persona = personal.objects.get(id=id_personal)
         except personal.DoesNotExist:
-            return Response({'error': f'No existe un personal con el nombre "{nombre_personal}"'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'No existe un personal con el id {id_personal}'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Crear nuevo registro
         nuevo_control = ControlCalidad.objects.create(
