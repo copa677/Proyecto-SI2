@@ -178,6 +178,24 @@
         <label class="block text-sm font-medium text-gray-700">Password</label>
         <input type="password" class="form-input mt-1 block w-full" [(ngModel)]="form.password" placeholder="********">
       </div>
+
+      <!-- Tipo de Usuario -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Tipo de Usuario</label>
+        <select class="form-input mt-1 block w-full" [(ngModel)]="form.tipo">
+          <option value="admin">Administrador</option>
+          <option value="empleado">Empleado</option>
+        </select>
+      </div>
+
+      <!-- Estado -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Estado</label>
+        <select class="form-input mt-1 block w-full" [(ngModel)]="form.estado">
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
+      </div>
     </div>
 
     <div class="mt-6 flex justify-end space-x-2">

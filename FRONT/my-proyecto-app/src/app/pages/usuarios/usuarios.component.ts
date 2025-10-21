@@ -129,7 +129,9 @@ export class UsuariosComponent implements OnInit {
       // ACTUALIZAR USUARIO
       const payloadUpdate: any = {
         name_user: this.form.nombre?.trim(),
-        email: this.form.email?.trim()
+        email: this.form.email?.trim(),
+        tipo_usuario: this.form.tipo,
+        estado: this.form.estado
       };
 
       // Solo agregar password si se proporcionó uno nuevo
@@ -161,8 +163,8 @@ export class UsuariosComponent implements OnInit {
       name_user   : this.form.nombre?.trim(),
       password    : this.form.password?.trim(),
       email       : this.form.email?.trim(),
-      tipo_usuario: 'empleado', // fijo
-      estado      : 'Activo'    // fijo
+      tipo_usuario: this.form.tipo || 'empleado',
+      estado      : this.form.estado || 'Activo'
     };
 
     if (!payloadCreate.name_user || !payloadCreate.email || !payloadCreate.password) {
