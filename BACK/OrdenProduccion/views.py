@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
 
-# Importar el decorador de permisos
+# Importar el decorador de permisos y JWT
 from usuarios.permissions import require_permission
+from usuarios.utils import jwt_required
 
 from .models import OrdenProduccion
 from .serializers import (
@@ -23,6 +24,7 @@ from datetime import date, datetime, time
 
 # 🟢 LISTAR TODAS LAS ÓRDENES
 @api_view(['GET'])
+@jwt_required
 @require_permission('OrdenProduccion.view_ordenproduccion')
 def listar_ordenes_produccion(request):
     ordenes = OrdenProduccion.objects.all()
@@ -32,6 +34,7 @@ def listar_ordenes_produccion(request):
 
 # 🟢 OBTENER ORDEN POR ID
 @api_view(['GET'])
+@jwt_required
 @require_permission('OrdenProduccion.view_ordenproduccion')
 def obtener_orden_produccion(request, id_orden):
     try:
@@ -45,6 +48,7 @@ def obtener_orden_produccion(request, id_orden):
 
 # 🟢 INSERTAR NUEVA ORDEN
 @api_view(['POST'])
+@jwt_required
 @require_permission('OrdenProduccion.add_ordenproduccion')
 def insertar_orden_produccion(request):
     serializer = InsertarOrdenProduccionSerializers(data=request.data)
@@ -56,6 +60,7 @@ def insertar_orden_produccion(request):
 
 # 🔹 CREAR ORDEN DE PRODUCCIÓN CON MATERIAS PRIMAS Y GENERAR NOTA DE SALIDA AUTOMÁTICAMENTE
 @api_view(['POST'])
+@jwt_required
 @require_permission('OrdenProduccion.add_ordenproduccion')
 @transaction.atomic
 def crear_orden_con_materias(request):
@@ -190,6 +195,7 @@ def crear_orden_con_materias(request):
 
 # 🟢 ACTUALIZAR ORDEN EXISTENTE
 @api_view(['PUT'])
+@jwt_required
 @require_permission('OrdenProduccion.change_ordenproduccion')
 def actualizar_orden_produccion(request, id_orden):
     try:
@@ -208,6 +214,7 @@ def actualizar_orden_produccion(request, id_orden):
 
 # 🟢 ELIMINAR ORDEN
 @api_view(['DELETE'])
+@jwt_required
 @require_permission('OrdenProduccion.delete_ordenproduccion')
 def eliminar_orden_produccion(request, id_orden):
     try:
@@ -220,6 +227,7 @@ def eliminar_orden_produccion(request, id_orden):
 
 # 🟣 OBTENER TRAZABILIDAD DE UNA ORDEN DE PRODUCCIÓN
 @api_view(['GET'])
+@jwt_required
 @require_permission('Trazabilidad.view_trazabilidad')
 def obtener_trazabilidad_orden(request, id_orden):
     """
