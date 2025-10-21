@@ -5,6 +5,7 @@ import { TrazabilidadService } from '../../services_back/trazabilidad.service';
 import { ControlCalidad } from '../../../interface/control-calidad';
 import { Personal } from '../../../interface/personal';
 import { Trazabilidad } from '../../../interface/trazabilidad';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-control-calidad',
@@ -25,7 +26,8 @@ export class ControlCalidadComponent implements OnInit {
   constructor(
     private controlCalidadService: ControlCalidadService,
     private personalService: PersonalService,
-    private trazabilidadService: TrazabilidadService
+    private trazabilidadService: TrazabilidadService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -40,6 +42,7 @@ export class ControlCalidadComponent implements OnInit {
       },
       (error: any) => {
         console.error('Error al obtener controles:', error);
+        this.toastr.error('No se pudieron cargar los controles de calidad', 'Error');
       }
     );
   }
@@ -92,22 +95,26 @@ export class ControlCalidadComponent implements OnInit {
       // Actualizar control existente
       this.controlCalidadService.actualizarControl(this.formData.id_control, this.formData as ControlCalidad).subscribe(
         () => {
+          this.toastr.success('Control de calidad actualizado correctamente', 'Éxito');
           this.getControles();
           this.closeForm();
         },
         (error: any) => {
           console.error('Error al actualizar control:', error);
+          this.toastr.error('Error al actualizar el control de calidad', 'Error');
         }
       );
     } else {
       // Crear nuevo control
       this.controlCalidadService.insertarControl(this.formData as ControlCalidad).subscribe(
         () => {
+          this.toastr.success('Control de calidad creado correctamente', 'Éxito');
           this.getControles();
           this.closeForm();
         },
         (error: any) => {
           console.error('Error al crear control:', error);
+          this.toastr.error('Error al crear el control de calidad', 'Error');
         }
       );
     }
@@ -117,6 +124,7 @@ export class ControlCalidadComponent implements OnInit {
     if (confirm('¿Está seguro de eliminar este control de calidad?')) {
       this.controlCalidadService.eliminarControl(id).subscribe(
         () => {
+          this.toastr.success('Control de calidad eliminado correctamente', 'Éxito');
           this.getControles();
           if (this.selectedControl?.id_control === id) {
             this.selectedControl = null;
@@ -124,6 +132,7 @@ export class ControlCalidadComponent implements OnInit {
         },
         (error: any) => {
           console.error('Error al eliminar control:', error);
+          this.toastr.error('Error al eliminar el control de calidad', 'Error');
         }
       );
     }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NotaSalidaService } from '../../services_back/nota-salida.service';
 import { InventarioService } from '../../services_back/inventario.service';
 import { PersonalService } from '../../services_back/personal.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-nota-salida',
@@ -27,7 +28,8 @@ export class NotaSalidaComponent implements OnInit {
   constructor(
     private notaSalidaService: NotaSalidaService,
     private inventarioService: InventarioService,
-    private personalService: PersonalService
+    private personalService: PersonalService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -48,6 +50,7 @@ export class NotaSalidaComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al cargar notas de salida:', error);
+        this.toastr.error('No se pudieron cargar las notas de salida', 'Error');
       }
     });
   }
@@ -59,6 +62,7 @@ export class NotaSalidaComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al cargar personal:', error);
+        this.toastr.error('No se pudo cargar el personal', 'Error');
       }
     });
   }
@@ -70,6 +74,7 @@ export class NotaSalidaComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al cargar inventario:', error);
+        this.toastr.error('No se pudo cargar el inventario', 'Error');
       }
     });
   }
@@ -90,6 +95,7 @@ export class NotaSalidaComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al cargar detalles:', error);
+        this.toastr.error('No se pudieron cargar los detalles de la nota', 'Error');
         this.detalles = [];
         this.modalVisible = true;
       }
@@ -127,29 +133,29 @@ export class NotaSalidaComponent implements OnInit {
   saveNotaSalida() {
     // Validar campos requeridos antes de enviar
     if (!this.formData.fecha_salida) {
-      alert('La fecha de salida es obligatoria.');
+      this.toastr.warning('La fecha de salida es obligatoria', 'Atención');
       return;
     }
     if (!this.formData.motivo) {
-      alert('El motivo es obligatorio.');
+      this.toastr.warning('El motivo es obligatorio', 'Atención');
       return;
     }
     if (!this.formData.id_personal) {
-      alert('Debe seleccionar un responsable.');
+      this.toastr.warning('Debe seleccionar un responsable', 'Atención');
       return;
     }
     if (!this.formData.area) {
-      alert('El área es obligatoria.');
+      this.toastr.warning('El área es obligatoria', 'Atención');
       return;
     }
     if (!this.formData.detalles || this.formData.detalles.length === 0) {
-      alert('Debe agregar al menos un detalle.');
+      this.toastr.warning('Debe agregar al menos un detalle', 'Atención');
       return;
     }
     // Filtrar detalles válidos
     const detallesValidos = this.formData.detalles.filter((d: any) => d.id_inventario && d.cantidad > 0);
     if (detallesValidos.length === 0) {
-      alert('Debe agregar al menos un detalle válido.');
+      this.toastr.warning('Debe agregar al menos un detalle válido', 'Atención');
       return;
     }
     const data = {
@@ -161,11 +167,13 @@ export class NotaSalidaComponent implements OnInit {
     };
     this.notaSalidaService.createNotaSalida(data).subscribe({
       next: () => {
+        this.toastr.success('Nota de salida creada correctamente', 'Éxito');
         this.cargarNotasSalida();
         this.closeForm();
       },
       error: (error: any) => {
         console.error('Error al crear nota de salida:', error);
+        this.toastr.error('Error al crear la nota de salida', 'Error');
       }
     });
   }

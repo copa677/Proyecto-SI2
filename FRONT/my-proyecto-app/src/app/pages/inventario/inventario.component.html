@@ -31,7 +31,6 @@
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
-<<<<<<< HEAD
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
@@ -77,50 +76,6 @@
             </tr>
           </tbody>
         </table>
-=======
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad de Medida</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ubicación</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Actualización</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lote</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let inventario of filteredInventarios" class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ inventario.nombre_materia_prima }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.unidad_medida }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.cantidad_actual }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.ubicacion }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.fecha_actualizacion | date:'short' }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.id_lote }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getEstadoClass(inventario.estado)">
-                {{ inventario.estado }}
-              </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-              <button *appCanDo="'editar'; ventana: 'Inventario'"
-                      class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(inventario)">
-                <i class="fas fa-edit mr-1"></i> Editar
-              </button>
-                <!-- Botón de trazabilidad eliminado -->
-              <button *appCanDo="'eliminar'; ventana: 'Inventario'"
-                      class="text-red-600 hover:text-red-900" (click)="deleteInventario(inventario.id_inventario)">
-                <i class="fas fa-trash mr-1"></i> Eliminar
-              </button>
-            </td>
-          </tr>
-          <tr *ngIf="filteredInventarios.length === 0">
-            <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay items en inventario</td>
-          </tr>
-        </tbody>
-      </table>
->>>>>>> origin/Front
       </div>
     </div>
 

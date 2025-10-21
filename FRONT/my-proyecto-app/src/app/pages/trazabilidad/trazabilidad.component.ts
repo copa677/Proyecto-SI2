@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TrazabilidadService } from '../../services_back/trazabilidad.service';
 import { Trazabilidad } from '../../../interface/trazabilidad';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-trazabilidad',
@@ -14,7 +15,7 @@ export class TrazabilidadComponent implements OnInit {
   formData: Partial<Trazabilidad> = {};
   searchTerm = '';
 
-  constructor(private trazabilidadService: TrazabilidadService) {}
+  constructor(private trazabilidadService: TrazabilidadService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
     this.getTrazabilidades();
@@ -27,6 +28,7 @@ export class TrazabilidadComponent implements OnInit {
       },
       (error: any) => {
         console.error('Error al obtener trazabilidades:', error);
+        this.toastr.error('No se pudieron cargar las trazabilidades', 'Error');
       }
     );
   }
@@ -69,22 +71,26 @@ export class TrazabilidadComponent implements OnInit {
       // Actualizar trazabilidad existente
       this.trazabilidadService.actualizarTrazabilidad(this.formData.id_trazabilidad, this.formData as Trazabilidad).subscribe(
         () => {
+          this.toastr.success('Trazabilidad actualizada correctamente', 'Éxito');
           this.getTrazabilidades();
           this.closeForm();
         },
         (error: any) => {
           console.error('Error al actualizar trazabilidad:', error);
+          this.toastr.error('Error al actualizar la trazabilidad', 'Error');
         }
       );
     } else {
       // Crear nueva trazabilidad
       this.trazabilidadService.insertarTrazabilidad(this.formData as Trazabilidad).subscribe(
         () => {
+          this.toastr.success('Trazabilidad creada correctamente', 'Éxito');
           this.getTrazabilidades();
           this.closeForm();
         },
         (error: any) => {
           console.error('Error al crear trazabilidad:', error);
+          this.toastr.error('Error al crear la trazabilidad', 'Error');
         }
       );
     }
@@ -94,6 +100,7 @@ export class TrazabilidadComponent implements OnInit {
     if (confirm('¿Está seguro de eliminar esta trazabilidad?')) {
       this.trazabilidadService.eliminarTrazabilidad(id).subscribe(
         () => {
+          this.toastr.success('Trazabilidad eliminada correctamente', 'Éxito');
           this.getTrazabilidades();
           if (this.selectedTrazabilidad?.id_trazabilidad === id) {
             this.selectedTrazabilidad = null;
@@ -101,6 +108,7 @@ export class TrazabilidadComponent implements OnInit {
         },
         (error: any) => {
           console.error('Error al eliminar trazabilidad:', error);
+          this.toastr.error('Error al eliminar la trazabilidad', 'Error');
         }
       );
     }

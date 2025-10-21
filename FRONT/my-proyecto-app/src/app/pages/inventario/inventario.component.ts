@@ -4,6 +4,7 @@ import { LotesService } from '../../services_back/lotes.service';
 import { Inventario } from '../../inventario.interface';
 import { MateriaPrima } from '../../../interface/materiaprima';
 import { Lote } from '../../../interface/lote';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-inventario',
@@ -47,7 +48,8 @@ export class InventarioComponent implements OnInit {
 
   constructor(
     private inventarioService: InventarioService,
-    private lotesService: LotesService
+    private lotesService: LotesService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -63,6 +65,7 @@ export class InventarioComponent implements OnInit {
       },
       error => {
         console.error('Error al obtener inventarios:', error);
+        this.toastr.error('No se pudieron cargar los inventarios', 'Error');
       }
     );
   }
@@ -74,6 +77,7 @@ export class InventarioComponent implements OnInit {
       },
       error => {
         console.error('Error al cargar materias primas:', error);
+        this.toastr.error('No se pudieron cargar las materias primas', 'Error');
       }
     );
   }
@@ -85,6 +89,7 @@ export class InventarioComponent implements OnInit {
       },
       error => {
         console.error('Error al cargar lotes:', error);
+        this.toastr.error('No se pudieron cargar los lotes', 'Error');
       }
     );
   }
@@ -137,10 +142,14 @@ export class InventarioComponent implements OnInit {
         (data: any[]) => {
           this.trazabilidad = data;
           this.modalVisible = true;
+          if (data.length === 0) {
+            this.toastr.info('No hay trazabilidad disponible para este lote', 'Información');
+          }
         },
         error => {
           this.trazabilidad = [];
           this.modalVisible = true;
+          this.toastr.error('Error al cargar la trazabilidad', 'Error');
         }
       );
     }
@@ -167,12 +176,13 @@ export class InventarioComponent implements OnInit {
       this.inventarioService.updateInventario(this.formData.id_inventario, data).subscribe(
         (response) => {
           console.log('Inventario actualizado exitosamente:', response);
+          this.toastr.success('Inventario actualizado correctamente', 'Éxito');
           this.getInventarios();
           this.closeForm();
         },
         error => {
           console.error('Error al actualizar inventario:', error);
-          alert('Error al actualizar inventario. Revisa la consola para más detalles.');
+          this.toastr.error('Error al actualizar inventario', 'Error');
         }
       );
     } else {
@@ -200,13 +210,14 @@ export class InventarioComponent implements OnInit {
       this.inventarioService.createInventario(data).subscribe(
         (response) => {
           console.log('Inventario creado exitosamente:', response);
+          this.toastr.success('Inventario creado correctamente', 'Éxito');
           this.getInventarios();
           this.closeForm();
         },
         error => {
           console.error('Error al crear inventario:', error);
           console.error('Detalles del error:', error.error);
-          alert('Error al crear inventario. Revisa la consola para más detalles.');
+          this.toastr.error('Error al crear inventario', 'Error');
         }
       );
     }
@@ -216,6 +227,7 @@ export class InventarioComponent implements OnInit {
     if (confirm('¿Está seguro de eliminar este item del inventario?')) {
       this.inventarioService.deleteInventario(id).subscribe(
         () => {
+          this.toastr.success('Inventario eliminado correctamente', 'Éxito');
           this.getInventarios();
           if (this.selectedInventario?.id_inventario === id) {
             this.selectedInventario = null;
@@ -223,6 +235,7 @@ export class InventarioComponent implements OnInit {
         },
         error => {
           console.error('Error al eliminar inventario:', error);
+          this.toastr.error('Error al eliminar inventario', 'Error');
         }
       );
     }
