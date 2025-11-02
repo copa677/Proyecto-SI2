@@ -63,18 +63,17 @@ def registrar_inventario(request):
 
 
 # 🟢 ACTUALIZAR UN REGISTRO DE INVENTARIO EXISTENTE
-@api_view(['PUT'])
+@api_view(['PUT', 'PATCH'])
 def actualizar_inventario(request, id_inventario):
     try:
         inventario = Inventario.objects.get(id_inventario=id_inventario)
     except Inventario.DoesNotExist:
         return Response({'error': 'Registro de inventario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = InventarioSerializer(data=request.data)
+    partial = request.method == 'PATCH'
+    serializer = InventarioSerializer(inventario, data=request.data, partial=partial)
     if serializer.is_valid():
-        for campo, valor in serializer.validated_data.items():
-            setattr(inventario, campo, valor)
-        inventario.save()
+        serializer.save()
         return Response({'mensaje': 'Inventario actualizado correctamente'}, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

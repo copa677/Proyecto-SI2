@@ -31,13 +31,21 @@ def listar_bitacoras(request):
 def registrar_bitacora(request):
     serializer = RegistroBitacora(data=request.data)
     if serializer.is_valid():
-        Bitacora.objects.create(
-            username=serializer.validated_data["username"],
-            ip=serializer.validated_data["ip"],
-            fecha_hora=serializer.validated_data["fecha_hora"],
-            accion=serializer.validated_data["accion"],
-            
-            descripcion=serializer.validated_data["descripcion"]
-        )
-        return Response({"message": "Bitácora registrada correctamente"}, status=status.HTTP_201_CREATED)
+        try:
+            # Usar SQL directo para evitar problemas con la secuencia
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO bitacora (username, ip, fecha_hora, accion, descripcion)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, [
+                    serializer.validated_data["username"],
+                    serializer.validated_data["ip"],
+                    serializer.validated_data["fecha_hora"],
+                    serializer.validated_data["accion"],
+                    serializer.validated_data["descripcion"]
+                ])
+            return Response({"message": "Bitácora registrada correctamente"}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": f"Error al registrar: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

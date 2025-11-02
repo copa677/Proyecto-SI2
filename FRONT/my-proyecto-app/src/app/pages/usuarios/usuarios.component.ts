@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../../services_back/login.service';
 import { ToastrService } from 'ngx-toastr';
+import { BrService } from '../../services_back/br.service';
 // import { Usuario } from 'src/interface/user'; // <- quítalo si no lo usas
 
 // View-model que usa TU HTML
@@ -32,7 +33,7 @@ export class UsuariosComponent implements OnInit {
   filtroTipo: string | '' = '';
 
   // El listado seguirá mostrando tipo/estado que llegan del back
-  tiposCatalogo = ['Administrador','Supervisor','Operario'];
+  tiposCatalogo = ['Administrador', 'Supervisor', 'Operario'];
 
   // datos
   usuarios: ViewUsuario[] = [];
@@ -48,7 +49,8 @@ export class UsuariosComponent implements OnInit {
   constructor(
     private api: LoginService,
     private toastr: ToastrService,
-  ) {}
+    private brService: BrService,
+  ) { }
 
   ngOnInit(): void {
     this.cargar();
@@ -57,7 +59,7 @@ export class UsuariosComponent implements OnInit {
   // Helpers UI
   initials(nombre: string): string {
     if (!nombre) return '';
-    return nombre.trim().split(/\s+/).slice(0,2).map(s => s[0]).join('').toUpperCase();
+    return nombre.trim().split(/\s+/).slice(0, 2).map(s => s[0]).join('').toUpperCase();
   }
 
   badgeEstado(estado: string) {
@@ -84,7 +86,7 @@ export class UsuariosComponent implements OnInit {
           id: Number(r.id),
           nombre: r.name_user ?? '',
           email: r.email ?? '',
-          estado: (r.estado as 'Activo'|'Inactivo') ?? 'Activo',
+          estado: (r.estado as 'Activo' | 'Inactivo') ?? 'Activo',
           tipo: r.tipo_usuario ?? ''
         }));
         this.aplicarFiltros();
@@ -124,12 +126,57 @@ export class UsuariosComponent implements OnInit {
     this.showForm = false;
   }
 
+  // ====== BACKUP ======
+  generarBackup() {
+    this.brService.generarBackup().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `respaldo_${new Date().toISOString().slice(0, 19).replace(/[-T:]/g, '')}.dump`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.toastr.success('Respaldo generado correctamente', 'Éxito');
+      },
+      error: (err) => {
+        console.error('❌ Error al generar backup:', err);
+        this.toastr.error('Error al generar el respaldo', 'Error');
+      }
+    });
+  }
+
+  // ====== RESTORE ======
+  abrirRestore() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.dump';
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (file) {
+        this.brService.restaurarBackup(file).subscribe({
+          next: () => {
+            this.toastr.success('Restauración completada correctamente', 'Éxito');
+          },
+          error: (err) => {
+            console.error('❌ Error al restaurar:', err);
+            this.toastr.error('Error al restaurar la base de datos', 'Error');
+          }
+        });
+      } else {
+        this.toastr.warning('No se seleccionó ningún archivo', 'Atención');
+      }
+    };
+    input.click();
+  }
+
   guardar() {
     if (this.editMode && this.form.id) {
       // ACTUALIZAR USUARIO
       const payloadUpdate: any = {
         name_user: this.form.nombre?.trim(),
-        email: this.form.email?.trim()
+        email: this.form.email?.trim(),
+        tipo_usuario: this.form.tipo,
+        estado: this.form.estado
       };
 
       // Solo agregar password si se proporcionó uno nuevo
@@ -161,8 +208,8 @@ export class UsuariosComponent implements OnInit {
       name_user   : this.form.nombre?.trim(),
       password    : this.form.password?.trim(),
       email       : this.form.email?.trim(),
-      tipo_usuario: 'empleado', // fijo
-      estado      : 'Activo'    // fijo
+      tipo_usuario: this.form.tipo || 'empleado',
+      estado      : this.form.estado || 'Activo'
     };
 
     if (!payloadCreate.name_user || !payloadCreate.email || !payloadCreate.password) {

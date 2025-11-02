@@ -10,7 +10,7 @@
     </div>
 
     <!-- Tabs -->
-    <div class="mb-4 border-b border-gray-200">
+    <div class="mb-4 border-b border-gray-200 overflow-x-auto">
       <nav class="-mb-px flex space-x-8">
         <button (click)="activeTab = 'lotes'" 
                 [class.border-indigo-500]="activeTab === 'lotes'"
@@ -33,16 +33,18 @@
 
     <!-- Contenido de Lotes -->
     <div *ngIf="activeTab === 'lotes'">
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
         <h3 class="text-lg font-medium text-gray-900">Listado de Lotes</h3>
-        <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" 
+        <button *appCanDo="'insertar'; ventana: 'Lotes'"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" 
                 (click)="openForm()">
           <i class="fas fa-plus mr-2"></i> Nuevo Lote
         </button>
       </div>
 
       <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <table class="min-w-full divide-y divide-gray-200">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
@@ -71,15 +73,15 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ getMateriaNombre(lote.id_materia) }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(lote)">Editar</button>
-                <button class="text-red-600 hover:text-red-900" (click)="deleteLote(lote.id_lote)">Eliminar</button>
+                <button *appCanDo="'editar'; ventana: 'Lotes'"
+                        class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(lote)">Editar</button>
+                <button *appCanDo="'eliminar'; ventana: 'Lotes'"
+                        class="text-red-600 hover:text-red-900" (click)="deleteLote(lote.id_lote)">Eliminar</button>
               </td>
-            </tr>
-            <tr *ngIf="lotes.length === 0">
-              <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay lotes registrados</td>
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Modal Formulario de Lote (estilo consistente con otras pages) -->
@@ -105,21 +107,47 @@
                 <label class="block text-sm font-medium text-gray-700">Cantidad</label>
                 <input type="number" step="0.01" class="form-input mt-1 block w-full" [(ngModel)]="formData.cantidad" name="cantidad" required />
               </div>
-              <div>
+              <!-- Campo Estado con autocompletar -->
+              <div class="relative">
                 <label class="block text-sm font-medium text-gray-700">Estado</label>
-                <select class="form-input mt-1 block w-full" [(ngModel)]="formData.estado" name="estado" required>
-                  <option value="">Seleccione un estado</option>
-                  <option value="Disponible">Disponible</option>
-                  <option value="En Uso">En Uso</option>
-                  <option value="Agotado">Agotado</option>
-                </select>
+                <input type="text" 
+                       class="form-input mt-1 block w-full" 
+                       [(ngModel)]="formData.estado" 
+                       name="estado"
+                       (input)="onEstadoInput($any($event.target).value)"
+                       (focus)="onEstadoInput(formData.estado || '')"
+                       placeholder="Escribe para buscar..."
+                       required />
+                <!-- Sugerencias de Estado -->
+                <div *ngIf="showEstadoSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-40 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  <div *ngFor="let estado of filteredEstados" 
+                       (click)="selectEstado(estado)"
+                       class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                    {{ estado }}
+                  </div>
+                </div>
               </div>
-              <div>
+              
+              <!-- Campo Materia Prima con autocompletar -->
+              <div class="relative">
                 <label class="block text-sm font-medium text-gray-700">Materia Prima</label>
-                <select class="form-input mt-1 block w-full" [(ngModel)]="formData.id_materia" name="id_materia" required>
-                  <option value="">Seleccione una materia prima</option>
-                  <option *ngFor="let materia of materiasPrimas" [value]="materia.id_materia">{{ materia.nombre }}</option>
-                </select>
+                <input type="text" 
+                       class="form-input mt-1 block w-full" 
+                       [(ngModel)]="formData.materiaInput" 
+                       name="materiaInput"
+                       (input)="onMateriaInput($any($event.target).value)"
+                       (focus)="onMateriaInput(formData.materiaInput || '')"
+                       placeholder="ID o nombre de materia prima..."
+                       required />
+                <!-- Sugerencias de Materia Prima -->
+                <div *ngIf="showMateriaSuggestions" class="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  <div *ngFor="let materia of filteredMaterias" 
+                       (click)="selectMateria(materia)"
+                       class="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-indigo-600 hover:text-white">
+                    <span class="block font-medium">{{ materia.nombre }}</span>
+                    <span class="text-xs text-gray-500 hover:text-indigo-200">ID: {{ materia.id_materia }} | Tipo: {{ materia.tipo_material }}</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="mt-6 flex justify-end gap-3">
@@ -137,16 +165,18 @@
 
     <!-- Contenido de Materias Primas -->
     <div *ngIf="activeTab === 'materias'">
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
         <h3 class="text-lg font-medium text-gray-900">Listado de Materias Primas</h3>
-        <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" 
+        <button *appCanDo="'insertar'; ventana: 'Lotes'"
+                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" 
                 (click)="openMateriaForm()">
           <i class="fas fa-plus mr-2"></i> Nueva Materia Prima
         </button>
       </div>
 
       <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <table class="min-w-full divide-y divide-gray-200">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
@@ -161,8 +191,10 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ materia.nombre }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ materia.tipo_material }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openMateriaForm(materia)">Editar</button>
-                <button class="text-red-600 hover:text-red-900" (click)="deleteMateria(materia.id_materia)">Eliminar</button>
+                <button *appCanDo="'editar'; ventana: 'Lotes'"
+                        class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openMateriaForm(materia)">Editar</button>
+                <button *appCanDo="'eliminar'; ventana: 'Lotes'"
+                        class="text-red-600 hover:text-red-900" (click)="deleteMateria(materia.id_materia)">Eliminar</button>
               </td>
             </tr>
             <tr *ngIf="materiasPrimas.length === 0">
@@ -170,7 +202,7 @@
             </tr>
           </tbody>
         </table>
-      </div>
+        </div>
 
       <!-- Modal Formulario de Materia Prima -->
       <div *ngIf="showMateriaForm" class="fixed inset-0 z-50 flex items-center justify-center" tabindex="0" (keydown.escape)="showMateriaForm = false">
@@ -206,4 +238,4 @@
     </div>
 
   </div>
-</section>
+<!-- Fin del contenido principal, no se cierra <section> dos veces -->

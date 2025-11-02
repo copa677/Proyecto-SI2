@@ -1,43 +1,57 @@
 
-<div class="p-4">
-  <h2 class="text-xl font-bold mb-4">Asignar Permisos a Usuarios</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h3 class="text-base font-semibold mb-2">Usuarios</h3>
-      <ul>
+<div class="p-4 sm:p-6 lg:p-8">
+  <h2 class="text-2xl font-bold mb-6 text-gray-800">Asignar Permisos a Usuarios</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <!-- Columna de Usuarios -->
+    <div class="bg-white shadow-md rounded-lg p-4">
+      <h3 class="text-lg font-semibold mb-4 border-b pb-2">Usuarios</h3>
+      <ul class="max-h-96 overflow-y-auto">
         <li *ngFor="let usuario of usuarios" (click)="seleccionarUsuario(usuario)"
-            [class.bg-blue-100]="usuarioSeleccionado?.name_user === usuario.name_user"
-            class="py-2 px-3 cursor-pointer hover:bg-blue-50 rounded">
-          {{ usuario.name_user }} <span class="text-xs text-gray-500">{{ usuario.email }}</span>
+            [class.bg-indigo-100]="usuarioSeleccionado?.name_user === usuario.name_user"
+            class="py-2 px-3 cursor-pointer hover:bg-gray-100 rounded-md transition-colors duration-200">
+          <span class="font-medium text-gray-800">{{ usuario.name_user }}</span>
+          <span class="text-sm text-gray-500 block">{{ usuario.email }}</span>
         </li>
       </ul>
     </div>
-    <div>
-      <h3 class="text-base font-semibold mb-2">Permisos</h3>
+
+    <!-- Columna de Permisos -->
+    <div class="bg-white shadow-md rounded-lg p-4">
+      <h3 class="text-lg font-semibold mb-4 border-b pb-2">Permisos</h3>
+      
       <div class="mb-4">
         <label for="ventana" class="block text-sm font-medium text-gray-700 mb-1">Selecciona la página/ventana:</label>
-        <select id="ventana" [(ngModel)]="ventanaSeleccionada" (change)="onVentanaChange()" class="form-select w-full p-2 border rounded">
+        <select id="ventana" [(ngModel)]="ventanaSeleccionada" (change)="onVentanaChange()" 
+                class="form-select w-full p-2 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
           <option value="" disabled selected>Selecciona una ventana</option>
           <option *ngFor="let ventana of ventanas" [value]="ventana">{{ ventana }}</option>
         </select>
       </div>
-      <div *ngIf="!usuarioSeleccionado" class="text-gray-400 py-6 text-center">
-        Selecciona un usuario para ver y gestionar sus permisos
+
+      <div *ngIf="!usuarioSeleccionado" class="text-gray-400 py-10 text-center bg-gray-50 rounded-md">
+        <i class="fas fa-user-lock text-3xl mb-2"></i>
+        <p>Selecciona un usuario para ver y gestionar sus permisos</p>
       </div>
+
       <div *ngIf="usuarioSeleccionado">
-        <ul>
-          <li *ngFor="let permiso of permisos" class="flex items-center py-2">
-            <label class="flex items-center gap-2 cursor-pointer">
+        <ul class="space-y-2">
+          <li *ngFor="let permiso of permisos" class="flex items-center p-2 rounded-md hover:bg-gray-50">
+            <label class="flex items-center gap-3 cursor-pointer w-full">
               <input type="checkbox"
                      [checked]="tienePermiso(permiso.id)"
                      (change)="togglePermiso(permiso.id)"
-                     class="form-checkbox h-4 w-4 text-blue-600">
-              <span>{{ permiso.nombre }}</span>
+                     class="form-checkbox h-5 w-5 text-indigo-600 rounded focus:ring-indigo-500">
+              <span class="font-medium text-gray-700">{{ permiso.nombre }}</span>
             </label>
           </li>
         </ul>
-        <button (click)="guardarPermisos()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Guardar</button>
+        <button (click)="guardarPermisos()" 
+                class="mt-6 w-full md:w-auto px-6 py-2 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+          <i class="fas fa-save mr-2"></i>Guardar Permisos
+        </button>
       </div>
     </div>
+
   </div>
 </div>

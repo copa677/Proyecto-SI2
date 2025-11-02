@@ -188,7 +188,9 @@ def actualizar_asistencia(request, id_control):
         # Actualizar turno si se proporciona
         if turno_nombre:
             try:
-                turno_obj = turnos.objects.get(turno=turno_nombre, estado='activo')
+                # Extraer solo el nombre del turno si viene formateado (ej: "Tarde (14:00-22:00)")
+                nombre_real_turno = turno_nombre.split(' ')[0]
+                turno_obj = turnos.objects.get(turno=nombre_real_turno, estado='activo')
                 asist.id_turno = turno_obj.id
             except turnos.DoesNotExist:
                 return Response({

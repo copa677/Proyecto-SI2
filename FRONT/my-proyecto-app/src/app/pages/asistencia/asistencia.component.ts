@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment.development';
+import { ToastrService } from 'ngx-toastr';
 
 type Estado = 'Presente' | 'Ausente' | 'Tarde' | 'Licencia';
 type Turno  = 'Mañana (8:00–14:00)' | 'Tarde (14:00–20:00)' | 'Noche (20:00–02:00)';
@@ -31,9 +33,10 @@ const TURNO_DB_TO_DISPLAY: Record<string, Turno> = {
   styleUrls: ['./asistencia.component.css']
 })
 export class AsistenciaComponent {
-  private apiUrl = 'http://localhost:8000/api/asistencias';
-  private turnosUrl = 'http://localhost:8000/api/turnos';
-  private personalUrl = 'http://localhost:8000/api/personal';
+  private myAppUrl = environment.endpoint;
+  private apiUrl = 'api/asistencias';
+  private turnosUrl = 'api/turnos';
+  private personalUrl = 'api/personal';
 
   // ---- Catálogos de apoyo ----
   turnosCatalogo: Turno[] = [
@@ -52,7 +55,7 @@ export class AsistenciaComponent {
   isLoadingTurnos = false;
   isLoadingPersonal = false;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private toastr: ToastrService) {
     this.cargarAsistencias();
     this.cargarTurnos();
     this.cargarPersonal();
@@ -75,7 +78,7 @@ export class AsistenciaComponent {
   // ---- Métodos de carga de datos ----
   cargarAsistencias(): void {
     this.isLoading = true;
-    this.http.get<any>(`${this.apiUrl}/listar`).subscribe({
+    this.http.get<any>(`${this.myAppUrl}${this.apiUrl}/listar`).subscribe({
       next: (response) => {
         console.log('Asistencias cargadas:', response);
         
@@ -101,14 +104,14 @@ export class AsistenciaComponent {
       error: (error) => {
         console.error('Error al cargar asistencias:', error);
         this.isLoading = false;
-        // No mostrar alert aquí, solo log, para no molestar al usuario
+        this.toastr.error('No se pudieron cargar las asistencias', 'Error');
       }
     });
   }
 
   cargarTurnos(): void {
     this.isLoadingTurnos = true;
-    this.http.get<any[]>(`${this.turnosUrl}/listar`).subscribe({
+    this.http.get<any[]>(`${this.myAppUrl}${this.turnosUrl}/listar`).subscribe({
       next: (turnos) => {
         console.log('Turnos cargados:', turnos);
         this.turnosList = turnos.filter((t: any) => t.estado === 'activo');
@@ -124,13 +127,14 @@ export class AsistenciaComponent {
       error: (error) => {
         console.error('Error al cargar turnos:', error);
         this.isLoadingTurnos = false;
+        this.toastr.error('No se pudieron cargar los turnos', 'Error');
       }
     });
   }
 
   cargarPersonal(): void {
     this.isLoadingPersonal = true;
-    this.http.get<any[]>(`${this.personalUrl}/getEmpleados`).subscribe({
+    this.http.get<any[]>(`${this.myAppUrl}${this.personalUrl}/getEmpleados`).subscribe({
       next: (personal) => {
         console.log('Personal cargado:', personal);
         this.personalList = personal;
@@ -139,6 +143,7 @@ export class AsistenciaComponent {
       error: (error) => {
         console.error('Error al cargar personal:', error);
         this.isLoadingPersonal = false;
+        this.toastr.error('No se pudo cargar el personal', 'Error');
       }
     });
   }
@@ -218,31 +223,41 @@ export class AsistenciaComponent {
     };
 
     if (this.editMode) {
-      // TODO: Implementar endpoint de actualización en el backend
-      const i = this.asistencias.findIndex(x => x.id === this.form.id);
-      if (i > -1) this.asistencias[i] = { ...this.form };
-      this.showForm = false;
-    } else {
-      // Crear nueva asistencia
-      this.http.post(`${this.apiUrl}/agregar`, datosParaBackend).subscribe({
+      // Actualizar asistencia existente en el backend
+      this.http.put(`${this.myAppUrl}${this.apiUrl}/actualizar/${this.form.id}`, datosParaBackend).subscribe({
         next: (response: any) => {
-          console.log('Asistencia registrada:', response);
-          alert('✅ Asistencia registrada exitosamente');
-          
+          console.log('Asistencia actualizada:', response);
+          this.toastr.success('Asistencia actualizada correctamente', 'Éxito');
           // Recargar la lista completa desde el backend
           this.cargarAsistencias();
-          
+          this.showForm = false;
+        },
+        error: (error) => {
+          console.error('Error al actualizar asistencia:', error);
+          let mensaje = 'Error al actualizar la asistencia';
+          if (error.error?.error) {
+            mensaje = error.error.error;
+          }
+          this.toastr.error(mensaje, 'Error');
+        }
+      });
+    } else {
+      // Crear nueva asistencia
+      this.http.post(`${this.myAppUrl}${this.apiUrl}/agregar`, datosParaBackend).subscribe({
+        next: (response: any) => {
+          console.log('Asistencia registrada:', response);
+          this.toastr.success('Asistencia registrada correctamente', 'Éxito');
+          // Recargar la lista completa desde el backend
+          this.cargarAsistencias();
           this.showForm = false;
         },
         error: (error) => {
           console.error('Error al registrar asistencia:', error);
-          
-          // Mostrar mensaje de error más específico
-          let mensaje = 'Error al registrar la asistencia.';
+          let mensaje = 'Error al registrar la asistencia';
           if (error.error?.error) {
             mensaje = error.error.error;
           }
-          alert('❌ ' + mensaje);
+          this.toastr.error(mensaje, 'Error');
         }
       });
     }

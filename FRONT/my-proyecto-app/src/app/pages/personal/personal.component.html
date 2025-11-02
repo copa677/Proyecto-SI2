@@ -8,6 +8,7 @@
       </div>
       <div class="mt-4 md:mt-0">
         <button
+          *appCanDo="'insertar'; ventana: 'Personal'"
           class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white"
           (click)="abrirCrear()">
           <i class="fas fa-plus -ml-1 mr-2"></i>Añadir Personal
@@ -111,10 +112,16 @@
               </td>
 
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="abrirEditar(p)">
+                <button 
+                  *appCanDo="'editar'; ventana: 'Personal'"
+                  class="text-indigo-600 hover:text-indigo-900 mr-3" 
+                  (click)="abrirEditar(p)">
                   <i class="fas fa-edit"></i> Editar
                 </button>
-                <button class="text-red-600 hover:text-red-900" (click)="eliminar(p)">
+                <button 
+                  *appCanDo="'eliminar'; ventana: 'Personal'"
+                  class="text-red-600 hover:text-red-900" 
+                  (click)="eliminar(p)">
                   <i class="fas fa-trash"></i> Eliminar
                 </button>
               </td>

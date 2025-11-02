@@ -5,3 +5,10 @@ class TurnosSerializer(serializers.Serializer):
     hora_entrada = serializers.TimeField()
     hora_salida = serializers.TimeField()
     estado = serializers.CharField(max_length=20, default='activo')
+
+class Turnos2Serializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    turno = serializers.CharField(max_length=10)
+    hora_entrada = serializers.TimeField()
+    hora_salida = serializers.TimeField()
+    estado = serializers.CharField(max_length=20, default='activo')

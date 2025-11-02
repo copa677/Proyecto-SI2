@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PermisosService } from '../../services_back/permisos.service';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-asignar-permisos',
@@ -8,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./asignar-permisos.component.css']
 })
 export class AsignarPermisosComponent implements OnInit {
+  private myAppUrl = environment.endpoint;
   usuarios: any[] = [];
   permisos: any[] = [];
   usuarioSeleccionado: any = null;
@@ -28,7 +30,7 @@ export class AsignarPermisosComponent implements OnInit {
   }
 
   cargarUsuarios() {
-  this.http.get<any[]>('http://localhost:8000/api/usuario/getuser').subscribe({
+  this.http.get<any[]>(`${this.myAppUrl}api/usuario/getuser`).subscribe({
       next: (data: any) => {
         this.usuarios = data;
       },
