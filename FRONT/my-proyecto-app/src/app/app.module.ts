@@ -29,6 +29,7 @@ import { TurnosComponent } from './pages/turnos/turnos.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
 import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
 import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
+import { ClienteComponent } from './pages/cliente/cliente.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.compone
     InventarioComponent,
     ControlCalidadComponent,
     TrazabilidadComponent,
+    ClienteComponent,
   ],
   imports: [
     BrowserModule,

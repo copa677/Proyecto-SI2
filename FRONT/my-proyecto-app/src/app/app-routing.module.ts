@@ -19,6 +19,7 @@ import { TurnosComponent } from './pages/turnos/turnos.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
 import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
 import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
+import { ClienteComponent } from './pages/cliente/cliente.component';
 
 
 const routes: Routes = [
@@ -31,6 +32,12 @@ const routes: Routes = [
         component: UsuariosComponent,
         canActivate: [PermissionGuard],
         data: { ventana: 'Usuarios', accion: 'ver' }
+      },
+      { 
+        path: 'clientes', 
+        component: ClienteComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Clientes', accion: 'ver' }
       },
       { 
         path: 'dashboard', 
