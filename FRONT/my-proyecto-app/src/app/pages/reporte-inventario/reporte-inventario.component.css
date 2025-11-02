@@ -1,0 +1,28 @@
+/* Estilos coherentes con el sistema usando Tailwind CSS */
+
+/* Animación para transiciones suaves */
+.table-row:hover { 
+  background-color: rgba(79,70,229,0.05); 
+}
+
+/* Botones con estilo del sistema */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Animación del spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .overflow-x-auto {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

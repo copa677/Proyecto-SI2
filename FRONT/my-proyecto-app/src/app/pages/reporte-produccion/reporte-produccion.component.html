@@ -1,0 +1,156 @@
+<section class="py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Encabezado -->
+    <div class="md:flex md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Reporte de Producción</h2>
+        <p class="mt-1 text-sm text-gray-600">Consulta el estado de la producción por lote y por estación de trabajo.</p>
+      </div>
+      <!-- Botones de Exportación -->
+      <div class="mt-4 md:mt-0 flex gap-2" *ngIf="!isLoading && (reporteProduccionLote.length > 0 || reporteProduccionEstacion.length > 0)">
+        <button (click)="exportarExcel()" 
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+          <i class="fas fa-file-excel mr-2"></i>Exportar Excel
+        </button>
+        <button (click)="exportarPDF()" 
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+          <i class="fas fa-file-pdf mr-2"></i>Exportar PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white shadow rounded-md p-4 mb-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">
+        <i class="fas fa-filter mr-2"></i>Filtros del Reporte
+      </h3>
+      <form [formGroup]="filtroForm" (ngSubmit)="generarReporte()">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div>
+            <label for="lote" class="block text-sm font-medium text-gray-700">Código de Lote</label>
+            <input type="text" id="lote" formControlName="lote" placeholder="Ej: LOTE-2025-10-A"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
+          <div>
+            <label for="estacion" class="block text-sm font-medium text-gray-700">Estación</label>
+            <select id="estacion" formControlName="estacion" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              <option value="">Todas</option>
+              <option value="Corte">Corte</option>
+              <option value="Costura">Costura</option>
+              <option value="Estampado y Bordado">Estampado y Bordado</option>
+              <option value="Acabado y Planchado">Acabado y Planchado</option>
+              <option value="Empaque y Control Final">Empaque y Control Final</option>
+            </select>
+          </div>
+          <div>
+            <label for="fechaInicio" class="block text-sm font-medium text-gray-700">Fecha Inicio</label>
+            <input type="date" id="fechaInicio" formControlName="fechaInicio"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
+          <div>
+            <label for="fechaFin" class="block text-sm font-medium text-gray-700">Fecha Fin</label>
+            <input type="date" id="fechaFin" formControlName="fechaFin"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
+          <div class="flex items-end gap-2">
+            <button type="submit"
+              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 w-full justify-center">
+              <i class="fas fa-search mr-2"></i>Buscar
+            </button>
+            <button type="button" (click)="limpiarFiltros()"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 w-full justify-center">
+              <i class="fas fa-times mr-2"></i>Limpiar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Estado de Carga -->
+    <div *ngIf="isLoading" class="bg-white shadow rounded-md p-8 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+      <p class="mt-4 text-sm text-gray-600">Generando reporte de producción...</p>
+    </div>
+
+    <!-- Contenido del Reporte -->
+    <div *ngIf="!isLoading" class="space-y-6">
+
+      <!-- Reporte por Lote -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            <i class="fas fa-cubes mr-2 text-indigo-600"></i>Producción por Lote
+          </h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lote</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inicio</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Fin</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let item of reporteProduccionLote" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.lote }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.producto }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.cantidad_producida | number }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': item.estado === 'Completada',
+                      'bg-blue-100 text-blue-800': item.estado === 'En Proceso',
+                      'bg-yellow-100 text-yellow-800': item.estado === 'Pendiente',
+                      'bg-red-100 text-red-800': item.estado === 'Cancelada'
+                    }">
+                    {{ item.estado }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.fecha_inicio | date:'dd/MM/yyyy' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.fecha_fin ? (item.fecha_fin | date:'dd/MM/yyyy') : 'N/A' }}</td>
+              </tr>
+              <tr *ngIf="reporteProduccionLote.length === 0">
+                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay datos de producción por lote para los filtros seleccionados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Reporte por Estación -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            <i class="fas fa-industry mr-2 text-indigo-600"></i>Rendimiento por Estación de Trabajo
+          </h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estación</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Órdenes Activas</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unidades Procesadas</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Eficiencia Promedio</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let item of reporteProduccionEstacion" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.estacion }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.ordenes_activas | number }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.unidades_procesadas | number }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.eficiencia_promedio | number:'1.1-2' }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

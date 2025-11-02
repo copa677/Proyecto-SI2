@@ -19,6 +19,9 @@ import { TurnosComponent } from './pages/turnos/turnos.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
 import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
 import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
+import { ReporteInventarioComponent } from './pages/reporte-inventario/reporte-inventario.component';
+import { ReporteProduccionComponent } from './pages/reporte-produccion/reporte-produccion.component';
+import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.component';
 
 
 const routes: Routes = [
@@ -108,6 +111,24 @@ const routes: Routes = [
         component: AsignarPermisosComponent,
         canActivate: [PermissionGuard],
         data: { ventana: 'Usuarios', accion: 'editar' }
+      },
+      {
+        path: 'reporte-inventario',
+        component: ReporteInventarioComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Reportes', accion: 'ver' }
+      },
+      {
+        path: 'reporte-produccion',
+        component: ReporteProduccionComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Reportes', accion: 'ver' }
+      },
+      {
+        path: 'reporte-ventas',
+        component: ReporteVentasComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Reportes', accion: 'ver' }
       },
     ]
   },
