@@ -30,7 +30,6 @@
               </div>
 
               <!-- Dropdown usuario -->
-              <!-- Dropdown usuario -->
               <div *ngIf="showMenu"
                 class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black/5 z-10">
                 <div class="px-4 py-3 border-b">
@@ -40,8 +39,7 @@
                 <nav class="py-1">
                   <a routerLink="/menu/perfil" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Mi
                     perfil</a>
-                  <a routerLink="/menu/configuracion"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Configuración</a>
+                  <!-- Configuración eliminada -->
                 </nav>
 
                 <!-- separador -->
@@ -63,39 +61,99 @@
 
           <!-- Hamburguesa (móvil) -->
           <div class="flex items-center md:hidden">
-            <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100
-                     focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-expanded="false">
+            <button id="mobile-menu-button" type="button" class="inline-flex items-center justify-center p-3 rounded-full text-white bg-indigo-600 shadow-lg border-2 border-indigo-700 hover:bg-indigo-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-200" aria-expanded="false" (click)="toggleMobileMenu()">
               <span class="sr-only">Abrir menú principal</span>
-              <i class="fas fa-bars"></i>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect y="5" width="24" height="2.5" rx="1.25" fill="currentColor"/>
+                <rect y="11" width="24" height="2.5" rx="1.25" fill="currentColor"/>
+                <rect y="17" width="24" height="2.5" rx="1.25" fill="currentColor"/>
+              </svg>
             </button>
           </div>
         </div> <!-- /Área derecha -->
       </div> <!-- /flex justify-between -->
     </div> <!-- /.container -->
 
-    <!-- Menú móvil -->
-    <div id="mobile-menu" class="md:hidden">
+    <!-- Menú móvil con submenús -->
+    <div id="mobile-menu" class="md:hidden" *ngIf="isMobileMenuOpen">
       <div class="pt-2 pb-3 space-y-1">
-        <a routerLink="/menu/dashboard"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Dashboard</a>
-        <a routerLink="/menu/personal"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Personal</a>
-        <a routerLink="/menu/asistencia"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Asistencia
-          y Turnos</a>
-        <a routerLink="/menu/bitacora"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Bitácora</a>
-        <a routerLink="/menu/lotes"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Lotes</a>
-        <a routerLink="/menu/ordenproduccion"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Órdenes de Producción</a>
-        <a routerLink="/menu/usuarios"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Usuarios</a>
-        <a routerLink="/menu/configuracion"
-          class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Configuración</a>
+
+        <a routerLink="/menu/dashboard" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Dashboard</a>
+
+        <!-- Grupo: Gestión de Personal -->
+        <div *ngIf="permissionService.hasPermission('gestionar_personal')">
+          <button (click)="toggleMobileSubmenu('personal')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
+            <span>Gestión de Personal</span>
+            <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['personal']"></i>
+          </button>
+          <div class="submenu-content pl-4 border-l-4 border-gray-200 ml-3" [class.open]="mobileSubmenus['personal']">
+            <a routerLink="/menu/personal" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Personal</a>
+            <a routerLink="/menu/asistencia" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Asistencia</a>
+            <a routerLink="/menu/turnos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Turnos</a>
+          </div>
+        </div>
+
+        <!-- Grupo: Gestión de Usuarios -->
+        <div *ngIf="permissionService.hasPermission('asignar_roles')">
+          <button (click)="toggleMobileSubmenu('usuarios')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
+            <span>Gestión de Usuarios</span>
+            <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['usuarios']"></i>
+          </button>
+          <div class="submenu-content pl-4 border-l-4 border-gray-200 ml-3" [class.open]="mobileSubmenus['usuarios']">
+            <a routerLink="/menu/usuarios" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Usuarios</a>
+          </div>
+        </div>
+
+        <!-- Grupo: Producción e Inventario -->
+        <div>
+          <button (click)="toggleMobileSubmenu('produccion')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
+            <span>Producción e Inventario</span>
+            <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['produccion']"></i>
+          </button>
+          <div class="submenu-content pl-4 border-l-4 border-gray-200 ml-3" [class.open]="mobileSubmenus['produccion']">
+            <a routerLink="/menu/ordenproduccion" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Órdenes de Producción</a>
+            <a routerLink="/menu/lotes" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Lotes</a>
+            <a routerLink="/menu/inventario" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Inventario</a>
+            <a routerLink="/menu/trazabilidad" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Trazabilidad</a>
+            <a routerLink="/menu/control-calidad" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Control de Calidad</a>
+            <a routerLink="/menu/nota-salida" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Notas de Salida</a>
+          </div>
+        </div>
+
+        <!-- Grupo: Gestión de Reportes y Permisos -->
+        <div>
+          <button (click)="toggleMobileSubmenu('reportes')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
+            <span>Gestión de Reportes y Permisos</span>
+            <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['reportes']"></i>
+          </button>
+          <div class="submenu-content pl-4 border-l-4 border-gray-200 ml-3" [class.open]="mobileSubmenus['reportes']">
+            <a routerLink="/menu/bitacora" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Bitácora</a>
+            <a routerLink="/menu/permisos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Permisos</a>
+            <a routerLink="/menu/asignar-permisos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Asignar Permisos</a>
+          </div>
+        </div>
+
+      </div>
+      <div class="border-t border-gray-200 pt-4 pb-3">
+        <div class="flex items-center px-4">
+          <div class="flex-shrink-0">
+            <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 font-semibold">
+              {{ userInitial }}
+            </div>
+          </div>
+          <div class="ml-3">
+            <div class="text-base font-medium text-gray-800">{{ userName || 'Usuario' }}</div>
+          </div>
+        </div>
+        <div class="mt-3 space-y-1">
+          <a routerLink="/menu/perfil" routerLinkActive="bg-gray-100 text-gray-900" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">Mi perfil</a>
+          <button (click)="logout()" class="w-full text-left block px-4 py-2 text-base font-medium text-red-600 hover:text-red-800 hover:bg-red-50">
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </div>
-  </header> <!-- ✅ ahora sí cerramos el header -->
+  </header>
 
   <!-- Tabs desktop -->
   <nav class="bg-white shadow-sm border-b hidden md:block">
@@ -104,34 +162,73 @@
         <a routerLink="/menu/dashboard" routerLinkActive="border-indigo-500 text-gray-900"
           class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Dashboard</a>
 
-        <a routerLink="/menu/personal" routerLinkActive="border-indigo-500 text-gray-900"
-          class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Personal</a>
+        <div class="relative group" *ngIf="permissionService.hasPermission('gestionar_personal')">
+          <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
+            Gestión de Personal
+            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </div>
+          <div class="absolute left-0 top-full mt-0 min-w-[12rem] rounded-md shadow-lg bg-white border border-gray-200 z-20 opacity-0 invisible scale-95 origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 transition-all duration-200">
+            <!-- Gestión de Personal -->
+            <a routerLink="/menu/personal" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Personal</a>
+            <a routerLink="/menu/asistencia" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-350">Asistencia</a>
+            <a routerLink="/menu/turnos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-500">Turnos</a>
+          </div>
+        </div>
 
-        <a routerLink="/menu/asistencia" routerLinkActive="border-indigo-500 text-gray-900"
-          class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Asistencia
-          y Turnos</a>
+        <div class="relative group" *ngIf="permissionService.hasPermission('asignar_roles')">
+          <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
+            Gestión de Usuarios
+            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </div>
+          <div class="absolute left-0 top-full mt-0 min-w-[12rem] rounded-md shadow-lg bg-white border border-gray-200 z-20 opacity-0 invisible scale-95 origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 transition-all duration-200">
+            <!-- Gestión de Usuarios -->
+            <a routerLink="/menu/usuarios" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Usuarios</a>
+          </div>
+        </div>
 
-        <a routerLink="/menu/bitacora" routerLinkActive="border-indigo-500 text-gray-900"
-          class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Bitácora</a>
+        <div class="relative group">
+          <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
+            Producción e Inventario
+            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </div>
+          <div class="absolute left-0 top-full mt-0 min-w-[12rem] rounded-md shadow-lg bg-white border border-gray-200 z-20 opacity-0 invisible scale-95 origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 transition-all duration-200">
+            <!-- Producción e Inventario -->
+            <a routerLink="/menu/ordenproduccion" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Órdenes de Producción</a>
+            <a routerLink="/menu/lotes" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-350">Lotes</a>
+            <a routerLink="/menu/inventario" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-400">Inventario</a>
+            <a routerLink="/menu/trazabilidad" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-450">Trazabilidad</a>
+            <a routerLink="/menu/control-calidad" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-500">Control de Calidad</a>
+            <a routerLink="/menu/nota-salida" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-550">Notas de Salida</a>
+          </div>
+        </div>
 
-        <a routerLink="/menu/lotes" routerLinkActive="border-indigo-500 text-gray-900"
-          class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Lotes</a>
+        <!-- Gestión de Ventas y Facturación (sin submenús porque no hay pages disponibles) -->
+        <div class="relative group">
+          <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
+            Gestión de Ventas y Facturación
+            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </div>
+        </div>
 
-        <a routerLink="/menu/ordenproduccion" routerLinkActive="border-indigo-500 text-gray-900"
-          class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Órdenes</a>
-
-        <a routerLink="/menu/usuarios" routerLinkActive="border-indigo-500 text-gray-900"
-          class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Usuarios</a>
-
-        <a routerLink="/menu/configuracion" routerLinkActive="border-indigo-500 text-gray-900"
-          class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Configuración</a>
+        <div class="relative group">
+          <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
+            Gestión de Reportes y Permisos
+            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+          </div>
+          <div class="absolute left-0 top-full mt-0 min-w-[12rem] rounded-md shadow-lg bg-white border border-gray-200 z-20 opacity-0 invisible scale-95 origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 transition-all duration-200">
+            <!-- Gestión de Reportes y Permisos -->
+            <a routerLink="/menu/bitacora" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Bitácora</a>
+            <a routerLink="/menu/permisos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-400">Permisos</a>
+            <a routerLink="/menu/asignar-permisos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-500">Asignar Permisos</a>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
 
-  <!-- Aquí se renderizan las rutas hijas -->
+  <!-- Main content area -->
   <main class="flex-1 p-6">
     <router-outlet></router-outlet>
   </main>
+</div>
 
-</div> <!-- /#dashboard -->

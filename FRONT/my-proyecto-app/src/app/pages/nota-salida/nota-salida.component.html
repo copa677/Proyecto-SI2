@@ -1,0 +1,157 @@
+<div class="container mx-auto p-6">
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Notas de Salida</h2>
+      <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" (click)="openForm()">
+        <i class="fas fa-plus mr-2"></i> Nueva Nota de Salida
+      </button>
+    </div>
+    
+    <div *ngIf="notasSalida.length === 0" class="text-gray-500 text-center py-8">
+      No hay notas de salida registradas
+    </div>
+
+    <div class="grid gap-4 mb-6">
+      <div *ngFor="let nota of notasSalida" class="border border-gray-300 rounded-lg p-4 hover:bg-blue-50 cursor-pointer transition mb-2" [class.bg-blue-100]="notaSeleccionada?.id_salida === nota.id_salida">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm text-gray-600">
+              <strong>Fecha:</strong> {{ nota.fecha_salida }}
+            </p>
+            <p class="text-sm text-gray-600">
+              <strong>Motivo:</strong> {{ nota.motivo }}
+            </p>
+            <p class="text-sm text-gray-600">
+              <strong>Solicitante:</strong> {{ nota.solicitante || 'N/A' }}
+            </p>
+            <p class="text-sm text-gray-600">
+              <strong>Área:</strong> {{ nota.area || 'N/A' }}
+            </p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                [class.bg-green-100]="nota.estado === 'Completado'"
+                [class.text-green-800]="nota.estado === 'Completado'"
+                [class.bg-yellow-100]="nota.estado === 'Pendiente'"
+                [class.text-yellow-800]="nota.estado === 'Pendiente'">
+            {{ nota.estado }}
+          </span>
+        </div>
+        <div class="mt-2 text-right">
+          <button class="px-4 py-1 bg-indigo-600 text-white rounded shadow hover:bg-indigo-700" (click)="seleccionarNota(nota)">
+            <i class="fas fa-file-invoice mr-1"></i> Ver Detalle
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Modal de Detalle Nota de Salida -->
+    <div *ngIf="modalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="max-w-2xl w-full bg-white border rounded-lg shadow p-6 relative">
+        <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl" (click)="modalVisible = false">
+          &times;
+        </button>
+        <h3 class="text-2xl font-bold mb-2 text-gray-800 flex items-center">
+          <i class="fas fa-file-invoice mr-2 text-indigo-600"></i> Factura / Detalle Nota de Salida
+        </h3>
+        <div class="mb-4">
+          <p><b>Fecha:</b> {{ notaSeleccionada.fecha_salida }}</p>
+          <p><b>Motivo:</b> {{ notaSeleccionada.motivo }}</p>
+          <p><b>Solicitante:</b> {{ notaSeleccionada.solicitante || 'N/A' }}</p>
+          <p><b>Área:</b> {{ notaSeleccionada.area || 'N/A' }}</p>
+          <p><b>Estado:</b> {{ notaSeleccionada.estado }}</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white border border-gray-300 rounded-lg mb-4">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">#</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Materia Prima</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Cantidad</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Unidad</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Lote</th>
+                <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let detalle of detalles; let i = index" class="border-t border-gray-200">
+                <td class="px-4 py-3 text-sm text-gray-800">{{ i + 1 }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.nombre_materia_prima }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.cantidad }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.unidad_medida }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.id_lote }}</td>
+                <td class="px-4 py-3 text-sm text-gray-800">{{ detalle.observacion || '---' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="text-right mt-4">
+          <span class="font-bold text-lg">Total ítems: {{ detalles.length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Formulario para Nueva Nota de Salida -->
+    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="max-w-4xl w-full bg-white border rounded-lg shadow p-6 relative">
+        <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl" (click)="closeForm()">
+          &times;
+        </button>
+        <h3 class="text-2xl font-bold mb-4 text-gray-800">Nueva Nota de Salida</h3>
+        <form (ngSubmit)="saveNotaSalida()" #notaSalidaForm="ngForm" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Fecha de Salida</label>
+              <input type="date" [(ngModel)]="formData.fecha_salida" name="fecha_salida" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Responsable</label>
+              <select [(ngModel)]="formData.id_personal" name="id_personal" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+                <option *ngFor="let p of personal" [value]="p.id">{{p.nombre_completo}}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Motivo</label>
+              <input type="text" [(ngModel)]="formData.motivo" name="motivo" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Área</label>
+              <input type="text" [(ngModel)]="formData.area" name="area" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+            </div>
+          </div>
+
+          <h4 class="text-lg font-semibold mt-6 mb-2">Detalles de la Salida</h4>
+          <div class="space-y-4">
+            <div *ngFor="let detalle of formData.detalles; let i = index" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700">Producto</label>
+                <select [(ngModel)]="detalle.id_inventario" name="id_inventario_{{i}}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+                  <option *ngFor="let item of inventario" [value]="item.id_inventario">{{item.nombre_materia_prima}}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Cantidad</label>
+                <input type="number" [(ngModel)]="detalle.cantidad" name="cantidad_{{i}}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Lote</label>
+                <input type="text" [ngModel]="getLote(detalle.id_inventario)" name="lote_{{i}}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3" readonly>
+              </div>
+              <div class="flex items-end">
+                <button type="button" (click)="removeDetalle(i)" class="text-red-600 hover:text-red-800">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <button type="button" (click)="addDetalle()" class="mt-2 text-sm text-indigo-600 hover:text-indigo-800">+ Agregar Producto</button>
+
+          <div class="flex justify-end mt-6">
+            <button type="button" (click)="closeForm()" class="mr-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancelar</button>
+            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

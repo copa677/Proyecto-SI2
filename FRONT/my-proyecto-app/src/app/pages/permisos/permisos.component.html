@@ -1,0 +1,28 @@
+<div class="container mx-auto p-6">
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">Gestión de Permisos</h2>
+    
+    <div *ngIf="permisos.length === 0" class="text-gray-500 text-center py-8">
+      No hay permisos registrados
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white border border-gray-300 rounded-lg">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">ID</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Nombre</th>
+            <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700">Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let permiso of permisos" class="border-t border-gray-200 hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-800">{{ permiso.id }}</td>
+            <td class="px-4 py-3 text-sm text-gray-800">{{ permiso.nombre }}</td>
+            <td class="px-4 py-3 text-sm text-gray-800">{{ permiso.descripcion }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

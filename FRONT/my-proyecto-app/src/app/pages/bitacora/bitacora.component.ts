@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { BitacoraService } from '../../services_back/bitacora.service';
 
 interface Bitacora {
-  id_bitacora: number;
+  id_bitacora?: number;
   username: string;
   ip: string;
   fecha_hora: string;
@@ -16,8 +16,6 @@ interface Bitacora {
   styleUrls: ['./bitacora.component.css']
 })
 export class BitacoraComponent implements OnInit {
-  private apiUrl = 'http://localhost:8000/api/bitacora';
-
   // ---- Datos ----
   bitacoras: Bitacora[] = [];
   
@@ -27,7 +25,14 @@ export class BitacoraComponent implements OnInit {
   filtroAccion = '';
   
   // Catálogo de acciones comunes
-  accionesCatalogo: string[] = ['Inicio de sesión', 'Cierre de sesión', 'Creación', 'Modificación', 'Eliminación'];
+  accionesCatalogo: string[] = [
+    'Inicio de sesión',
+    'Cierre de sesión',
+    'Creación',
+    'Modificación',
+    'Eliminación',
+    'Registro empleado'
+  ];
 
   // ---- Modal / formulario ----
   showForm = false;
@@ -36,7 +41,7 @@ export class BitacoraComponent implements OnInit {
   // Loading states
   isLoading = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private bitacoraService: BitacoraService) {}
 
   ngOnInit(): void {
     this.cargarBitacoras();
@@ -45,7 +50,7 @@ export class BitacoraComponent implements OnInit {
   // ---- Métodos de carga de datos ----
   cargarBitacoras(): void {
     this.isLoading = true;
-    this.http.get<Bitacora[]>(`${this.apiUrl}/listar`).subscribe({
+    this.bitacoraService.getBitacoras().subscribe({
       next: (bitacoras) => {
         console.log('Bitácoras cargadas:', bitacoras);
         this.bitacoras = bitacoras;
@@ -82,6 +87,11 @@ export class BitacoraComponent implements OnInit {
   // ---- Acciones UI ----
   abrirCrear(): void {
     this.form = this.nuevoForm();
+    // Obtener usuario automáticamente desde el token
+    const username = this.bitacoraService.getUserFromToken();
+    if (username) {
+      this.form.username = username;
+    }
     this.showForm = true;
   }
 
@@ -90,23 +100,15 @@ export class BitacoraComponent implements OnInit {
   }
 
   guardar(): void {
-    if (!this.form.username || !this.form.accion) {
-      alert('Por favor complete todos los campos requeridos');
+    if (!this.form.accion) {
+      alert('Por favor ingrese la acción');
       return;
     }
 
-    // Preparar datos para enviar al backend
-    const datosParaBackend = {
-      username: this.form.username,
-      ip: this.form.ip,
-      fecha_hora: this.form.fecha_hora || new Date().toISOString(),
-      accion: this.form.accion,
-      descripcion: this.form.descripcion
-    };
-
-    this.http.post(`${this.apiUrl}/registrar`, datosParaBackend).subscribe({
-      next: (response: any) => {
-        console.log('Bitácora registrada:', response);
+    // Usar el servicio para registrar la bitácora automáticamente
+    this.bitacoraService.registrarAccion(this.form.accion, this.form.descripcion).subscribe({
+      next: () => {
+        console.log('Bitácora registrada exitosamente');
         alert('✅ Bitácora registrada exitosamente');
         
         // Recargar la lista completa desde el backend

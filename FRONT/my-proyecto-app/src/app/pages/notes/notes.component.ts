@@ -3,9 +3,9 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 
-import { LoginService } from 'src/app/services_back/login.service';   // ← ajusta si fuera necesario
-import { Usuario } from 'src/interface/user';                         // ← ajusta si fuera necesario
-
+import { LoginService } from 'src/app/services_back/login.service';
+import { BitacoraService } from 'src/app/services_back/bitacora.service';
+import { Usuario } from 'src/interface/user';
 
 @Component({
   selector: 'app-notes',
@@ -18,6 +18,7 @@ export class NotesComponent {
 
   constructor(
     private loginService: LoginService,
+    private bitacoraService: BitacoraService,
     private toastr: ToastrService,
     private router: Router
   ) {}
@@ -43,7 +44,6 @@ export class NotesComponent {
       name_user: this.username as any,
       password: this.password
     };
-    
     this.loginService.login(user).subscribe({
       next: (response: any) => {
         // Soporta varios formatos de respuesta: {token}, {access}, "token"
@@ -64,6 +64,15 @@ export class NotesComponent {
         localStorage.removeItem('username');
         localStorage.setItem('token', token);
         localStorage.setItem('username', this.username.trim()); // Guardar el username actual
+        
+        // Registrar en bitácora el inicio de sesión
+        this.bitacoraService.registrarAccion(
+          'Inicio de sesión',
+          `El usuario ${this.username.trim()} ha iniciado sesión en el sistema`
+        ).subscribe({
+          next: () => console.log('Inicio de sesión registrado en bitácora'),
+          error: (err) => console.error('Error al registrar en bitácora:', err)
+        });
         
         this.toastr.success('¡Bienvenido!', 'Inicio de sesión exitoso', {
           positionClass: 'toast-bottom-right',

@@ -9,8 +9,16 @@ import { AsistenciaComponent } from './pages/asistencia/asistencia.component';
 import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
 import { BitacoraComponent } from './pages/bitacora/bitacora.component';
 import { authGuard } from './guards/auth.guard';
+import { PermissionGuard } from './guards/permission.guard';
 import { LotesComponent } from './pages/lotes/lotes.component';
 import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccion.component';
+import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
+import { PermisosComponent } from './pages/permisos/permisos.component';
+import { AsignarPermisosComponent } from './pages/asignar-permisos/asignar-permisos.component';
+import { TurnosComponent } from './pages/turnos/turnos.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
+import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
+import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
 
 
 const routes: Routes = [
@@ -18,14 +26,89 @@ const routes: Routes = [
     path: 'menu', component: MenuComponent,
     canActivate: [authGuard], 
     children: [
-      { path: 'usuarios', component: UsuariosComponent },
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'personal', component: PersonalComponent },
-      { path: 'asistencia', component: AsistenciaComponent },
-      { path: 'bitacora', component: BitacoraComponent },
-      { path: 'configuracion', component: ConfiguracionComponent },
-      { path: 'lotes', component: LotesComponent },
-      { path: 'ordenproduccion', component: OrdenProduccionComponent },
+      { 
+        path: 'usuarios', 
+        component: UsuariosComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Usuarios', accion: 'ver' }
+      },
+      { 
+        path: 'dashboard', 
+        component: DashboardComponent 
+        // Dashboard sin restricción - todos pueden verlo
+      },
+      { 
+        path: 'personal', 
+        component: PersonalComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Personal', accion: 'ver' }
+      },
+      { 
+        path: 'asistencia', 
+        component: AsistenciaComponent 
+        // Asistencia sin restricción por ahora
+      },
+      { 
+        path: 'turnos', 
+        component: TurnosComponent 
+        // Turnos sin restricción por ahora
+      },
+      { 
+        path: 'bitacora', 
+        component: BitacoraComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Bitacora', accion: 'ver' }
+      },
+      { 
+        path: 'configuracion', 
+        component: ConfiguracionComponent 
+      },
+      { 
+        path: 'lotes', 
+        component: LotesComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Lotes', accion: 'ver' }
+      },
+      { 
+        path: 'inventario', 
+        component: InventarioComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Inventario', accion: 'ver' }
+      },
+      { 
+        path: 'ordenproduccion', 
+        component: OrdenProduccionComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'OrdenProduccion', accion: 'ver' }
+      },
+      { 
+        path: 'trazabilidad', 
+        component: TrazabilidadComponent 
+        // Trazabilidad sin restricción por ahora
+      },
+      { 
+        path: 'control-calidad', 
+        component: ControlCalidadComponent 
+        // Control de calidad sin restricción por ahora
+      },
+      { 
+        path: 'nota-salida', 
+        component: NotaSalidaComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'NotaSalida', accion: 'ver' }
+      },
+      { 
+        path: 'permisos', 
+        component: PermisosComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Reportes', accion: 'ver' }
+      },
+      { 
+        path: 'asignar-permisos', 
+        component: AsignarPermisosComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Usuarios', accion: 'editar' }
+      },
     ]
   },
   { path: 'notes', component: NotesComponent },

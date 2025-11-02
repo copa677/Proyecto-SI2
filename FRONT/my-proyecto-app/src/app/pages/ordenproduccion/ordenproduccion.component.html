@@ -1,133 +1,311 @@
 <section class="py-6 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto">
-    
+
     <!-- Encabezado -->
     <div class="md:flex md:items-center md:justify-between mb-6">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">Órdenes de Producción</h2>
-        <p class="mt-1 text-sm text-gray-600">Gestión de órdenes de producción del sistema</p>
+        <p class="mt-1 text-sm text-gray-600">Gestión de producción de camisas y poleras</p>
+      </div>
+      <div class="mt-4 md:mt-0">
+        <button
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          (click)="openForm()">
+          <i class="fas fa-plus mr-2"></i> Nueva Orden
+        </button>
       </div>
     </div>
 
-    <!-- Mensaje de módulo pendiente -->
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">
-            Módulo en Desarrollo
-          </h3>
-          <div class="mt-2 text-sm text-yellow-700">
-            <p>
-              El módulo de <strong>Órdenes de Producción</strong> está pendiente de implementación en el backend.
-              Una vez que se complete la implementación del backend, esta interfaz estará disponible para gestionar 
-              las órdenes de producción del sistema.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Tabla y acciones de órdenes de producción -->
-    <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
-      <div class="px-4 py-5 sm:p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-medium text-gray-900">Órdenes de Producción</h3>
-          <button class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white" (click)="openForm()">
-            <i class="fas fa-plus mr-2"></i> Nueva Orden
-          </button>
-        </div>
+    <!-- Tabla de Órdenes de Producción -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color/Talla
+              </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inicio
+              </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr *ngFor="let orden of ordenes" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ orden.codigo_orden }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.fecha }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.producto }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.cantidad }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ orden.cod_orden }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.producto_modelo }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.color }} / {{ orden.talla }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.cantidad_total }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ orden.fecha_inicio | date:'short' }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                      [class.bg-green-100]="orden.estado === 'Finalizada'"
-                      [class.text-green-800]="orden.estado === 'Finalizada'"
-                      [class.bg-yellow-100]="orden.estado === 'En Proceso'"
-                      [class.text-yellow-800]="orden.estado === 'En Proceso'"
-                      [class.bg-red-100]="orden.estado === 'Pendiente'"
-                      [class.text-red-800]="orden.estado === 'Pendiente'">
+                  [ngClass]="getEstadoClass(orden.estado)">
                   {{ orden.estado }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="text-indigo-600 hover:text-indigo-900 mr-3" (click)="openForm(orden)">Editar</button>
-                <button class="text-red-600 hover:text-red-900" (click)="deleteOrden(orden.id_orden)">Eliminar</button>
+                <button class="text-green-600 hover:text-green-900 mr-3" (click)="verTrazabilidad(orden)">
+                  <i class="fas fa-search mr-1"></i> Trazabilidad
+                </button>
+                <button class="text-red-600 hover:text-red-900" (click)="deleteOrden(orden.id_orden!)">
+                  <i class="fas fa-trash mr-1"></i> Eliminar
+                </button>
               </td>
             </tr>
             <tr *ngIf="ordenes.length === 0">
-              <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay órdenes registradas</td>
+              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay órdenes registradas</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Modal Formulario de Orden de Producción (idéntico a Lotes) -->
-    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center" tabindex="0" (keydown.escape)="showForm = false">
-      <div class="absolute inset-0 bg-gray-900/50" (click)="showForm = false"></div>
-      <div class="modal-content relative bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-6">
-          {{ formData.id_orden ? 'Editar Orden de Producción' : 'Nueva Orden de Producción' }}
-        </h3>
-        <form (ngSubmit)="saveOrden()">
-          <div class="grid grid-cols-1 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Código de Orden</label>
-              <input type="text" class="form-input mt-1 block w-full" [(ngModel)]="formData.codigo_orden" name="codigo_orden" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Fecha</label>
-              <input type="date" class="form-input mt-1 block w-full" [(ngModel)]="formData.fecha" name="fecha" required placeholder="dd/mm/aaaa" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Producto</label>
-              <input type="text" class="form-input mt-1 block w-full" [(ngModel)]="formData.producto" name="producto" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Cantidad</label>
-              <input type="number" class="form-input mt-1 block w-full" [(ngModel)]="formData.cantidad" name="cantidad" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Estado</label>
-              <select class="form-input mt-1 block w-full" [(ngModel)]="formData.estado" name="estado" required>
-                <option value="">Seleccione un estado</option>
-                <option value="En Proceso">En Proceso</option>
-                <option value="Finalizada">Finalizada</option>
-                <option value="Pendiente">Pendiente</option>
-              </select>
+    <!-- Modal de Trazabilidad -->
+    <div *ngIf="showTrazabilidadModal" class="fixed inset-0 z-50 flex items-center justify-center"
+      (keydown.escape)="closeTrazabilidadModal()" tabindex="0">
+      <div class="absolute inset-0 bg-gray-900/50" (click)="closeTrazabilidadModal()"></div>
+      <div class="relative w-full max-w-3xl bg-white rounded-lg shadow-xl mx-4 max-h-[85vh] flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">Trazabilidad de la Orden</h3>
+          <button class="text-gray-400 hover:text-gray-600" (click)="closeTrazabilidadModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="flex-1 overflow-y-auto px-6 py-4">
+          <div *ngIf="trazabilidad && trazabilidad.length > 0; else noTrazabilidad" class="space-y-4">
+            <div *ngFor="let traza of trazabilidad; let i = index"
+              class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+
+              <!-- Header del proceso -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                  <span
+                    class="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 text-sm font-semibold">
+                    {{ i + 1 }}
+                  </span>
+                  <div>
+                    <h4 class="text-base font-semibold text-gray-900">{{ traza.proceso }}</h4>
+                    <p class="text-xs text-gray-500">{{ traza.fecha_registro | date:'dd/MM/yyyy' }}</p>
+                  </div>
+                </div>
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [ngClass]="traza.estado === 'Completado' ? 'bg-green-100 text-green-800' : 
+                                 traza.estado === 'En Proceso' ? 'bg-blue-100 text-blue-800' : 
+                                 traza.estado === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'">
+                  {{ traza.estado }}
+                </span>
+              </div>
+
+              <!-- Descripción mejorada -->
+              <div class="mb-3 p-3 bg-gray-50 rounded border-l-4 border-indigo-500">
+                <p class="text-sm text-gray-700">{{ traza.descripcion_proceso }}</p>
+              </div>
+
+              <!-- Detalles en grid -->
+              <div class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span class="text-gray-500">Horario:</span>
+                  <span class="ml-2 font-medium text-gray-900">{{ traza.hora_inicio }} - {{ traza.hora_fin }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Cantidad:</span>
+                  <span class="ml-2 font-medium text-indigo-600">{{ traza.cantidad }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Personal:</span>
+                  <span class="ml-2 font-medium text-gray-900">{{ traza.nombre_personal || 'ID: ' + traza.id_personal
+                    }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Rol:</span>
+                  <span class="ml-2 font-medium text-gray-900">{{ traza.rol_personal || 'N/A' }}</span>
+                </div>
+              </div>
+
+              <!-- Barra de progreso para procesos en curso -->
+              <div *ngIf="traza.estado === 'En Proceso'" class="mt-3 pt-3 border-t border-gray-200">
+                <div class="flex justify-between text-xs text-gray-600 mb-1">
+                  <span>Progreso</span>
+                  <span class="font-semibold">{{ calcularProgreso(traza.hora_inicio, traza.hora_fin) }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-blue-500 h-2 rounded-full transition-all"
+                    [style.width.%]="calcularProgreso(traza.hora_inicio, traza.hora_fin)"></div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="mt-6 flex justify-end gap-3">
-            <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" (click)="showForm = false">
-              Cancelar
-            </button>
-            <button type="submit" class="btn-primary inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
-              Guardar
-            </button>
-          </div>
-        </form>
+
+          <ng-template #noTrazabilidad>
+            <div class="text-center py-8">
+              <p class="text-gray-500">No hay trazabilidad registrada para esta orden.</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+          <button class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            (click)="closeTrazabilidadModal()">
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
+
+    <!-- Modal Formulario Nueva Orden -->
+    <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-4 py-6 sm:px-0"
+      (keydown.escape)="closeForm()" tabindex="0">
+
+      <!-- Fondo -->
+      <div class="absolute inset-0 bg-gray-900/50 transition-opacity" (click)="closeForm()"></div>
+
+      <!-- Contenedor del modal -->
+      <div
+        class="relative bg-white rounded-lg shadow-2xl w-full max-w-4xl mx-auto flex flex-col max-h-[90vh] overflow-hidden transform transition-all sm:my-8">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h3 class="text-lg font-semibold text-gray-900">Nueva Orden de Producción</h3>
+          <button class="text-gray-400 hover:text-gray-600 focus:outline-none" (click)="closeForm()"
+            aria-label="Cerrar">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Cuerpo con scroll -->
+        <div class="flex-1 overflow-y-auto px-6 py-4 sm:p-6 space-y-6">
+
+          <form class="space-y-6" (ngSubmit)="saveOrden()" #ordenForm="ngForm" autocomplete="off">
+
+            <!-- Información principal -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Código de Orden</label>
+                <input type="text" [(ngModel)]="formData.cod_orden" name="cod_orden" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                          focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Responsable</label>
+                <select [(ngModel)]="formData.responsable" name="responsable" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <option value="">Seleccione...</option>
+                  <option *ngFor="let p of personal" [value]="p.id">{{ p.nombre_completo }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Producto -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Producto</label>
+                <select [(ngModel)]="formData.producto_modelo" name="producto_modelo" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <option *ngFor="let prod of productosModelo" [value]="prod">{{ prod }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Color</label>
+                <select [(ngModel)]="formData.color" name="color" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <option *ngFor="let c of colores" [value]="c">{{ c }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Talla</label>
+                <select [(ngModel)]="formData.talla" name="talla" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                           focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                  <option *ngFor="let t of tallas" [value]="t">{{ t }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Cantidad y Fechas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Cantidad a Producir</label>
+                <input type="number" [(ngModel)]="formData.cantidad_total" name="cantidad_total" required min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                          focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
+                <input type="date" [(ngModel)]="formData.fecha_inicio" name="fecha_inicio" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                          focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Fecha Fin Estimada</label>
+                <input type="date" [(ngModel)]="formData.fecha_fin" name="fecha_fin" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                          focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Fecha de Entrega</label>
+                <input type="date" [(ngModel)]="formData.fecha_entrega" name="fecha_entrega" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                          focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+              </div>
+            </div>
+
+            <!-- Materias Primas -->
+            <div class="border-t pt-4">
+              <div class="flex items-center justify-between mb-3">
+                <label class="block text-sm font-medium text-gray-700">Materias Primas a Consumir</label>
+                <button type="button" (click)="addMateriaPrima()"
+                  class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                  <i class="fas fa-plus mr-1"></i> Agregar
+                </button>
+              </div>
+
+              <div *ngFor="let materia of formData.materias_primas; let i = index" class="grid grid-cols-12 gap-2 mb-2">
+                <div class="col-span-12 sm:col-span-7">
+                  <select [(ngModel)]="materia.id_inventario" [name]="'materia_' + i" required class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                             focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                    <option value="">Seleccione materia prima...</option>
+                    <option *ngFor="let inv of inventario" [value]="inv.id_inventario">
+                      {{ inv.nombre_materia_prima }} (Stock: {{ inv.cantidad_actual }} {{ inv.unidad_medida }})
+                    </option>
+                  </select>
+                </div>
+                <div class="col-span-6 sm:col-span-3">
+                  <input type="number" [(ngModel)]="materia.cantidad" [name]="'cantidad_' + i" required min="0"
+                    step="0.01" placeholder="Cantidad" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 
+                            focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                </div>
+                <div class="col-span-6 sm:col-span-2">
+                  <button type="button" (click)="removeMateriaPrima(i)" class="w-full inline-flex justify-center items-center px-3 py-2 border border-red-300 
+                             text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Footer fijo -->
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
+          <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md 
+                                 shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            (click)="closeForm()">
+            Cancelar
+          </button>
+          <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md 
+                     shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" (click)="saveOrden()">
+            <i class="fas fa-save mr-2"></i> Crear Orden
+          </button>
+        </div>
+      </div>
+    </div>
+
 
   </div>
 </section>

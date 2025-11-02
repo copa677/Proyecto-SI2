@@ -8,6 +8,7 @@ urlpatterns = [
     path('notas_salida/registrar/<int:id_usuario>/', views.registrar_nota_salida, name='registrar_nota_salida'),
     path('notas_salida/actualizar/<int:id_salida>/', views.actualizar_nota_salida, name='actualizar_nota_salida'),
     path('notas_salida/eliminar/<int:id_salida>/', views.eliminar_nota_salida, name='eliminar_nota_salida'),
+    path('notas_salida/crear/', views.crear_nota_salida_con_detalles, name='crear_nota_salida_con_detalles'),
 
     # 📦 DETALLE NOTA SALIDA
     path('detalles_salida/<int:id_salida>/', views.listar_detalles_salida, name='listar_detalles_salida'),

@@ -3,6 +3,34 @@
     <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
     <p class="mt-1 text-sm text-gray-600">Bienvenido al sistema de gestión de manufactura</p>
 
+    <!-- Alerta de acceso denegado -->
+    <div *ngIf="errorAccesoDenegado" class="mt-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md shadow-sm">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm text-red-700">
+            <strong>Acceso denegado:</strong> No tienes permisos para acceder a <strong>{{ ventanaDenegada }}</strong>.
+            <br>
+            <span class="text-xs">Si crees que esto es un error, contacta al administrador del sistema.</span>
+          </p>
+        </div>
+        <div class="ml-auto pl-3">
+          <div class="-mx-1.5 -my-1.5">
+            <button (click)="cerrarAlerta()" type="button" class="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50">
+              <span class="sr-only">Cerrar</span>
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Tarjetas métricas -->
     <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 dashboard-grid">
       <!-- Personal -->
@@ -111,7 +139,7 @@
     <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="panel">
         <h4 class="panel-title"><i class="fas fa-bolt mr-2"></i>Accesos rápidos</h4>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <a routerLink="/menu/personal" class="quick-btn"><i class="fas fa-user-friends mr-2"></i>Personal</a>
           <a routerLink="/menu/asistencia" class="quick-btn"><i class="fas fa-clipboard-check mr-2"></i>Asistencia</a>
           <a routerLink="/menu/usuarios" class="quick-btn"><i class="fas fa-id-card mr-2"></i>Usuarios</a>

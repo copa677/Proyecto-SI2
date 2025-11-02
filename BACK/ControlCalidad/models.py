@@ -5,7 +5,7 @@ class ControlCalidad(models.Model):
     id_control = models.AutoField(primary_key=True)
     observaciones = models.TextField()
     resultado = models.CharField(max_length=100)
-    fehca_hora = models.DateTimeField()
+    fecha_hora = models.DateTimeField()
     id_personal = models.IntegerField()
     id_trazabilidad = models.IntegerField()
 

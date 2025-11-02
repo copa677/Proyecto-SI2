@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
@@ -19,6 +20,15 @@ import { BitacoraComponent } from './pages/bitacora/bitacora.component';
 import { BitacoraInterceptor } from './services_back/bitacora.interceptor';
 import { LotesComponent } from './pages/lotes/lotes.component';
 import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccion.component';
+import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
+import { PermisosComponent } from './pages/permisos/permisos.component';
+import { AsignarPermisosComponent } from './pages/asignar-permisos/asignar-permisos.component';
+import { PermisoAccionDirective } from './directives/permiso-accion.directive';
+import { CanDoDirective } from './directives/can-do.directive';
+import { TurnosComponent } from './pages/turnos/turnos.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
+import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
+import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
 
 @NgModule({
   declarations: [
@@ -34,10 +44,20 @@ import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccio
     BitacoraComponent,
     LotesComponent,
     OrdenProduccionComponent,
+    NotaSalidaComponent,
+    PermisosComponent,
+    AsignarPermisosComponent,
+    PermisoAccionDirective,
+    CanDoDirective,
+    TurnosComponent,
+    InventarioComponent,
+    ControlCalidadComponent,
+    TrazabilidadComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    CommonModule,
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule, // required animations module

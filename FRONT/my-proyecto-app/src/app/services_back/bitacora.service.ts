@@ -1,8 +1,8 @@
 // src/app/services_back/bitacora.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment.development';
 import { Bitacora } from '../../interface/bitacora';
@@ -44,8 +44,57 @@ export class BitacoraService {
     return localISOTime;
   }
 
-  // 💡 Método auxiliar: Crear objeto Bitacora básico automáticamente
-  generarBitacora(username: string, accion: string, descripcion: string): Observable<Bitacora> {
+  // � Obtener el usuario desde el token JWT
+  getUserFromToken(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    try {
+      const payload = JSON.parse(this.b64urlDecode(parts[1]));
+      return payload.name_user || payload.username || null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Decodifica Base64URL (JWT) de forma segura
+  private b64urlDecode(input: string): string {
+    input = input.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = input.length % 4;
+    if (pad) input += '='.repeat(4 - pad);
+    return atob(input);
+  }
+
+  // 💡 Método auxiliar: Registrar bitácora automáticamente (obtiene usuario del token y IP automáticamente)
+  registrarAccion(accion: string, descripcion: string): Observable<void> {
+    const username = this.getUserFromToken();
+    if (!username) {
+      console.error('No se pudo obtener el usuario del token');
+      return new Observable(observer => {
+        observer.error('Usuario no autenticado');
+      });
+    }
+
+    return this.getUserIP().pipe(
+      switchMap(ip => {
+        const bitacora: Bitacora = {
+          username: username,
+          ip: ip,
+          fecha_hora: this.getLocalDateTime(),
+          accion: accion,
+          descripcion: descripcion
+        };
+        return this.registrarBitacora(bitacora);
+      })
+    );
+  }
+
+  // 💡 Método auxiliar alternativo: Crear objeto Bitacora básico automáticamente
+  generarBitacora(accion: string, descripcion: string): Observable<Bitacora> {
+    const username = this.getUserFromToken() || 'Usuario desconocido';
     return this.getUserIP().pipe(
       map(ip => ({
         username: username,

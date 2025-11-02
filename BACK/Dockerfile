@@ -1,9 +1,10 @@
 FROM python:3.12
 
-# Instala dependencias del sistema (usa netcat-openbsd)
+# Instala dependencias necesarias, incluyendo el cliente de PostgreSQL
 RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     libpq-dev \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
