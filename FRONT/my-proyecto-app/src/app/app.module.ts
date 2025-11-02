@@ -30,6 +30,7 @@ import { TurnosComponent } from './pages/turnos/turnos.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
 import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
 import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
+import { ClienteComponent } from './pages/cliente/cliente.component';
 import { ReporteInventarioComponent } from './pages/reporte-inventario/reporte-inventario.component';
 import { ReporteProduccionComponent } from './pages/reporte-produccion/reporte-produccion.component';
 import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.component';
@@ -56,7 +57,8 @@ import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.co
     TurnosComponent,
     InventarioComponent,
     ControlCalidadComponent,
-  TrazabilidadComponent,
+    TrazabilidadComponent,
+    ClienteComponent,
   ],
   imports: [
     BrowserModule,

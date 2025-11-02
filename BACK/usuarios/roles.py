@@ -1,4 +1,4 @@
-
+from personal.models import personal
 # -*- coding: utf-8 -*-
 def get_user_role(user):
     '''

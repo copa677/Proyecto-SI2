@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'Inventario',
     'NotaSalida',
     'BR',
+    'Clientes'
 ]
 
 MIDDLEWARE = [

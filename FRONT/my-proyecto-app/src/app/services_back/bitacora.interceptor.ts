@@ -5,32 +5,34 @@ import { Observable } from 'rxjs';
 @Injectable()
 export class BitacoraInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Obtener el username y token del localStorage
     const username = localStorage.getItem('username');
     const token = localStorage.getItem('token');
 
-    // Clonar el request para modificarlo
     let clonedReq = req;
 
-    // Agregar el token JWT en el header Authorization si existe
+    // 🧠 Agregar token JWT si existe
     if (token) {
       clonedReq = clonedReq.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
+        setHeaders: { Authorization: `Bearer ${token}` }
       });
     }
 
-    // Agregar __bitacora_user__ en todas las peticiones si hay usuario
+    // 🧠 Agregar __bitacora_user__ solo si hay username
     if (username) {
       if (clonedReq.method === 'GET' || clonedReq.method === 'DELETE') {
-        // Para GET/DELETE, agregar como parámetro de query especial
+        // Para GET/DELETE, agregarlo como parámetro de URL
         const params = clonedReq.params.set('__bitacora_user__', username);
         clonedReq = clonedReq.clone({ params });
+
+      } else if (clonedReq.body instanceof FormData) {
+        // ✅ Si es FormData (como en tu restore), agrégalo directamente
+        const formData = clonedReq.body;
+        formData.append('__bitacora_user__', username);
+        clonedReq = clonedReq.clone({ body: formData });
+
       } else {
-        // Para POST/PUT/PATCH, agregar al body
-        let body = clonedReq.body || {};
-        body = { ...body, __bitacora_user__: username };
+        // ✅ Para JSON normales
+        const body = { ...(clonedReq.body || {}), __bitacora_user__: username };
         clonedReq = clonedReq.clone({ body });
       }
     }

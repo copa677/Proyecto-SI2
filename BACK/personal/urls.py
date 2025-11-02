@@ -1,4 +1,3 @@
-
 from django.urls import path
 from .views import registrar_Empleado,obtener_empleados,obtener_empleado_nombre,actualizar_empleado,eliminar_empleado,obtener_empleado_por_usuario
 
