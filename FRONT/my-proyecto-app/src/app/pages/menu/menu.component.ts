@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../../services_back/login.service';
 import { BitacoraService } from '../../services_back/bitacora.service';
 import { PermissionService } from '../../services_back/permission.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-menu',
@@ -25,19 +26,21 @@ export class MenuComponent implements OnInit {
   constructor(
     private login: LoginService,
     private bitacoraService: BitacoraService,
-    public permissionService: PermissionService // Inyectar y hacer público
+    public permissionService: PermissionService, // Inyectar y hacer público
+    public authService: AuthService // Servicio de autenticación
   ) {}
 
   ngOnInit(): void {
-    const username = this.login.getUsernameFromToken();
+    // Obtener nombre de usuario del AuthService
+    const username = this.authService.getUserName() || this.login.getUsernameFromToken();
     if (username && username.trim().length > 0) {
       this.userName = username.trim();
       this.userInitial = this.userName.charAt(0).toUpperCase();
     }
 
-    // Inicializar el rol en el servicio de permisos
-  const role = this.login.getRoleFromToken();
-  this.permissionService.setUserRole(role ?? '');
+    // Inicializar el rol en el servicio de permisos usando AuthService
+    const role = this.authService.getUserRole() || this.login.getRoleFromToken();
+    this.permissionService.setUserRole(role ?? '');
   }
 
   toggleMenu() { this.showMenu = !this.showMenu; }
@@ -68,8 +71,9 @@ export class MenuComponent implements OnInit {
   }
 
   private ejecutarLogout() {
-    localStorage.removeItem('token'); 
-    localStorage.removeItem('username'); 
+    // Usar AuthService para limpiar todos los datos
+    this.authService.logout();
+    localStorage.removeItem('username'); // Por compatibilidad con código existente
     window.location.href = '/notes';
   }
 }
