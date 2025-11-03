@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
@@ -30,6 +31,9 @@ import { InventarioComponent } from './pages/inventario/inventario.component';
 import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
 import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
 import { ClienteComponent } from './pages/cliente/cliente.component';
+import { ReporteInventarioComponent } from './pages/reporte-inventario/reporte-inventario.component';
+import { ReporteProduccionComponent } from './pages/reporte-produccion/reporte-produccion.component';
+import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.component';
 
 @NgModule({
   declarations: [
@@ -61,9 +65,13 @@ import { ClienteComponent } from './pages/cliente/cliente.component';
     AppRoutingModule,
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
+    ReporteInventarioComponent,
+    ReporteProduccionComponent,
+    ReporteVentasComponent,
   ],
   providers: [
     {

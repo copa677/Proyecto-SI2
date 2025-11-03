@@ -46,8 +46,8 @@ export interface ClienteApiResponse {
 })
 export class ClienteService {
 
-  // Asumiendo que la URL base está en environments
-  private baseUrl = `${environment.endpoint}/clientes`;
+  // La baseUrl ahora solo concatena el segmento 'clientes' al endpoint
+  private baseUrl = `${environment.endpoint}api/clientes`;
 
   constructor(private http: HttpClient) { }
 

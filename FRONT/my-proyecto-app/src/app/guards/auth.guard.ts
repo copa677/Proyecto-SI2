@@ -6,9 +6,9 @@ export const authGuard: CanActivateFn = (route, state) => {
   const token = localStorage.getItem('token');
 
   if (token) {
-    return true; // ✅ tiene token → pasa
+    return true; 
   }
 
-  // ❌ no hay token → redirige al login
+
   return router.parseUrl('/notes');
 };
