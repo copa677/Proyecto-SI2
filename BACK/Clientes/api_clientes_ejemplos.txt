@@ -1,0 +1,102 @@
+
+=========================
+CRUD API - APP CLIENTES
+=========================
+
+BASE URL: http://localhost:8000/clientes/
+
+--------------------------------------
+1️⃣ CREAR CLIENTE Y USUARIO (POST)
+--------------------------------------
+URL:
+    POST http://localhost:8000/clientes/crear/
+
+BODY (JSON):
+{
+  "name_user": "juan3",
+  "nombre_completo": "Juan Pérez",
+  "direccion": "Av. Bolívar 123",
+  "telefono": "78945612",
+  "fecha_nacimiento": "1995-05-20",
+  "email": "juan@email.com",
+  "password": "123456",
+  "tipo_usuario": "cliente"
+}
+
+RESPUESTA (201 Created):
+{
+  "mensaje": "Cliente y usuario creados exitosamente"
+}
+
+
+--------------------------------------
+2️⃣ LISTAR CLIENTES (GET)
+--------------------------------------
+URL:
+    GET http://localhost:8000/clientes/listar/
+
+RESPUESTA (200 OK):
+[
+  {
+    "id": 1,
+    "nombre_completo": "Juan Pérez",
+    "direccion": "Av. Bolívar 123",
+    "telefono": "78945612",
+    "fecha_nacimiento": "1995-05-20",
+    "estado": "activo",
+    "id_usuario": 5
+  },
+  ...
+]
+
+
+--------------------------------------
+3️⃣ OBTENER CLIENTE POR ID (GET)
+--------------------------------------
+URL:
+    GET http://localhost:8000/clientes/obtener/1/
+
+RESPUESTA (200 OK):
+{
+  "id": 1,
+  "nombre_completo": "Juan Pérez",
+  "direccion": "Av. Bolívar 123",
+  "telefono": "78945612",
+  "fecha_nacimiento": "1995-05-20",
+  "estado": "activo",
+  "id_usuario": 5
+}
+
+
+--------------------------------------
+4️⃣ ACTUALIZAR CLIENTE (PUT o PATCH)
+--------------------------------------
+URL:
+    PUT http://localhost:8000/clientes/actualizar/1/
+
+BODY (JSON):
+{
+  "nombre_completo": "Juan Pérez Actualizado",
+  "direccion": "Calle Nueva 456",
+  "telefono": "78999999",
+  "email": "juanp@nuevo.com",
+  "password": "nuevaClave123",
+  "tipo_usuario": "cliente"
+}
+
+RESPUESTA (200 OK):
+{
+  "mensaje": "Cliente y usuario actualizados correctamente"
+}
+
+
+--------------------------------------
+5️⃣ ELIMINAR CLIENTE (DELETE)
+--------------------------------------
+URL:
+    DELETE http://localhost:8000/clientes/eliminar/1/
+
+RESPUESTA (200 OK):
+{
+  "mensaje": "Cliente y usuario eliminados correctamente"
+}

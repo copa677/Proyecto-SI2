@@ -35,8 +35,6 @@ class ConfiguracionPage extends StatelessWidget {
             _ImportExportCard(),
             const SizedBox(height: 32),
             _PreferenciasSistemaCard(),
-            const SizedBox(height: 32),
-            _CerrarSesionButton(),
           ],
         ),
       ),
@@ -44,27 +42,7 @@ class ConfiguracionPage extends StatelessWidget {
   }
 }
 
-class _CerrarSesionButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.redAccent,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        icon: const Icon(Icons.logout),
-        label: const Text('Cerrar sesión', style: TextStyle(fontWeight: FontWeight.bold)),
-        onPressed: () {
-          // Aquí puedes agregar la lógica real de logout
-          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-        },
-      ),
-    );
-  }
-}
+// Botón de cerrar sesión eliminado; se mantiene solo en la página de Perfil
 
 class _ImportExportCard extends StatelessWidget {
   @override
@@ -80,7 +58,11 @@ class _ImportExportCard extends StatelessWidget {
           children: [
             const Text(
               'Importación/Exportación de Datos',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppColors.negroTexto),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: AppColors.negroTexto,
+              ),
             ),
             const SizedBox(height: 24),
             LayoutBuilder(
@@ -126,9 +108,19 @@ class _ExportarDatosCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Exportar Datos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.negroTexto)),
+          const Text(
+            'Exportar Datos',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.negroTexto,
+            ),
+          ),
           const SizedBox(height: 4),
-          const Text('Descargue los datos del sistema en formato CSV', style: TextStyle(color: AppColors.grisTextoSecundario)),
+          const Text(
+            'Descargue los datos del sistema en formato CSV',
+            style: TextStyle(color: AppColors.grisTextoSecundario),
+          ),
           const SizedBox(height: 18),
           LayoutBuilder(
             builder: (context, constraints) {
@@ -176,9 +168,19 @@ class _ImportarDatosCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Importar Datos', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.negroTexto)),
+          const Text(
+            'Importar Datos',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: AppColors.negroTexto,
+            ),
+          ),
           const SizedBox(height: 4),
-          const Text('Suba archivos CSV para importar datos al sistema', style: TextStyle(color: AppColors.grisTextoSecundario)),
+          const Text(
+            'Suba archivos CSV para importar datos al sistema',
+            style: TextStyle(color: AppColors.grisTextoSecundario),
+          ),
           const SizedBox(height: 18),
           _ConfigFileInput(label: 'Personal'),
           const SizedBox(height: 10),
@@ -188,7 +190,10 @@ class _ImportarDatosCard extends StatelessWidget {
           const SizedBox(height: 18),
           SizedBox(
             width: double.infinity,
-            child: _ConfigButton(text: 'Importar Seleccionados', isPrimary: true),
+            child: _ConfigButton(
+              text: 'Importar Seleccionados',
+              isPrimary: true,
+            ),
           ),
         ],
       ),
@@ -204,23 +209,26 @@ class _ConfigButton extends StatelessWidget {
   Future<void> _exportar(BuildContext context) async {
     if (text.startsWith('Exportar')) {
       try {
-        String? selectedDirectory = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Selecciona la carpeta de destino');
+        String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+          dialogTitle: 'Selecciona la carpeta de destino',
+        );
         if (selectedDirectory == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Exportación cancelada.')),
           );
           return;
         }
-        final filePath = '$selectedDirectory/${text.replaceAll(' ', '_').toLowerCase()}.csv';
+        final filePath =
+            '$selectedDirectory/${text.replaceAll(' ', '_').toLowerCase()}.csv';
         final file = File(filePath);
         await file.writeAsString('id,nombre,valor\n1,Ejemplo,123');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Archivo exportado en: $filePath')),
         );
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al exportar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al exportar: $e')));
       }
     }
   }
@@ -232,7 +240,9 @@ class _ConfigButton extends StatelessWidget {
         backgroundColor: isPrimary ? AppColors.azulPrincipal : AppColors.blanco,
         foregroundColor: isPrimary ? AppColors.blanco : AppColors.azulPrincipal,
         elevation: isPrimary ? 2 : 0,
-        side: isPrimary ? null : const BorderSide(color: AppColors.azulPrincipal),
+        side: isPrimary
+            ? null
+            : const BorderSide(color: AppColors.azulPrincipal),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         textStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -265,7 +275,9 @@ class _ConfigFileInputState extends State<_ConfigFileInput> {
           _fileName = result.files.single.name;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Archivo seleccionado: ${result.files.single.name}')),
+          SnackBar(
+            content: Text('Archivo seleccionado: ${result.files.single.name}'),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -285,7 +297,13 @@ class _ConfigFileInputState extends State<_ConfigFileInput> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.negroTexto)),
+        Text(
+          widget.label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w500,
+            color: AppColors.negroTexto,
+          ),
+        ),
         const SizedBox(height: 4),
         Material(
           color: Colors.transparent,
@@ -302,14 +320,22 @@ class _ConfigFileInputState extends State<_ConfigFileInput> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Row(
                 children: [
-                  Icon(Icons.attach_file, color: AppColors.grisTextoSecundario, size: 20),
+                  Icon(
+                    Icons.attach_file,
+                    color: AppColors.grisTextoSecundario,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _fileName ?? 'Seleccionar archivo',
                       style: TextStyle(
-                        color: _fileName == null ? AppColors.grisTextoSecundario : AppColors.negroTexto,
-                        fontWeight: _fileName == null ? FontWeight.normal : FontWeight.w500,
+                        color: _fileName == null
+                            ? AppColors.grisTextoSecundario
+                            : AppColors.negroTexto,
+                        fontWeight: _fileName == null
+                            ? FontWeight.normal
+                            : FontWeight.w500,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -326,7 +352,8 @@ class _ConfigFileInputState extends State<_ConfigFileInput> {
 
 class _PreferenciasSistemaCard extends StatefulWidget {
   @override
-  State<_PreferenciasSistemaCard> createState() => _PreferenciasSistemaCardState();
+  State<_PreferenciasSistemaCard> createState() =>
+      _PreferenciasSistemaCardState();
 }
 
 class _PreferenciasSistemaCardState extends State<_PreferenciasSistemaCard> {
@@ -345,7 +372,14 @@ class _PreferenciasSistemaCardState extends State<_PreferenciasSistemaCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Preferencias del Sistema', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppColors.negroTexto)),
+            const Text(
+              'Preferencias del Sistema',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: AppColors.negroTexto,
+              ),
+            ),
             const SizedBox(height: 24),
             _PreferenciaSwitch(
               title: 'Notificaciones por Email',
@@ -361,9 +395,19 @@ class _PreferenciasSistemaCardState extends State<_PreferenciasSistemaCard> {
               onChanged: (v) => setState(() => modoOscuro = v),
             ),
             const SizedBox(height: 24),
-            const Text('Idioma del Sistema', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.negroTexto)),
+            const Text(
+              'Idioma del Sistema',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.negroTexto,
+              ),
+            ),
             const SizedBox(height: 4),
-            const Text('Seleccione el idioma preferido', style: TextStyle(color: AppColors.grisTextoSecundario)),
+            const Text(
+              'Seleccione el idioma preferido',
+              style: TextStyle(color: AppColors.grisTextoSecundario),
+            ),
             const SizedBox(height: 12),
             _ConfigDropdown(
               value: idioma,
@@ -386,7 +430,12 @@ class _PreferenciaSwitch extends StatelessWidget {
   final String subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
-  const _PreferenciaSwitch({required this.title, required this.subtitle, required this.value, required this.onChanged});
+  const _PreferenciaSwitch({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -397,9 +446,19 @@ class _PreferenciaSwitch extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.negroTexto)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: AppColors.negroTexto,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(color: AppColors.grisTextoSecundario)),
+              Text(
+                subtitle,
+                style: const TextStyle(color: AppColors.grisTextoSecundario),
+              ),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Switch(
@@ -420,9 +479,21 @@ class _PreferenciaSwitch extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.negroTexto)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: AppColors.negroTexto,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(color: AppColors.grisTextoSecundario)),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppColors.grisTextoSecundario,
+                    ),
+                  ),
                 ],
               ),
               Switch(

@@ -10,6 +10,7 @@ import { ConfiguracionComponent } from './pages/configuracion/configuracion.comp
 import { BitacoraComponent } from './pages/bitacora/bitacora.component';
 import { authGuard } from './guards/auth.guard';
 import { PermissionGuard } from './guards/permission.guard';
+import { RoleGuard } from './guards/role.guard';
 import { LotesComponent } from './pages/lotes/lotes.component';
 import { OrdenProduccionComponent } from './pages/ordenproduccion/ordenproduccion.component';
 import { NotaSalidaComponent } from './pages/nota-salida/nota-salida.component';
@@ -19,6 +20,10 @@ import { TurnosComponent } from './pages/turnos/turnos.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
 import { ControlCalidadComponent } from './pages/control-calidad/control-calidad.component';
 import { TrazabilidadComponent } from './pages/trazabilidad/trazabilidad.component';
+import { ClienteComponent } from './pages/cliente/cliente.component';
+import { ReporteInventarioComponent } from './pages/reporte-inventario/reporte-inventario.component';
+import { ReporteProduccionComponent } from './pages/reporte-produccion/reporte-produccion.component';
+import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.component';
 
 
 const routes: Routes = [
@@ -31,6 +36,12 @@ const routes: Routes = [
         component: UsuariosComponent,
         canActivate: [PermissionGuard],
         data: { ventana: 'Usuarios', accion: 'ver' }
+      },
+      { 
+        path: 'clientes', 
+        component: ClienteComponent,
+        canActivate: [PermissionGuard],
+        data: { ventana: 'Clientes', accion: 'ver' }
       },
       { 
         path: 'dashboard', 
@@ -56,8 +67,12 @@ const routes: Routes = [
       { 
         path: 'bitacora', 
         component: BitacoraComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'Bitacora', accion: 'ver' }
+        canActivate: [RoleGuard, PermissionGuard],
+        data: { 
+          roles: ['Administrador'], // Solo administradores
+          ventana: 'Bitacora', 
+          accion: 'ver' 
+        }
       },
       { 
         path: 'configuracion', 
@@ -100,14 +115,52 @@ const routes: Routes = [
       { 
         path: 'permisos', 
         component: PermisosComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'Reportes', accion: 'ver' }
+        canActivate: [RoleGuard, PermissionGuard],
+        data: { 
+          roles: ['Administrador'], // Solo administradores
+          ventana: 'Reportes', 
+          accion: 'ver' 
+        }
       },
       { 
         path: 'asignar-permisos', 
         component: AsignarPermisosComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'Usuarios', accion: 'editar' }
+        canActivate: [RoleGuard, PermissionGuard],
+        data: { 
+          roles: ['Administrador'], // Solo administradores
+          ventana: 'Usuarios', 
+          accion: 'editar' 
+        }
+      },
+      {
+        path: 'reporte-inventario',
+        component: ReporteInventarioComponent,
+        canActivate: [RoleGuard, PermissionGuard],
+        data: { 
+          roles: ['Administrador', 'Supervisor'], // Admin y Supervisor
+          ventana: 'ReporteInventario', 
+          accion: 'ver' 
+        }
+      },
+      {
+        path: 'reporte-produccion',
+        component: ReporteProduccionComponent,
+        canActivate: [RoleGuard, PermissionGuard],
+        data: { 
+          roles: ['Administrador', 'Supervisor'], // Admin y Supervisor
+          ventana: 'ReporteProduccion', 
+          accion: 'ver' 
+        }
+      },
+      {
+        path: 'reporte-ventas',
+        component: ReporteVentasComponent,
+        canActivate: [RoleGuard, PermissionGuard],
+        data: { 
+          roles: ['Administrador', 'Supervisor'], // Admin y Supervisor
+          ventana: 'ReporteVentas', 
+          accion: 'ver' 
+        }
       },
     ]
   },

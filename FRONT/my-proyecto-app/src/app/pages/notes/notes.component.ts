@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { LoginService } from 'src/app/services_back/login.service';
 import { BitacoraService } from 'src/app/services_back/bitacora.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { Usuario } from 'src/interface/user';
 
 @Component({
@@ -19,6 +20,7 @@ export class NotesComponent {
   constructor(
     private loginService: LoginService,
     private bitacoraService: BitacoraService,
+    private authService: AuthService,
     private toastr: ToastrService,
     private router: Router
   ) {}
@@ -59,16 +61,20 @@ export class NotesComponent {
           return;
         }
 
-        // Limpiar cualquier dato previo y guardar el nuevo token y username
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        localStorage.setItem('token', token);
-        localStorage.setItem('username', this.username.trim()); // Guardar el username actual
+        // Guardar datos del usuario usando AuthService
+        const tipo_usuario = response?.tipo_usuario || 'Usuario';
+        const name_user = response?.name_user || this.username.trim();
+        const email = response?.email || '';
+        
+        this.authService.setUserData(token, tipo_usuario, name_user, email);
+        
+        // También mantener compatibilidad con código existente
+        localStorage.setItem('username', name_user);
         
         // Registrar en bitácora el inicio de sesión
         this.bitacoraService.registrarAccion(
           'Inicio de sesión',
-          `El usuario ${this.username.trim()} ha iniciado sesión en el sistema`
+          `El usuario ${name_user} ha iniciado sesión en el sistema`
         ).subscribe({
           next: () => console.log('Inicio de sesión registrado en bitácora'),
           error: (err) => console.error('Error al registrar en bitácora:', err)

@@ -5,7 +5,6 @@
 /* Etiquetas usadas también en otras pantallas (local a este componente) */
 .logo-text {
   background: linear-gradient(90deg, #2563eb, #4f46e5);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

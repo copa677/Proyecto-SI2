@@ -5,7 +5,6 @@
 
 .logo-text {
   background: linear-gradient(90deg, #2563eb, #4f46e5);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -58,12 +57,3 @@
 /* Custom switch */
 .toggle-checkbox:checked { right: 0; border-color: #4f46e5; }
 .toggle-checkbox:checked + .toggle-label { background-color: #4f46e5; }
-
-/* Animación para el acordeón del menú móvil */
-.submenu-content {
-  @apply overflow-hidden max-h-0 transition-all duration-300 ease-in-out;
-}
-
-.submenu-content.open {
-  @apply max-h-96; /* Valor suficientemente grande para contener los sub-enlaces */
-}

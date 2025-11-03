@@ -13,6 +13,10 @@ import '../constants.dart';
 class DashboardService {
   /// Devuelve la cantidad total de empleados registrados.
   Future<int> getTotalPersonal() async {
+    if (debugUseMockApi) {
+      await Future.delayed(const Duration(milliseconds: 150));
+      return 3; // Debe coincidir con el mock de getEmpleados()
+    }
     final url = Uri.parse('$baseUrl/api/personal/getEmpleados');
     final response = await http.get(url);
 
@@ -29,6 +33,10 @@ class DashboardService {
 
   /// Devuelve la cantidad total de usuarios registrados.
   Future<int> getTotalUsuarios() async {
+    if (debugUseMockApi) {
+      await Future.delayed(const Duration(milliseconds: 150));
+      return 3; // Debe coincidir con el mock de getUsuarios()
+    }
     final url = Uri.parse('$baseUrl/api/usuario/getuser');
     final response = await http.get(url);
 
