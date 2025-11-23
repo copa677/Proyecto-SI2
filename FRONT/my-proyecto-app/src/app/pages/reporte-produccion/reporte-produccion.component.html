@@ -8,7 +8,7 @@
         <p class="mt-1 text-sm text-gray-600">Consulta el estado de la producción por lote y por estación de trabajo.</p>
       </div>
       <!-- Botones de Exportación -->
-      <div class="mt-4 md:mt-0 flex gap-2" *ngIf="!isLoading && (reporteProduccionLote.length > 0 || reporteProduccionEstacion.length > 0)">
+      <div class="mt-4 md:mt-0 flex gap-2" *ngIf="!isLoading && reporteProduccion.length > 0">
         <button (click)="exportarExcel()" 
           class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
           <i class="fas fa-file-excel mr-2"></i>Exportar Excel
@@ -26,23 +26,7 @@
         <i class="fas fa-filter mr-2"></i>Filtros del Reporte
       </h3>
       <form [formGroup]="filtroForm" (ngSubmit)="generarReporte()">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div>
-            <label for="lote" class="block text-sm font-medium text-gray-700">Código de Lote</label>
-            <input type="text" id="lote" formControlName="lote" placeholder="Ej: LOTE-2025-10-A"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-          </div>
-          <div>
-            <label for="estacion" class="block text-sm font-medium text-gray-700">Estación</label>
-            <select id="estacion" formControlName="estacion" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-              <option value="">Todas</option>
-              <option value="Corte">Corte</option>
-              <option value="Costura">Costura</option>
-              <option value="Estampado y Bordado">Estampado y Bordado</option>
-              <option value="Acabado y Planchado">Acabado y Planchado</option>
-              <option value="Empaque y Control Final">Empaque y Control Final</option>
-            </select>
-          </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div>
             <label for="fechaInicio" class="block text-sm font-medium text-gray-700">Fecha Inicio</label>
             <input type="date" id="fechaInicio" formControlName="fechaInicio"
@@ -53,7 +37,7 @@
             <input type="date" id="fechaFin" formControlName="fechaFin"
               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
-          <div class="flex items-end gap-2">
+          <div class="flex items-end gap-2 lg:col-span-2">
             <button type="submit"
               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 w-full justify-center">
               <i class="fas fa-search mr-2"></i>Buscar
@@ -73,33 +57,69 @@
       <p class="mt-4 text-sm text-gray-600">Generando reporte de producción...</p>
     </div>
 
+    <!-- Mensaje de Error -->
+    <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">{{ errorMessage }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div *ngIf="estadisticas && !isLoading" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="text-sm text-gray-500">Total Órdenes</div>
+        <div class="text-2xl font-bold text-gray-900">{{ estadisticas.total_ordenes }}</div>
+      </div>
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="text-sm text-gray-500">Completadas</div>
+        <div class="text-2xl font-bold text-green-600">{{ estadisticas.completadas }}</div>
+      </div>
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="text-sm text-gray-500">En Proceso</div>
+        <div class="text-2xl font-bold text-blue-600">{{ estadisticas.en_proceso }}</div>
+      </div>
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="text-sm text-gray-500">Retrasadas</div>
+        <div class="text-2xl font-bold text-red-600">{{ estadisticas.retrasadas }}</div>
+      </div>
+      <div class="bg-white shadow rounded-lg p-4">
+        <div class="text-sm text-gray-500">Total Producido</div>
+        <div class="text-2xl font-bold text-indigo-600">{{ estadisticas.cantidad_total_producida }}</div>
+      </div>
+    </div>
+
     <!-- Contenido del Reporte -->
     <div *ngIf="!isLoading" class="space-y-6">
-
-      <!-- Reporte por Lote -->
+      <!-- Tabla de Órdenes de Producción -->
       <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
           <h3 class="text-lg leading-6 font-medium text-gray-900">
-            <i class="fas fa-cubes mr-2 text-indigo-600"></i>Producción por Lote
+            <i class="fas fa-cubes mr-2 text-indigo-600"></i>Órdenes de Producción
           </h3>
         </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lote</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código Orden</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Inicio</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Fin</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsable</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let item of reporteProduccionLote" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.lote }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.producto }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.cantidad_producida | number }}</td>
+              <tr *ngFor="let item of reporteProduccion" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.cod_orden }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.producto_modelo }} - {{ item.color }} - {{ item.talla }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.cantidad_total | number }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                     [ngClass]="{
@@ -112,45 +132,16 @@
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.fecha_inicio | date:'dd/MM/yyyy' }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.fecha_fin ? (item.fecha_fin | date:'dd/MM/yyyy') : 'N/A' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.fecha_fin | date:'dd/MM/yyyy' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.responsable }}</td>
               </tr>
-              <tr *ngIf="reporteProduccionLote.length === 0">
-                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay datos de producción por lote para los filtros seleccionados.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Reporte por Estación -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            <i class="fas fa-industry mr-2 text-indigo-600"></i>Rendimiento por Estación de Trabajo
-          </h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estación</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Órdenes Activas</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unidades Procesadas</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Eficiencia Promedio</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let item of reporteProduccionEstacion" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.estacion }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.ordenes_activas | number }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.unidades_procesadas | number }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.eficiencia_promedio | number:'1.1-2' }}%</td>
+              <tr *ngIf="reporteProduccion.length === 0">
+                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay datos de producción para los filtros seleccionados.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
   </div>
 </section>

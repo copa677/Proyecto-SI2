@@ -65,27 +65,28 @@
 
         <a routerLink="/menu/dashboard" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 block pl-3 pr-4 py-2 text-base font-medium">Dashboard</a>
 
-        <div *ngIf="permissionService.hasPermission('gestionar_personal')">
+        <div *ngIf="canAccess('Personal') || canAccess('Asistencia') || canAccess('Turnos')">
           <button (click)="toggleMobileSubmenu('personal')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
             <span>Gestión de Personal</span>
             <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['personal']"></i>
           </button>
           <div class="submenu-content pl-4 border-l-4 border-gray-200 ml-3" [class.open]="mobileSubmenus['personal']">
-            <a routerLink="/menu/personal" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Personal</a>
-            <a routerLink="/menu/asistencia" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Asistencia</a>
-            <a routerLink="/menu/turnos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Turnos</a>
+            <a *ngIf="canAccess('Personal')" routerLink="/menu/personal" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Personal</a>
+            <a *ngIf="canAccess('Asistencia')" routerLink="/menu/asistencia" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Asistencia</a>
+            <a *ngIf="canAccess('Turnos')" routerLink="/menu/turnos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Turnos</a>
           </div>
         </div>
 
-        <div *ngIf="permissionService.hasPermission('asignar_roles')">
+        <div *ngIf="canAccess('Usuarios') || canAccess('Clientes')">
           <button (click)="toggleMobileSubmenu('usuarios')" class="w-full flex justify-between items-center mobile-nav-link border-l-4 border-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 pl-3 pr-4 py-2 text-base font-medium">
             <span>Gestión de Usuarios</span>
             <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['usuarios']"></i>
           </button>
           <div class="submenu-content pl-4 border-l-4 border-gray-200 ml-3" [class.open]="mobileSubmenus['usuarios']">
-            <a routerLink="/menu/usuarios" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Usuarios</a>
-            <a routerLink="/menu/clientes" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Clientes</a>
-            </div>
+            <a *ngIf="canAccess('Usuarios')" routerLink="/menu/usuarios" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Usuarios</a>
+            <a *ngIf="canAccess('Clientes')" routerLink="/menu/clientes" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Clientes</a>
+            <a routerLink="/menu/pedidos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Pedidos</a>
+          </div>
         </div>
 
         <div>
@@ -109,15 +110,16 @@
             <i class="fas fa-chevron-down transition-transform duration-200" [class.rotate-180]="mobileSubmenus['reportes']"></i>
           </button>
           <div class="submenu-content pl-4 border-l-4 border-gray-200 ml-3" [class.open]="mobileSubmenus['reportes']">
-            <!-- Solo administradores pueden ver la bitácora -->
-            <a *ngIf="authService.isAdmin()" routerLink="/menu/bitacora" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Bitácora</a>
-            <!-- Solo administradores pueden gestionar permisos -->
-            <a *ngIf="authService.isAdmin()" routerLink="/menu/permisos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Permisos</a>
-            <a *ngIf="authService.isAdmin()" routerLink="/menu/asignar-permisos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Asignar Permisos</a>
-            <!-- Reportes visibles para todos los roles autorizados -->
-            <a routerLink="/menu/reporte-inventario" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-green-600 hover:bg-green-50 hover:text-green-900 block pl-3 pr-4 py-2 text-sm font-medium">Reporte de Inventario</a>
-            <a routerLink="/menu/reporte-produccion" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-blue-600 hover:bg-blue-50 hover:text-blue-900 block pl-3 pr-4 py-2 text-sm font-medium">Reporte de Producción</a>
-            <a routerLink="/menu/reporte-ventas" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-red-600 hover:bg-red-50 hover:text-red-900 block pl-3 pr-4 py-2 text-sm font-medium">Reporte de Ventas</a>
+            <!-- Bitácora visible si tiene permiso en BD o es admin -->
+            <a *ngIf="canAccess('Bitacora')" routerLink="/menu/bitacora" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Bitácora</a>
+            <!-- Permisos visible si tiene permiso en BD o es admin -->
+            <a *ngIf="canAccess('Permisos')" routerLink="/menu/permisos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Permisos</a>
+            <a *ngIf="canAccess('AsignarPermisos')" routerLink="/menu/asignar-permisos" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-600 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">Asignar Permisos</a>
+            <!-- Reportes visibles si tienen permiso -->
+            <!-- Reportes removidos: Inventario, Producción y Ventas -->
+            <a *ngIf="permissionService.hasPermission('ver_reportes')" routerLink="/menu/reportes-ia" routerLinkActive="bg-gray-100 text-gray-900" class="mobile-nav-link text-gray-700 hover:bg-gray-50 hover:text-gray-900 block pl-3 pr-4 py-2 text-sm font-medium">
+              <i class="fas fa-microphone mr-1"></i>Reportes IA (Voz)
+            </a>
           </div>
         </div>
 
@@ -149,31 +151,33 @@
         <a routerLink="/menu/dashboard" routerLinkActive="border-indigo-500 text-gray-900"
           class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium">Dashboard</a>
 
-        <div class="relative group" *ngIf="permissionService.hasPermission('gestionar_personal')">
+        <div class="relative group" *ngIf="canAccess('Personal') || canAccess('Asistencia') || canAccess('Turnos')">
           <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
             Gestión de Personal
             <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
           </div>
           <div class="absolute left-0 top-full mt-0 min-w-[12rem] rounded-md shadow-lg bg-white border border-gray-200 z-20 opacity-0 invisible scale-95 origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 transition-all duration-200">
             <!-- Gestión de Personal -->
-            <a routerLink="/menu/personal" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Personal</a>
-            <a routerLink="/menu/asistencia" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-350">Asistencia</a>
-            <a routerLink="/menu/turnos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-500">Turnos</a>
+            <a *ngIf="canAccess('Personal')" routerLink="/menu/personal" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Personal</a>
+            <a *ngIf="canAccess('Asistencia')" routerLink="/menu/asistencia" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-350">Asistencia</a>
+            <a *ngIf="canAccess('Turnos')" routerLink="/menu/turnos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-500">Turnos</a>
           </div>
         </div>
 
-        <div class="relative group" *ngIf="permissionService.hasPermission('asignar_roles')">
+        <div class="relative group" *ngIf="canAccess('Usuarios') || canAccess('Clientes')">
           <div class="nav-item desktop-nav-link border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 pb-2 border-b-2 text-sm font-medium cursor-pointer" aria-haspopup="true">
             Gestión de Usuarios
             <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
           </div>
           <div class="absolute left-0 top-full mt-0 min-w-[12rem] rounded-md shadow-lg bg-white border border-gray-200 z-20 opacity-0 invisible scale-95 origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 transition-all duration-200">
             
-            <a routerLink="/menu/usuarios" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Usuarios</a>
+            <a *ngIf="canAccess('Usuarios')" routerLink="/menu/usuarios" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Usuarios</a>
             
-            <a routerLink="/menu/clientes" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-350">Clientes</a>
+            <a *ngIf="canAccess('Clientes')" routerLink="/menu/clientes" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-350">Clientes</a>
             
-            </div>
+            <a routerLink="/menu/pedidos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-400">Pedidos</a>
+            
+          </div>
         </div>
 
         <div class="relative group">
@@ -205,15 +209,16 @@
             <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
           </div>
           <div class="absolute left-0 top-full mt-0 min-w-[12rem] rounded-md shadow-lg bg-white border border-gray-200 z-20 opacity-0 invisible scale-95 origin-top group-hover:opacity-100 group-hover:visible group-hover:scale-100 transition-all duration-200">
-            <!-- Solo administradores pueden ver la bitácora -->
-            <a *ngIf="authService.isAdmin()" routerLink="/menu/bitacora" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Bitácora</a>
-            <!-- Solo administradores pueden gestionar permisos -->
-            <a *ngIf="authService.isAdmin()" routerLink="/menu/permisos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-400">Permisos</a>
-            <a *ngIf="authService.isAdmin()" routerLink="/menu/asignar-permisos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-450">Asignar Permisos</a>
-            <!-- Reportes visibles para supervisores y administradores -->
-            <a *ngIf="authService.hasAnyRole(['Administrador', 'Supervisor'])" routerLink="/menu/reporte-inventario" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-500">Reporte de Inventario</a>
-            <a *ngIf="authService.hasAnyRole(['Administrador', 'Supervisor'])" routerLink="/menu/reporte-produccion" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-550">Reporte de Producción</a>
-            <a *ngIf="authService.hasAnyRole(['Administrador', 'Supervisor'])" routerLink="/menu/reporte-ventas" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-600">Reporte de Ventas</a>
+            <!-- Bitácora visible si tiene permiso en BD o es admin -->
+            <a *ngIf="canAccess('Bitacora')" routerLink="/menu/bitacora" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition rounded-t-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-300">Bitácora</a>
+            <!-- Permisos visible si tiene permiso en BD o es admin -->
+            <a *ngIf="canAccess('Permisos')" routerLink="/menu/permisos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-400">Permisos</a>
+            <a *ngIf="canAccess('AsignarPermisos')" routerLink="/menu/asignar-permisos" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-450">Asignar Permisos</a>
+            <!-- Reportes visibles si tienen permiso -->
+            <!-- Reportes removidos: Inventario, Producción y Ventas -->
+            <a *ngIf="permissionService.hasPermission('ver_reportes')" routerLink="/menu/reportes-ia" routerLinkActive="bg-gray-50 text-gray-900" class="block px-4 py-2.5 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition rounded-b-md transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 duration-650">
+              <i class="fas fa-microphone mr-1"></i>Reportes IA (Voz)
+            </a>
           </div>
         </div>
       </div>

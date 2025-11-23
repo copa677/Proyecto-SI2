@@ -27,6 +27,27 @@ type FormUsuario = Partial<ViewUsuario> & {
   styleUrls: ['./usuarios.component.css']
 })
 export class UsuariosComponent implements OnInit {
+  // Backup inmediato desde el modal
+  doBackupNow(): void {
+    this.brService.generarBackup().subscribe({
+      next: (blob: Blob) => {
+        // Crear enlace de descarga
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `backup_${new Date().toISOString().split('T')[0]}.dump`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        
+        this.toastr.success('Backup generado y descargado exitosamente.', 'Backup Completado');
+        this.closeBackupModal();
+      },
+      error: (err) => {
+        console.error('❌ Error al generar backup:', err);
+        this.toastr.error('No se pudo generar el backup', 'Error');
+      }
+    });
+  }
   // filtros/búsqueda
   busqueda = '';
   filtroEstado: '' | 'Activo' | 'Inactivo' = '';
@@ -45,6 +66,65 @@ export class UsuariosComponent implements OnInit {
   form: FormUsuario = { nombre: '', email: '', password: '', estado: 'Activo', tipo: 'empleado' };
 
   loading = false;
+
+  // Modal de backup programado
+  showBackupModal = false;
+  backupDateTime: string = '';
+  backupTipo: string = 'fecha';
+  backupIntervalo: number = 6;
+  
+  // Abrir modal de backup
+  openBackupModal(): void {
+    this.showBackupModal = true;
+    this.backupDateTime = '';
+    this.backupTipo = 'fecha';
+    this.backupIntervalo = 6;
+  }
+
+  // Cerrar modal de backup
+  closeBackupModal(): void {
+    this.showBackupModal = false;
+    this.backupDateTime = '';
+  }
+
+  // Programar backup
+  scheduleBackup(): void {
+    if (this.backupTipo === 'fecha') {
+      if (!this.backupDateTime) {
+        this.toastr.warning('Por favor, selecciona una fecha y hora.', 'Atención');
+        return;
+      }
+      const fechaLocal = new Date(this.backupDateTime);
+      const fechaUTC = fechaLocal.toISOString();
+      
+      this.brService.programarBackup('fecha', fechaUTC).subscribe({
+        next: (res) => {
+          this.toastr.success(res.mensaje || 'Backup programado correctamente', 'Programado');
+          this.closeBackupModal();
+        },
+        error: (err) => {
+          console.error('❌ Error al programar backup:', err);
+          this.toastr.error(err.error?.error || 'No se pudo programar el backup', 'Error');
+        }
+      });
+    } else if (this.backupTipo === 'intervalo') {
+      if (!this.backupIntervalo || this.backupIntervalo < 1) {
+        this.toastr.warning('Por favor, ingresa un intervalo válido (mínimo 1 hora).', 'Atención');
+        return;
+      }
+      
+      this.brService.programarBackup('intervalo', undefined, this.backupIntervalo).subscribe({
+        next: (res) => {
+          this.toastr.success(res.mensaje || 'Backup programado correctamente', 'Programado');
+          this.closeBackupModal();
+        },
+        error: (err) => {
+          console.error('❌ Error al programar backup:', err);
+          this.toastr.error(err.error?.error || 'No se pudo programar el backup', 'Error');
+        }
+      });
+    }
+  }
 
   constructor(
     private api: LoginService,

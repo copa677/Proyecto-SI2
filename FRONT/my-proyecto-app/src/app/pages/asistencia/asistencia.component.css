@@ -1,51 +1,39 @@
-/* Animaciones/visibilidad */
-.page-transition { opacity: 0; transition: opacity 0.3s ease-in-out; }
-.page-visible   { opacity: 1; }
+.page-transition { @apply opacity-0 transition-opacity duration-300 ease-in-out; }
+.page-visible   { @apply opacity-100; }
 
-/* Etiquetas usadas también en otras pantallas (local a este componente) */
 .logo-text {
-  background: linear-gradient(90deg, #2563eb, #4f46e5);
-  -webkit-text-fill-color: transparent;
+  @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text;
 }
 
-.nav-item { transition: all 0.2s; }
-.nav-item:hover { transform: translateY(-2px); }
+.nav-item { @apply transition-all duration-200; }
+.nav-item:hover { @apply transform -translate-y-0.5; }
 
 .btn-primary {
-  transition: all 0.2s;
-  background-image: linear-gradient(to right, #2563eb, #4f46e5);
-  color: #fff;
+  @apply transition-all duration-200 bg-gradient-to-r from-blue-600 to-indigo-600 text-white;
 }
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),
-              0 2px 4px -1px rgba(0,0,0,0.06);
+  @apply transform -translate-y-px shadow-lg;
 }
 
 .form-input {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  outline: none;
+  @apply py-2 px-3 border border-gray-300 rounded-lg outline-none;
 }
 .form-input:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  @apply border-indigo-600 ring-2 ring-indigo-500 outline-none;
 }
 
-.table-row:hover { background-color: rgba(79, 70, 229, 0.05); }
+.table-row:hover { @apply bg-indigo-50; }
 
 /* Modal */
 .modal-backdrop {
-  background-color: rgba(0,0,0,0.5);
+  @apply bg-black bg-opacity-50;
 }
 .modal-content {
-  transform: scale(0.98);
-  opacity: 1;
+  @apply transform scale-95 opacity-100;
 }
 
 /* Badges por estado (colores los pone TS con [ngClass]) */
-.badge-presente  { background: #dcfce7; color: #166534; } /* verde */
-.badge-ausente   { background: #fee2e2; color: #991b1b; } /* rojo */
-.badge-tarde     { background: #fef9c3; color: #854d0e; } /* amarillo */
-.badge-licencia  { background: #e0e7ff; color: #3730a3; } /* índigo */
+.badge-presente  { @apply bg-green-100 text-green-800; } /* verde */
+.badge-ausente   { @apply bg-red-100 text-red-800; } /* rojo */
+.badge-tarde     { @apply bg-yellow-100 text-yellow-800; } /* amarillo */
+.badge-licencia  { @apply bg-indigo-100 text-indigo-800; } /* índigo */

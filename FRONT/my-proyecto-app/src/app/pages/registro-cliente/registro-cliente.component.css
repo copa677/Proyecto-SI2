@@ -1,0 +1,217 @@
+/* Grid para el formulario horizontal */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px 24px;
+}
+
+@media (min-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Para que el botón y los textos ocupen toda la fila */
+.btn, .footer, .info-text {
+  grid-column: 1 / -1;
+}
+/* Fondo y centrado de la tarjeta */
+.page {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #f3f4f6; /* gris claro */
+}
+
+/* Tarjeta */
+
+.card {
+  width: 100%;
+  max-width: 720px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px 36px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Encabezado */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 8px 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Logo */
+.logo {
+  display: block;
+  height: 64px;
+  max-width: 100%;
+  margin: 0 auto 8px;
+  object-fit: contain;
+}
+
+/* Campos */
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #111827;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  transform: scale(1.01);
+  transition: all 0.3s ease;
+}
+
+/* Campo de contraseña con icono */
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+
+.password-field input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+}
+
+.password-toggle:hover {
+  color: #2563eb;
+}
+
+/* Botón */
+.btn {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn i {
+  margin-right: 8px;
+}
+
+/* Pie */
+.footer {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.footer a {
+  font-weight: 700;
+  font-size: 13px;
+  color: #2563eb;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer a:hover {
+  color: #1d4ed8;
+}
+
+/* Texto informativo */
+.info-text {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.info-text p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Asterisco rojo */
+.text-red-500 {
+  color: #ef4444;
+}
+
+/* Animación de entrada */
+#registro-screen {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos para campos con error */
+input.ng-invalid.ng-touched {
+  border-color: #ef4444;
+}

@@ -1,8 +1,7 @@
-
 /* Unificar estilos con Lotes y Bitácora */
 .btn-primary {
   transition: all 0.2s;
-  background-image: linear-gradient(to right, #2563eb, #4f46e5);
+  background-image: #4f46e5;
   color: #fff;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;

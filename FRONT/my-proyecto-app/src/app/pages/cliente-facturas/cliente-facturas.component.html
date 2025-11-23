@@ -1,0 +1,272 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header Navegación -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-indigo-600">📄 Mis Facturas</h1>
+          <p class="text-sm text-gray-600">Gestiona tus pagos y facturas</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button 
+            (click)="irATienda()"
+            class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-all">
+            <i class="fas fa-store mr-2"></i>
+            Tienda
+          </button>
+          <button 
+            (click)="irADashboard()"
+            class="inline-flex items-center px-4 py-2 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-all">
+            <i class="fas fa-chart-line mr-2"></i>
+            Panel
+          </button>
+          <button 
+            (click)="irACarrito()"
+            class="inline-flex items-center px-4 py-2 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-all">
+            <i class="fas fa-shopping-cart mr-2"></i>
+            Carrito
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Header -->
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <button 
+            (click)="volverDashboard()"
+            class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left text-xl"></i>
+          </button>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Mis Facturas</h1>
+            <p class="text-sm text-gray-600">Gestiona tus pagos y facturas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="cargando" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" *ngIf="!cargando">
+    
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      
+      <!-- Total Pendiente -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <i class="fas fa-exclamation-circle text-yellow-500 text-3xl"></i>
+            </div>
+            <div class="ml-4">
+              <p class="text-sm font-medium text-gray-500 truncate">
+                Total Pendiente
+              </p>
+              <p class="text-3xl font-bold text-yellow-600">
+                Bs {{ totalPendiente | number:'1.2-2' }}
+              </p>
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-sm text-gray-600">
+              {{ facturasPendientes }} {{ facturasPendientes === 1 ? 'factura' : 'facturas' }} pendientes
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Pagado -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <i class="fas fa-check-circle text-green-500 text-3xl"></i>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Total Pagado
+                </dt>
+                <dd class="flex items-baseline">
+                  <div class="text-2xl font-semibold text-gray-900">
+                    Bs {{ totalPagado | number:'1.2-2' }}
+                  </div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-sm text-gray-600">
+              En lo que va del año
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Facturas -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <i class="fas fa-file-invoice text-indigo-500 text-3xl"></i>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Total Facturas
+                </dt>
+                <dd class="flex items-baseline">
+                  <div class="text-2xl font-semibold text-gray-900">
+                    {{ facturas.length }}
+                  </div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+          <div class="mt-3">
+            <p class="text-sm text-gray-600">
+              Historial completo
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white shadow rounded-lg p-4 mb-6">
+      <div class="flex items-center space-x-4">
+        <label class="text-sm font-medium text-gray-700">Filtrar por estado:</label>
+        <div class="flex space-x-2">
+          <button 
+            *ngFor="let estado of estadosFiltro"
+            (click)="filtroEstado = estado.value"
+            [class.bg-indigo-600]="filtroEstado === estado.value"
+            [class.text-white]="filtroEstado === estado.value"
+            [class.bg-gray-200]="filtroEstado !== estado.value"
+            [class.text-gray-700]="filtroEstado !== estado.value"
+            class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
+            {{ estado.label }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Facturas -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Historial de Facturas</h2>
+      </div>
+      
+      <div *ngIf="facturasFiltradas.length === 0" class="text-center py-12">
+        <i class="fas fa-file-invoice text-gray-400 text-6xl mb-4"></i>
+        <p class="text-gray-500 text-lg">No se encontraron facturas</p>
+        <p class="text-gray-400 text-sm mt-2">
+          {{ filtroEstado !== 'todas' ? 'Intenta con otro filtro' : 'Aún no tienes facturas generadas' }}
+        </p>
+      </div>
+
+      <div *ngIf="facturasFiltradas.length > 0" class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nº Factura</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pedido</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Emisión</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vencimiento</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método Pago</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let factura of facturasFiltradas" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ factura.numero_factura }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button 
+                  (click)="verDetallePedido(factura)"
+                  class="text-indigo-600 hover:text-indigo-900">
+                  #{{ factura.id_pedido }}
+                </button>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ factura.fecha_emision | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ factura.fecha_vencimiento | date:'dd/MM/yyyy' }}</div>
+                <div *ngIf="factura.estado_pago === 'pendiente' && !estaVencida(factura)" class="text-xs text-gray-500">
+                  {{ diasParaVencer(factura) }} días restantes
+                </div>
+                <div *ngIf="estaVencida(factura)" class="text-xs text-red-600 font-semibold">
+                  ¡Vencida!
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                Bs {{ factura.monto_total | number:'1.2-2' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span [ngClass]="getEstadoClase(factura.estado_pago)" 
+                      class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                  {{ getEstadoTexto(factura.estado_pago) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ getMetodoPagoTexto(factura.metodo_pago) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm space-x-3">
+                <button 
+                  (click)="descargarFactura(factura)"
+                  class="text-blue-600 hover:text-blue-900"
+                  title="Descargar PDF">
+                  <i class="fas fa-download"></i>
+                </button>
+                <button 
+                  *ngIf="factura.estado_pago === 'pendiente'"
+                  (click)="pagarFactura(factura)"
+                  class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                  title="Pagar ahora">
+                  <i class="fas fa-credit-card mr-1"></i> Pagar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Información de pago seguro -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-shield-alt text-blue-600 text-2xl"></i>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-lg font-semibold text-blue-900 mb-2">Pago Seguro con Stripe</h3>
+          <p class="text-sm text-blue-800">
+            Todos los pagos se procesan de forma segura mediante Stripe. Aceptamos tarjetas de crédito y débito. 
+            Tus datos financieros están protegidos con encriptación de nivel bancario.
+          </p>
+          <div class="mt-3 flex items-center space-x-4 text-xs text-blue-700">
+            <span><i class="fas fa-lock mr-1"></i> Conexión Segura SSL</span>
+            <span><i class="fas fa-credit-card mr-1"></i> Visa, Mastercard, Amex</span>
+            <span><i class="fas fa-undo mr-1"></i> Política de reembolso disponible</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

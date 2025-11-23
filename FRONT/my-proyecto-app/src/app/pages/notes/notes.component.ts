@@ -65,11 +65,18 @@ export class NotesComponent {
         const tipo_usuario = response?.tipo_usuario || 'Usuario';
         const name_user = response?.name_user || this.username.trim();
         const email = response?.email || '';
+        const rol = response?.rol || tipo_usuario; // El rol real del usuario
+        const id_cliente = response?.id_cliente; // ID del cliente si es de tipo cliente
         
-        this.authService.setUserData(token, tipo_usuario, name_user, email);
+        this.authService.setUserData(token, tipo_usuario, name_user, email, rol);
         
         // También mantener compatibilidad con código existente
         localStorage.setItem('username', name_user);
+        
+        // Si es cliente, guardar el id_cliente
+        if (tipo_usuario.toLowerCase() === 'cliente' && id_cliente) {
+          localStorage.setItem('id_cliente', id_cliente.toString());
+        }
         
         // Registrar en bitácora el inicio de sesión
         this.bitacoraService.registrarAccion(
@@ -84,7 +91,13 @@ export class NotesComponent {
           positionClass: 'toast-bottom-right',
           timeOut: 2000,
         });
-        this.router.navigate(['/menu/dashboard']);
+
+        // Redirigir según el tipo de usuario
+        if (tipo_usuario.toLowerCase() === 'cliente') {
+          this.router.navigate(['/cliente/tienda']); // Redirige a la tienda/catálogo
+        } else {
+          this.router.navigate(['/menu/dashboard']);
+        }
       },
       error: (e: HttpErrorResponse) => {
         const detail =

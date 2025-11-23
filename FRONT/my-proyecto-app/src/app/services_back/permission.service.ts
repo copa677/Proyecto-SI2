@@ -31,7 +31,8 @@ const ROLE_PERMISSIONS = {
     'agregar_calidad',
     'ver_trazabilidad',
     'ver_notificaciones',
-    'asignar_roles'
+    'asignar_roles',
+    'ver_reportes'
   ],
   'Operario': [
     'ver_inventario',
@@ -43,6 +44,27 @@ const ROLE_PERMISSIONS = {
     'ver_trazabilidad',
     'ver_notificaciones'
   ]
+};
+
+// Mapeo de páginas a permisos
+const PAGE_PERMISSIONS: { [key: string]: string } = {
+  'bitacora': 'ver_bitacora',
+  'permisos': 'gestionar_permisos',
+  'asignar-permisos': 'asignar_permisos',
+  'usuarios': 'gestionar_usuarios',
+  'clientes': 'gestionar_clientes',
+  'personal': 'gestionar_personal',
+  'asistencia': 'gestionar_asistencia',
+  'turnos': 'gestionar_turnos',
+  'inventario': 'ver_inventario',
+  'lotes': 'ver_lotes',
+  'ordenproduccion': 'ver_ordenes',
+  'trazabilidad': 'ver_trazabilidad',
+  'control-calidad': 'ver_calidad',
+  'nota-salida': 'gestionar_notas_salida',
+  'reporte-inventario': 'ver_reportes',
+  'reporte-produccion': 'ver_reportes',
+  'reporte-ventas': 'ver_reportes'
 };
 
 @Injectable({
@@ -93,8 +115,11 @@ export class PermissionService {
    * Verifica si el usuario tiene un permiso basado en ROL (sistema predeterminado)
    */
   hasRolePermission(permission: string): boolean {
-    const role = this.userRole$.value;
+    const role = localStorage.getItem('userRole') || this.userRole$.value;
     if (!role) return false;
+
+    // Administrador tiene todos los permisos
+    if (role === 'Administrador' || role === 'admin') return true;
 
     const rolePerms = ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || [];
     return rolePerms.includes('all') || rolePerms.includes(permission);
@@ -105,6 +130,23 @@ export class PermissionService {
    */
   hasPermission(permission: string): boolean {
     return this.hasRolePermission(permission);
+  }
+
+  /**
+   * Obtiene el permiso requerido para una página específica
+   */
+  getPagePermission(pageName: string): string | null {
+    return PAGE_PERMISSIONS[pageName] || null;
+  }
+
+  /**
+   * Verifica si el usuario puede acceder a una página específica
+   */
+  canAccessPage(pageName: string): boolean {
+    const permission = this.getPagePermission(pageName);
+    if (!permission) return true; // Si no hay permiso definido, permitir acceso
+
+    return this.hasPermission(permission);
   }
 
   /**
@@ -130,8 +172,9 @@ export class PermissionService {
    * Verifica si el usuario puede realizar una acción en una ventana específica
    */
   puedeRealizarAccion(username: string, ventana: string, accion: 'insertar' | 'editar' | 'eliminar' | 'ver'): Observable<boolean> {
-    // Si es admin, puede todo
-    if (this.getUserRole() === 'admin') {
+    // Si es admin o Administrador, puede todo
+    const role = localStorage.getItem('userRole') || this.getUserRole();
+    if (role === 'admin' || role === 'Administrador') {
       return of(true);
     }
 

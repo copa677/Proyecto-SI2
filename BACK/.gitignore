@@ -9,6 +9,9 @@ __pycache__/
 
 # Evitar subir entornos virtuales
 venv/
+.env
+*.env
+BACK/.env
 
 # Archivos de base de datos locales
 *.sqlite3

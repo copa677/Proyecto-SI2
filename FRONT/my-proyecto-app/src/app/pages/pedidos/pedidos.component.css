@@ -1,0 +1,39 @@
+.badge-warning {
+  @apply bg-yellow-400 text-black;
+}
+
+.badge-info {
+  @apply bg-blue-400 text-white;
+}
+
+.badge-primary {
+  @apply bg-blue-500 text-white;
+}
+
+.badge-success {
+  @apply bg-green-500 text-white;
+}
+
+.badge-danger {
+  @apply bg-red-500 text-white;
+}
+
+.badge-secondary {
+  @apply bg-gray-500 text-white;
+}
+
+.card {
+  @apply shadow-md rounded-lg;
+}
+
+.card-header {
+  @apply bg-gray-50 border-b-2 border-gray-200 px-6 py-4;
+}
+
+.table-hover tbody tr:hover {
+  @apply bg-gray-100;
+}
+
+.btn-group-sm > .btn {
+  @apply px-2 py-1 text-sm;
+}

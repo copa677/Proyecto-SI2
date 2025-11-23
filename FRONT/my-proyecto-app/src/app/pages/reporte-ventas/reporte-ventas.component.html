@@ -28,13 +28,13 @@
       <form [formGroup]="filtroForm" (ngSubmit)="generarReporte()">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="lg:col-span-1">
-            <label for="lote" class="block text-sm font-medium text-gray-700">Código de Lote</label>
-            <input type="text" id="lote" formControlName="lote" placeholder="Ej: LOTE-2025-10-A"
+            <label for="fechaInicio" class="block text-sm font-medium text-gray-700">Fecha Inicio</label>
+            <input type="date" id="fechaInicio" formControlName="fechaInicio"
               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
           <div class="lg:col-span-1">
-            <label for="cliente" class="block text-sm font-medium text-gray-700">Cliente / Usuario</label>
-            <input type="text" id="cliente" formControlName="cliente" placeholder="Ej: Tienda ABC"
+            <label for="fechaFin" class="block text-sm font-medium text-gray-700">Fecha Fin</label>
+            <input type="date" id="fechaFin" formControlName="fechaFin"
               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
           </div>
           <div class="flex items-end gap-2 lg:col-span-2">
@@ -68,27 +68,27 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Venta</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Salida</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsable</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto/Material</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lote Asociado</th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Total</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr *ngFor="let item of reporteVentas" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ item.id_venta }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.fecha_venta | date:'dd/MM/yyyy' }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.cliente }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ item.id_salida }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.fecha_salida | date:'dd/MM/yyyy' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.responsable }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.producto }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">{{ item.lote_asociado }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ item.cantidad | number }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-semibold">{{ item.precio_total | currency:'USD':'symbol':'1.2-2' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.estado }}</td>
             </tr>
             <tr *ngIf="reporteVentas.length === 0">
-              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay datos de ventas para los filtros seleccionados.</td>
+              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay datos de salidas para los filtros seleccionados.</td>
             </tr>
           </tbody>
         </table>

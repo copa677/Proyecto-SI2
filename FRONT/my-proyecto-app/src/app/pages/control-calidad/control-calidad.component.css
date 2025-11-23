@@ -1,15 +1,14 @@
-/* Estilos personalizados para el componente de control de calidad */
 .hover\:bg-gray-50:hover {
-  transition: background-color 0.2s ease-in-out;
+  @apply transition-colors duration-200 ease-in-out;
 }
 
 button {
-  transition: all 0.2s ease-in-out;
+  @apply transition-all duration-200 ease-in-out;
 }
 
 /* Animación para el modal */
 .fixed.z-10 {
-  animation: fadeIn 0.2s ease-in-out;
+  @apply animate-fadeIn;
 }
 
 @keyframes fadeIn {
@@ -25,10 +24,5 @@ button {
 input:focus,
 textarea:focus,
 select:focus {
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-/* Truncate text en observaciones */
-.max-w-xs {
-  max-width: 20rem;
+  @apply shadow-outline-indigo;
 }

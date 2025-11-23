@@ -23,6 +23,9 @@ export class MenuComponent implements OnInit {
     reportes: false
   };
 
+  // Permisos dinámicos desde la base de datos para todas las ventanas
+  pagePermissions: { [key: string]: boolean } = {};
+
   constructor(
     private login: LoginService,
     private bitacoraService: BitacoraService,
@@ -41,6 +44,42 @@ export class MenuComponent implements OnInit {
     // Inicializar el rol en el servicio de permisos usando AuthService
     const role = this.authService.getUserRole() || this.login.getRoleFromToken();
     this.permissionService.setUserRole(role ?? '');
+
+    // Cargar permisos dinámicos desde la base de datos
+    this.loadPermissions();
+  }
+
+  loadPermissions(): void {
+    const username = this.userName;
+
+    // Si es admin, tiene todos los permisos
+    if (this.authService.isAdmin()) {
+      const allPages = [
+        'Bitacora', 'Permisos', 'AsignarPermisos', 'Usuarios', 'Clientes',
+        'Personal', 'Asistencia', 'Turnos', 'Inventario', 'Lotes',
+        'OrdenProduccion', 'Trazabilidad', 'ControlCalidad', 'NotaSalida'
+      ];
+      allPages.forEach(page => this.pagePermissions[page] = true);
+      return;
+    }
+
+    // Cargar permisos de todas las ventanas desde la BD
+    const ventanas = [
+      'Bitacora', 'Permisos', 'AsignarPermisos', 'Usuarios', 'Clientes',
+      'Personal', 'Asistencia', 'Turnos', 'Inventario', 'Lotes',
+      'OrdenProduccion', 'Trazabilidad', 'ControlCalidad', 'NotaSalida'
+    ];
+
+    ventanas.forEach(ventana => {
+      this.permissionService.puedeRealizarAccion(username, ventana, 'ver').subscribe(
+        canAccess => this.pagePermissions[ventana] = canAccess
+      );
+    });
+  }
+
+  // Método helper para verificar permisos en el template
+  canAccess(ventana: string): boolean {
+    return this.pagePermissions[ventana] || false;
   }
 
   toggleMenu() { this.showMenu = !this.showMenu; }

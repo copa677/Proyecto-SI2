@@ -9,9 +9,10 @@ export class AuthService {
   constructor() { }
 
   // Guardar información del usuario al iniciar sesión
-  setUserData(token: string, tipo_usuario: string, name_user: string, email: string): void {
+  setUserData(token: string, tipo_usuario: string, name_user: string, email: string, rol?: string): void {
     localStorage.setItem('token', token);
-    localStorage.setItem('userRole', tipo_usuario);
+    localStorage.setItem('userRole', rol || tipo_usuario); // Usar el rol real si está disponible
+    localStorage.setItem('tipoUsuario', tipo_usuario); // Guardar también el tipo base
     localStorage.setItem('userName', name_user);
     localStorage.setItem('userEmail', email);
   }
@@ -56,13 +57,15 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('tipoUsuario');
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
   }
 
-  // Verificar si es administrador
+  // Verificar si es administrador (acepta 'admin' y 'Administrador')
   isAdmin(): boolean {
-    return this.getUserRole() === 'Administrador';
+    const role = this.getUserRole();
+    return role === 'Administrador' || role === 'admin';
   }
 
   // Verificar si es operario
