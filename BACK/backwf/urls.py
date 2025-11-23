@@ -17,4 +17,10 @@ urlpatterns = [
     path('api/notasalida/', include('NotaSalida.urls')),
     path('api/br/', include('BR.urls')),
     path('api/clientes/', include('Clientes.urls')),
+    path('api/dashboard/', include('dashboard.urls')),
+    path('api/reportes/', include('Reportes.urls')),
+    path('api/precios/', include('Precios.urls')),
+    path('api/pedidos/', include('Pedidos.urls')),
+    path('api/facturas/', include('Facturas.urls')),
+    path('api/predicciones/', include('predicciones.urls')),
 ]

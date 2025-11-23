@@ -1,0 +1,451 @@
+📋 EJEMPLOS COMPLETOS - APP PEDIDOS
+=============================================
+
+BASE URL: http://localhost:8000/api/pedidos/
+
+=============================================
+🆕 CREAR PEDIDO
+=============================================
+URL: POST /api/pedidos/pedidos/crear/
+
+Ejemplo cURL:
+curl -X POST http://localhost:8000/api/pedidos/pedidos/crear/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fecha_entrega_prometida": "2024-12-30",
+    "estado": "cotizacion",
+    "id_cliente": 1,
+    "observaciones": "Pedido para evento corporativo"
+  }'
+
+Datos requeridos:
+{
+    "fecha_entrega_prometida": "YYYY-MM-DD",
+    "estado": "cotizacion|confirmado|en_produccion|completado|entregado|cancelado",
+    "id_cliente": integer,
+    "observaciones": "string (opcional)"
+}
+
+Respuesta esperada:
+{
+  "id_pedido": 1,
+  "cod_pedido": "PED-A1B2C3D4",
+  "fecha_pedido": "2024-01-15T10:30:00Z",
+  "fecha_entrega_prometida": "2024-12-30",
+  "estado": "cotizacion",
+  "id_cliente": 1,
+  "total": "0.00",
+  "observaciones": "Pedido para evento corporativo",
+  "fecha_creacion": "2024-01-15"
+}
+
+=============================================
+📋 LISTAR PEDIDOS ACTIVOS
+=============================================
+URL: GET /api/pedidos/pedidos/listar/
+
+Ejemplo cURL:
+curl -X GET http://localhost:8000/api/pedidos/pedidos/listar/
+
+Respuesta esperada:
+[
+  {
+    "id_pedido": 1,
+    "cod_pedido": "PED-A1B2C3D4",
+    "fecha_pedido": "2024-01-15T10:30:00Z",
+    "fecha_entrega_prometida": "2024-12-30",
+    "estado": "cotizacion",
+    "id_cliente": 1,
+    "total": "245.50",
+    "observaciones": "Pedido para evento corporativo",
+    "fecha_creacion": "2024-01-15"
+  },
+  {
+    "id_pedido": 2,
+    "cod_pedido": "PED-E5F6G7H8",
+    "fecha_pedido": "2024-01-16T14:20:00Z",
+    "fecha_entrega_prometida": "2024-12-25",
+    "estado": "confirmado",
+    "id_cliente": 2,
+    "total": "180.75",
+    "observaciones": "",
+    "fecha_creacion": "2024-01-16"
+  }
+]
+
+=============================================
+📋 LISTAR TODOS LOS PEDIDOS (INCLUYENDO CANCELADOS)
+=============================================
+URL: GET /api/pedidos/pedidos/listar-todos/
+
+Ejemplo cURL:
+curl -X GET http://localhost:8000/api/pedidos/pedidos/listar-todos/
+
+Respuesta esperada:
+[
+  {
+    "id_pedido": 1,
+    "cod_pedido": "PED-A1B2C3D4",
+    "estado": "cotizacion",
+    "total": "245.50",
+    "id_cliente": 1
+  },
+  {
+    "id_pedido": 3,
+    "cod_pedido": "PED-I9J0K1L2",
+    "estado": "cancelado",
+    "total": "0.00",
+    "id_cliente": 3
+  }
+]
+
+=============================================
+🔍 OBTENER PEDIDO ESPECÍFICO
+=============================================
+URL: GET /api/pedidos/pedidos/obtener/1/
+
+Ejemplo cURL:
+curl -X GET http://localhost:8000/api/pedidos/pedidos/obtener/1/
+
+Respuesta esperada:
+{
+  "id_pedido": 1,
+  "cod_pedido": "PED-A1B2C3D4",
+  "fecha_pedido": "2024-01-15T10:30:00Z",
+  "fecha_entrega_prometida": "2024-12-30",
+  "estado": "cotizacion",
+  "id_cliente": 1,
+  "total": "245.50",
+  "observaciones": "Pedido para evento corporativo",
+  "fecha_creacion": "2024-01-15"
+}
+
+=============================================
+✏️ ACTUALIZAR PEDIDO
+=============================================
+URL: PUT /api/pedidos/pedidos/actualizar/1/
+
+Ejemplo cURL:
+curl -X PUT http://localhost:8000/api/pedidos/pedidos/actualizar/1/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fecha_entrega_prometida": "2024-12-28",
+    "estado": "confirmado",
+    "observaciones": "Pedido confirmado - urgencia por evento"
+  }'
+
+Datos que se pueden actualizar:
+{
+    "fecha_entrega_prometida": "YYYY-MM-DD",
+    "estado": "cotizacion|confirmado|en_produccion|completado|entregado|cancelado",
+    "id_cliente": integer,
+    "observaciones": "string"
+}
+
+Respuesta esperada:
+{
+  "id_pedido": 1,
+  "cod_pedido": "PED-A1B2C3D4",
+  "fecha_pedido": "2024-01-15T10:30:00Z",
+  "fecha_entrega_prometida": "2024-12-28",
+  "estado": "confirmado",
+  "id_cliente": 1,
+  "total": "245.50",
+  "observaciones": "Pedido confirmado - urgencia por evento",
+  "fecha_creacion": "2024-01-15"
+}
+
+=============================================
+🗑️ ELIMINAR PEDIDO (CANCELAR)
+=============================================
+URL: DELETE /api/pedidos/pedidos/eliminar/1/
+
+Ejemplo cURL:
+curl -X DELETE http://localhost:8000/api/pedidos/pedidos/eliminar/1/
+
+Respuesta esperada:
+{
+  "message": "Pedido cancelado correctamente"
+}
+
+=============================================
+🆕 CREAR DETALLE PEDIDO
+=============================================
+URL: POST /api/pedidos/detalles/crear/
+
+Ejemplo cURL:
+curl -X POST http://localhost:8000/api/pedidos/detalles/crear/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id_pedido": 1,
+    "tipo_prenda": "polera",
+    "cuello": "cuello V",
+    "manga": "manga corta",
+    "color": "Azul marino",
+    "talla": "M",
+    "material": "Algodón 100%",
+    "cantidad": 10
+  }'
+
+Datos requeridos:
+{
+    "id_pedido": integer,
+    "tipo_prenda": "polera|camisa",
+    "cuello": "string",
+    "manga": "string",
+    "color": "string",
+    "talla": "string",
+    "material": "string",
+    "cantidad": integer
+}
+
+Respuesta esperada:
+{
+  "id_detalle": 1,
+  "id_pedido": 1,
+  "tipo_prenda": "polera",
+  "cuello": "cuello V",
+  "manga": "manga corta",
+  "color": "Azul marino",
+  "talla": "M",
+  "material": "Algodón 100%",
+  "cantidad": 10,
+  "precio_unitario": "22.50",
+  "subtotal": "225.00"
+}
+
+=============================================
+📋 LISTAR DETALLES DE UN PEDIDO
+=============================================
+URL: GET /api/pedidos/detalles/listar/1/
+
+Ejemplo cURL:
+curl -X GET http://localhost:8000/api/pedidos/detalles/listar/1/
+
+Respuesta esperada:
+[
+  {
+    "id_detalle": 1,
+    "id_pedido": 1,
+    "tipo_prenda": "polera",
+    "cuello": "cuello V",
+    "manga": "manga corta",
+    "color": "Azul marino",
+    "talla": "M",
+    "material": "Algodón 100%",
+    "cantidad": 10,
+    "precio_unitario": "22.50",
+    "subtotal": "225.00"
+  },
+  {
+    "id_detalle": 2,
+    "id_pedido": 1,
+    "tipo_prenda": "camisa",
+    "cuello": "cuello con botones",
+    "manga": "manga larga",
+    "color": "Blanco",
+    "talla": "L",
+    "material": "Popelina",
+    "cantidad": 5,
+    "precio_unitario": "45.00",
+    "subtotal": "225.00"
+  }
+]
+
+=============================================
+🔍 OBTENER DETALLE ESPECÍFICO
+=============================================
+URL: GET /api/pedidos/detalles/obtener/1/
+
+Ejemplo cURL:
+curl -X GET http://localhost:8000/api/pedidos/detalles/obtener/1/
+
+Respuesta esperada:
+{
+  "id_detalle": 1,
+  "id_pedido": 1,
+  "tipo_prenda": "polera",
+  "cuello": "cuello V",
+  "manga": "manga corta",
+  "color": "Azul marino",
+  "talla": "M",
+  "material": "Algodón 100%",
+  "cantidad": 10,
+  "precio_unitario": "22.50",
+  "subtotal": "225.00"
+}
+
+=============================================
+✏️ ACTUALIZAR DETALLE PEDIDO
+=============================================
+URL: PUT /api/pedidos/detalles/actualizar/1/
+
+Ejemplo cURL:
+curl -X PUT http://localhost:8000/api/pedidos/detalles/actualizar/1/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cantidad": 15,
+    "color": "Rojo",
+    "talla": "L"
+  }'
+
+Datos que se pueden actualizar:
+{
+    "tipo_prenda": "polera|camisa",
+    "cuello": "string",
+    "manga": "string",
+    "color": "string",
+    "talla": "string",
+    "material": "string",
+    "cantidad": integer
+}
+
+Respuesta esperada:
+{
+  "id_detalle": 1,
+  "id_pedido": 1,
+  "tipo_prenda": "polera",
+  "cuello": "cuello V",
+  "manga": "manga corta",
+  "color": "Rojo",
+  "talla": "L",
+  "material": "Algodón 100%",
+  "cantidad": 15,
+  "precio_unitario": "22.50",
+  "subtotal": "337.50"
+}
+
+=============================================
+🗑️ ELIMINAR DETALLE PEDIDO (ELIMINACIÓN FÍSICA)
+=============================================
+URL: DELETE /api/pedidos/detalles/eliminar/1/
+
+Ejemplo cURL:
+curl -X DELETE http://localhost:8000/api/pedidos/detalles/eliminar/1/
+
+Respuesta esperada:
+{
+  "message": "Detalle eliminado correctamente"
+}
+
+=============================================
+💰 BUSCAR PRECIOS SUGERIDOS
+=============================================
+URL: GET /api/pedidos/buscar-precios/?tipo_prenda=polera&cuello=cuello V&manga=manga corta&material=Algodón 100%
+
+Ejemplo cURL:
+curl -X GET "http://localhost:8000/api/pedidos/buscar-precios/?tipo_prenda=polera&cuello=cuello%20V&manga=manga%20corta&material=Algodón%20100%25"
+
+Parámetros de búsqueda:
+- tipo_prenda: polera|camisa
+- cuello: string
+- manga: string  
+- material: string
+
+Respuesta esperada:
+{
+  "tipo_prenda": "polera",
+  "cuello": "cuello V",
+  "manga": "manga corta",
+  "material": "Algodón 100%",
+  "precio_sugerido": 22.50
+}
+
+=============================================
+🐍 EJEMPLOS EN PYTHON
+=============================================
+
+import requests
+
+BASE_URL = "http://localhost:8000/api/pedidos"
+
+# 1. Crear pedido
+nuevo_pedido = {
+    "fecha_entrega_prometida": "2024-12-30",
+    "estado": "cotizacion",
+    "id_cliente": 1,
+    "observaciones": "Pedido de prueba"
+}
+response = requests.post(f"{BASE_URL}/pedidos/crear/", json=nuevo_pedido)
+pedido = response.json()
+print("Pedido creado:", pedido)
+
+# 2. Agregar detalle al pedido
+detalle = {
+    "id_pedido": pedido['id_pedido'],
+    "tipo_prenda": "polera",
+    "cuello": "cuello V",
+    "manga": "manga corta",
+    "color": "Negro",
+    "talla": "M",
+    "material": "Algodón 100%",
+    "cantidad": 20
+}
+response = requests.post(f"{BASE_URL}/detalles/crear/", json=detalle)
+print("Detalle creado:", response.json())
+
+# 3. Consultar precios sugeridos
+params = {
+    'tipo_prenda': 'camisa',
+    'cuello': 'cuello con botones',
+    'manga': 'manga larga',
+    'material': 'Popelina'
+}
+response = requests.get(f"{BASE_URL}/buscar-precios/", params=params)
+print("Precio sugerido:", response.json())
+
+# 4. Listar detalles del pedido
+response = requests.get(f"{BASE_URL}/detalles/listar/{pedido['id_pedido']}/")
+print("Detalles del pedido:", response.json())
+
+# 5. Actualizar pedido
+pedido_actualizado = {
+    "estado": "confirmado",
+    "observaciones": "Pedido confirmado para producción"
+}
+response = requests.put(f"{BASE_URL}/pedidos/actualizar/{pedido['id_pedido']}/", json=pedido_actualizado)
+print("Pedido actualizado:", response.json())
+
+=============================================
+📝 FLUJO COMPLETO DE TRABAJO
+=============================================
+
+1. CREAR PEDIDO:
+   POST /pedidos/crear/
+   → Se genera código automático, total=0, fecha actual
+
+2. AGREGAR DETALLES:
+   POST /detalles/crear/
+   → Se busca precio automáticamente, se calcula subtotal
+   → Se actualiza total del pedido automáticamente
+
+3. CONSULTAR PRECIOS (opcional):
+   GET /buscar-precios/?params
+   → Para ver precio sugerido antes de crear detalle
+
+4. ACTUALIZAR PEDIDO:
+   PUT /pedidos/actualizar/{id}/
+   → Cambiar estado, fecha entrega, observaciones
+
+5. ELIMINAR DETALLES:
+   DELETE /detalles/eliminar/{id}/
+   → Eliminación física, se recalcula total
+
+6. CANCELAR PEDIDO:
+   DELETE /pedidos/eliminar/{id}/
+   → Eliminación lógica (estado = cancelado)
+
+=============================================
+⚠️ NOTAS IMPORTANTES
+=============================================
+
+- cod_pedido se genera automáticamente (formato: PED-XXXXXXX)
+- fecha_pedido y fecha_creacion se generan automáticamente
+- total se calcula automáticamente sumando subtotales de detalles
+- precio_unitario se busca automáticamente en tabla Precios
+- subtotal se calcula automáticamente (cantidad * precio_unitario)
+- Eliminación de pedido es lógica (solo cambia estado a cancelado)
+- Eliminación de detalle es física (borrado real de registro)
+- Los estados válidos para pedidos son: 
+  cotizacion, confirmado, en_produccion, completado, entregado, cancelado
+- Los tipos de prenda válidos son: polera, camisa

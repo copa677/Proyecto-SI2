@@ -1,0 +1,118 @@
+.card {
+  @apply shadow-lg rounded-xl overflow-hidden;
+}
+
+.card-header {
+  @apply bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-6;
+}
+
+.card-header h4 {
+  @apply m-0 font-bold text-xl;
+}
+
+.card-body {
+  @apply p-8;
+}
+
+.form-label {
+  @apply font-semibold text-gray-800 mb-2 block;
+}
+
+.form-control,
+.form-select {
+  @apply w-full border-2 border-gray-300 rounded-lg p-3 transition-all duration-300 ease-in-out;
+}
+
+.form-control:focus,
+.form-select:focus {
+  @apply border-indigo-500 shadow-lg outline-none;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  @apply border-red-500;
+}
+
+.invalid-feedback {
+  @apply text-red-600 text-sm mt-1;
+}
+
+.text-danger {
+  @apply text-red-600;
+}
+
+.btn {
+  @apply py-3 px-6 rounded-lg font-bold transition-all duration-300 ease-in-out border-none shadow-md;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-br from-indigo-600 to-purple-700 text-white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  @apply transform -translate-y-1 shadow-xl;
+}
+
+.btn-primary:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply bg-gray-600 text-white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  @apply bg-gray-700 transform -translate-y-1;
+}
+
+.spinner-border-sm {
+  @apply w-4 h-4 border-2;
+}
+
+/* Autocompletado */
+.autocomplete-dropdown {
+  @apply absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto;
+}
+
+.autocomplete-item {
+  @apply px-4 py-2 cursor-pointer text-sm text-gray-800 transition-colors duration-150 ease-in-out;
+}
+
+.autocomplete-item:hover {
+  @apply bg-indigo-100 text-indigo-800;
+}
+
+.autocomplete-item i {
+  @apply text-gray-500 mr-3;
+}
+
+/* Scrollbar personalizado para autocompletado */
+.autocomplete-dropdown::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+.autocomplete-dropdown::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+@media (max-width: 768px) {
+  .card-body {
+    @apply p-4;
+  }
+  
+  .btn {
+    @apply w-full mb-2;
+  }
+  
+  .d-flex.justify-content-between {
+    @apply flex-col;
+  }
+}

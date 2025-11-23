@@ -1,0 +1,134 @@
+<div id="registro-screen" class="page">
+  <div class="card">
+    <!-- Header -->
+    <div class="header">
+      <img src="assets/login/img/login.png" alt="Logo" class="logo">
+      <h1>Registro de Cliente</h1>
+      <p>Completa el formulario para crear tu cuenta</p>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <form (ngSubmit)="registrar()">
+      <div class="form-grid">
+        <!-- Nombre de Usuario -->
+        <div class="field">
+          <label for="name_user">Nombre de Usuario <span class="text-red-500">*</span></label>
+          <input
+            id="name_user"
+            name="name_user"
+            type="text"
+            required
+            [(ngModel)]="formData.name_user"
+            placeholder="ej: jperez">
+        </div>
+        <!-- Email -->
+        <div class="field">
+          <label for="email">Correo Electrónico <span class="text-red-500">*</span></label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            [(ngModel)]="formData.email"
+            placeholder="correo@ejemplo.com">
+        </div>
+        <!-- Contraseña -->
+        <div class="field">
+          <label for="password">Contraseña <span class="text-red-500">*</span></label>
+          <div class="password-field">
+            <input
+              id="password"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              required
+              [(ngModel)]="formData.password"
+              placeholder="Mínimo 6 caracteres">
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="password-toggle">
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Confirmar Contraseña -->
+        <div class="field">
+          <label for="confirmPassword">Confirmar Contraseña <span class="text-red-500">*</span></label>
+          <div class="password-field">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              required
+              [(ngModel)]="formData.confirmPassword"
+              placeholder="Repite la contraseña">
+            <button
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              class="password-toggle">
+              <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+        <!-- Nombre Completo -->
+        <div class="field">
+          <label for="nombre_completo">Nombre Completo <span class="text-red-500">*</span></label>
+          <input
+            id="nombre_completo"
+            name="nombre_completo"
+            type="text"
+            required
+            [(ngModel)]="formData.nombre_completo"
+            placeholder="ej: Juan Pérez García">
+        </div>
+        <!-- Dirección -->
+        <div class="field">
+          <label for="direccion">Dirección <span class="text-red-500">*</span></label>
+          <input
+            id="direccion"
+            name="direccion"
+            type="text"
+            required
+            [(ngModel)]="formData.direccion"
+            placeholder="ej: Av. Principal #123">
+        </div>
+        <!-- Teléfono -->
+        <div class="field">
+          <label for="telefono">Teléfono <span class="text-red-500">*</span></label>
+          <input
+            id="telefono"
+            name="telefono"
+            type="tel"
+            required
+            [(ngModel)]="formData.telefono"
+            placeholder="ej: +1234567890">
+        </div>
+        <!-- Fecha de Nacimiento -->
+        <div class="field">
+          <label for="fecha_nacimiento">Fecha de Nacimiento <span class="text-red-500">*</span></label>
+          <input
+            id="fecha_nacimiento"
+            name="fecha_nacimiento"
+            type="date"
+            required
+            [(ngModel)]="formData.fecha_nacimiento">
+        </div>
+      </div>
+      <!-- Botón de Registro -->
+      <button
+        type="submit"
+        [disabled]="loading"
+        class="btn">
+        <i *ngIf="!loading" class="fas fa-user-plus"></i>
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        {{ loading ? 'Registrando...' : 'Crear Cuenta' }}
+      </button>
+      <!-- Volver al login -->
+      <div class="footer">
+        <a (click)="volverAlLogin()" style="cursor: pointer;">
+          <i class="fas fa-arrow-left"></i> Volver al Login
+        </a>
+      </div>
+    </form>
+  </div>
+</div>

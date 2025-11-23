@@ -14,4 +14,4 @@ class personal(models.Model):
 
     class Meta:
         db_table = 'personal'  
-        managed = False       
+        managed = False 

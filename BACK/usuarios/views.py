@@ -47,6 +47,9 @@ def listar_permisos(request):
 
 @api_view(['POST'])
 def login(request):
+    from personal.models import personal
+    from Clientes.models import Cliente
+    
     serializer = LoginSerializer(data=request.data)
     if serializer.is_valid():
         username = serializer.validated_data['name_user']
@@ -59,12 +62,42 @@ def login(request):
 
         if user.check_password(password):
             token = generate_jwt(user)
-            return Response({
+            
+            # Determinar el rol real del usuario
+            rol_real = user.tipo_usuario
+            id_cliente = None
+            
+            # Si es empleado, buscar el rol específico en la tabla personal
+            if user.tipo_usuario.lower() == 'empleado':
+                try:
+                    empleado = personal.objects.get(id_usuario=user.id)
+                    rol_real = empleado.rol  # Puede ser "Operario", "Supervisor", etc.
+                except personal.DoesNotExist:
+                    rol_real = 'Empleado'  # Si no tiene registro en personal, dejar como Empleado
+            
+            # Si es cliente, buscar el id del cliente en la tabla clientes
+            elif user.tipo_usuario.lower() == 'cliente':
+                try:
+                    cliente = Cliente.objects.get(id_usuario=user.id)
+                    id_cliente = cliente.id
+                except Cliente.DoesNotExist:
+                    return Response({
+                        'error': 'Cliente no encontrado. Por favor contacte al administrador.'
+                    }, status=status.HTTP_404_NOT_FOUND)
+            
+            response_data = {
                 'token': token,
                 'tipo_usuario': user.tipo_usuario,
+                'rol': rol_real,  # El rol real (Administrador, Operario, Supervisor, etc.)
                 'name_user': user.name_user,
                 'email': user.email
-            }, status=status.HTTP_200_OK)
+            }
+            
+            # Agregar id_cliente solo si es un cliente
+            if id_cliente is not None:
+                response_data['id_cliente'] = id_cliente
+            
+            return Response(response_data, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Usuario o password incorrecto'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -90,6 +123,65 @@ def register(request):
         return Response({'mensaje': 'Usuario registrado con éxito'}, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def registro_publico_cliente(request):
+    """
+    Endpoint público para que clientes se registren desde el login.
+    No requiere autenticación.
+    """
+    from Clientes.models import Cliente
+    from django.db import transaction
+    
+    try:
+        # Validar campos requeridos
+        required_fields = ['name_user', 'email', 'password', 'nombre_completo', 'direccion', 'telefono', 'fecha_nacimiento']
+        for field in required_fields:
+            if not request.data.get(field):
+                return Response({'error': f'El campo {field} es obligatorio'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar si el username ya existe
+        if usurios.objects.filter(name_user=request.data['name_user']).exists():
+            return Response({'error': 'El nombre de usuario ya está en uso'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar si el email ya existe
+        if usurios.objects.filter(email=request.data['email']).exists():
+            return Response({'error': 'El correo electrónico ya está registrado'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Usar transacción para crear usuario y cliente
+        with transaction.atomic():
+            # Crear usuario con tipo "cliente" y estado "activo"
+            nuevo_usuario = usurios(
+                name_user=request.data['name_user'],
+                email=request.data['email'],
+                tipo_usuario='cliente',
+                estado='activo'
+            )
+            nuevo_usuario.set_password(request.data['password'])
+            nuevo_usuario.save()
+            
+            # Crear registro de cliente
+            nuevo_cliente = Cliente(
+                nombre_completo=request.data['nombre_completo'],
+                direccion=request.data['direccion'],
+                telefono=request.data['telefono'],
+                fecha_nacimiento=request.data['fecha_nacimiento'],
+                id_usuario=nuevo_usuario.id,
+                estado='activo'
+            )
+            nuevo_cliente.save()
+        
+        return Response({
+            'mensaje': 'Registro exitoso. Ahora puedes iniciar sesión.',
+            'usuario': {
+                'name_user': nuevo_usuario.name_user,
+                'email': nuevo_usuario.email,
+                'tipo_usuario': nuevo_usuario.tipo_usuario
+            }
+        }, status=status.HTTP_201_CREATED)
+    
+    except Exception as e:
+        return Response({'error': f'Error al registrar: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def agregar_permiso(request):

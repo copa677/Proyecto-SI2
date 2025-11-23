@@ -1,170 +1,364 @@
-<section class="py-6 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto">
-    <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
-    <p class="mt-1 text-sm text-gray-600">Bienvenido al sistema de gestión de manufactura</p>
+<!-- Contenedor principal con un fondo gris claro -->
+<div class="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
 
-    <!-- Alerta de acceso denegado -->
-    <div *ngIf="errorAccesoDenegado" class="mt-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md shadow-sm">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-          </svg>
+  <!-- Encabezado y botón de recarga -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">Dashboard General</h1>
+      <p class="text-gray-500">Resumen del estado actual del sistema de manufactura.</p>
+    </div>
+    <button (click)="loadAllDashboardData(true)" [disabled]="isLoading"
+            class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-300 disabled:cursor-not-allowed transition-colors">
+      <i class="fas fa-sync-alt mr-2" [ngClass]="{'animate-spin': isLoading}"></i>
+      <span>{{ isLoading ? 'Cargando...' : 'Recargar' }}</span>
+    </button>
+  </div>
+
+  <!-- Alertas de estado (Error de acceso, carga, error de datos) -->
+  <div *ngIf="errorAccesoDenegado" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+    <p><strong>Acceso denegado:</strong> No tienes permisos para acceder a <strong>{{ ventanaDenegada }}</strong>.</p>
+  </div>
+  <div *ngIf="isLoading" class="text-center py-10">
+    <p class="text-lg text-indigo-600">Cargando datos del dashboard...</p>
+  </div>
+  <div *ngIf="errorMessage && !isLoading" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+    <p class="font-bold">Error</p>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Contenido principal del Dashboard -->
+  <div *ngIf="!isLoading && summaryData" class="space-y-8">
+
+    <!-- Sección de Tarjetas de Resumen (Ahora son clickables) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div (click)="navigateTo('/menu/usuarios')" class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 hover:shadow-lg hover:scale-105 transition-transform cursor-pointer">
+        <div class="bg-indigo-100 p-3 rounded-full"><i class="fas fa-users w-6 h-6 text-indigo-600"></i></div>
+        <div>
+          <p class="text-sm text-gray-500">Usuarios Totales</p>
+          <p class="text-2xl font-bold text-gray-800">{{ summaryData.kpis.usuarios }}</p>
         </div>
-        <div class="ml-3 flex-1">
-          <p class="text-sm text-red-700">
-            <strong>Acceso denegado:</strong> No tienes permisos para acceder a <strong>{{ ventanaDenegada }}</strong>.
-            <br>
-            <span class="text-xs">Si crees que esto es un error, contacta al administrador del sistema.</span>
-          </p>
+      </div>
+      <div (click)="navigateTo('/menu/personal')" class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 hover:shadow-lg hover:scale-105 transition-transform cursor-pointer">
+        <div class="bg-green-100 p-3 rounded-full"><i class="fas fa-user-friends w-6 h-6 text-green-600"></i></div>
+        <div>
+          <p class="text-sm text-gray-500">Personal Registrado</p>
+          <p class="text-2xl font-bold text-gray-800">{{ summaryData.kpis.totalPersonal }}</p>
         </div>
-        <div class="ml-auto pl-3">
-          <div class="-mx-1.5 -my-1.5">
-            <button (click)="cerrarAlerta()" type="button" class="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50">
-              <span class="sr-only">Cerrar</span>
-              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
+      </div>
+      <div (click)="navigateTo('/menu/asistencias')" class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 hover:shadow-lg hover:scale-105 transition-transform cursor-pointer">
+        <div class="bg-purple-100 p-3 rounded-full"><i class="fas fa-calendar-check w-6 h-6 text-purple-600"></i></div>
+        <div>
+          <p class="text-sm text-gray-500">Asistencia Hoy</p>
+          <p class="text-2xl font-bold text-gray-800">{{ summaryData.kpis.asistenciaHoy }}</p>
+        </div>
+      </div>
+      <div (click)="navigateTo('/menu/orden-produccion')" class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 hover:shadow-lg hover:scale-105 transition-transform cursor-pointer">
+        <div class="bg-blue-100 p-3 rounded-full"><i class="fas fa-cogs w-6 h-6 text-blue-600"></i></div>
+        <div>
+          <p class="text-sm text-gray-500">Órdenes en Proceso</p>
+          <p class="text-2xl font-bold text-gray-800">{{ summaryData.kpis.ordenes }}</p>
+        </div>
+      </div>
+      <div (click)="navigateTo('/menu/inventario')" class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 hover:shadow-lg hover:scale-105 transition-transform cursor-pointer">
+        <div class="bg-yellow-100 p-3 rounded-full"><i class="fas fa-exclamation-triangle w-6 h-6 text-yellow-600"></i></div>
+        <div>
+          <p class="text-sm text-gray-500">Items con Bajo Stock</p>
+          <p class="text-2xl font-bold text-gray-800">{{ summaryData.kpis.inventarioCritico }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Gráficos y Actividad Reciente -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Gráfico de Distribución de Órdenes - Mejorado -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-chart-pie text-blue-500 mr-3"></i>Distribución de Órdenes de Producción
+        </h3>
+        <div class="flex justify-center items-center" style="height: 350px;">
+          <canvas id="ordersChart"></canvas>
+        </div>
+        <div *ngIf="ordenesRecientes.length > 0" class="mt-4 pt-4 border-t border-gray-200">
+          <div class="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <p class="text-sm text-gray-500">Total de Órdenes</p>
+              <p class="text-2xl font-bold text-gray-800">{{ ordenesRecientes.length }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Estados Diferentes</p>
+              <p class="text-2xl font-bold text-gray-800">{{ getEstadosUnicos() }}</p>
+            </div>
+          </div>
+          <div *ngIf="getEstadosUnicos() === 1" class="mt-4 text-center">
+            <span class="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full font-semibold">
+              Solo hay órdenes en estado: <b>{{ ordenesRecientes[0].estado }}</b>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actividad Reciente del Sistema -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-stream text-indigo-500 mr-3"></i>Actividad Reciente del Sistema
+        </h3>
+        <div *ngIf="summaryData.actividad && summaryData.actividad.length > 0; else noActividad" class="space-y-3 overflow-y-auto" style="max-height: 400px;">
+          <div *ngFor="let act of summaryData.actividad" class="border-l-4 border-indigo-500 pl-4 py-3 hover:bg-gray-50 transition-colors rounded-r">
+            <p class="text-sm font-semibold text-gray-800">{{ act.titulo }}</p>
+            <p class="text-xs text-gray-600 mt-1">{{ act.detalle }}</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs text-indigo-600 font-medium">
+                <i class="fas fa-user-circle mr-1"></i>{{ act.usuario }}
+              </span>
+              <span class="text-xs text-gray-400">
+                <i class="far fa-clock mr-1"></i>{{ act.hace }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <ng-template #noActividad>
+          <div class="text-center py-12">
+            <i class="fas fa-inbox text-gray-300 text-5xl mb-4"></i>
+            <p class="text-sm text-gray-500">No hay actividad reciente registrada.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Nuevas Secciones: Inventario Crítico y Órdenes Recientes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Inventario Crítico -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-battery-quarter text-red-500 mr-3"></i>Inventario Crítico
+        </h3>
+        <div *ngIf="productosCriticos.length > 0; else noCriticos" class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
+                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Stock / Mínimo</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let item of productosCriticos">
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.nombre }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-right">
+                  <span class="font-bold text-red-600">{{ item.cantidad | number:'1.2-2' }}</span>
+                  <span class="text-gray-500"> / {{ item.stock_minimo | number:'1.2-2' }} {{ item.unidad }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noCriticos><p class="text-sm text-gray-500 mt-4">No hay productos en estado crítico.</p></ng-template>
+      </div>
+
+      <!-- Órdenes de Producción Recientes -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-history text-blue-500 mr-3"></i>Órdenes Recientes
+        </h3>
+        <div *ngIf="ordenesRecientes.length > 0; else noOrdenes" class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
+                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Estado</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let orden of ordenesRecientes">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <p class="text-sm font-medium text-gray-900">{{ orden.producto }} (x{{ orden.cantidad }})</p>
+                  <p class="text-xs text-gray-500">Entrega: {{ orden.fecha_entrega | date:'dd/MM/yyyy' }}</p>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                        [ngClass]="{
+                          'bg-blue-100 text-blue-800': orden.estado === 'En Proceso',
+                          'bg-green-100 text-green-800': orden.estado === 'Completada',
+                          'bg-yellow-100 text-yellow-800': orden.estado === 'Pendiente',
+                          'bg-red-100 text-red-800': orden.estado === 'Cancelada'
+                        }">
+                    {{ orden.estado }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noOrdenes><p class="text-sm text-gray-500 mt-4">No hay órdenes de producción recientes.</p></ng-template>
+      </div>
+    </div>
+
+    <!-- ==================== SECCIÓN DE PREDICCIONES E IA ==================== -->
+    
+    <!-- Control de Predicciones -->
+  <div class="bg-indigo-500 p-6 rounded-lg shadow-lg text-white">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div class="mb-4 md:mb-0">
+          <h2 class="text-2xl font-bold flex items-center">
+            <i class="fas fa-brain mr-3"></i>Predicciones e Inteligencia Artificial
+          </h2>
+          <p class="text-indigo-100 mt-1">Análisis predictivo de pedidos y tendencias de ventas</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <label for="mesesPrediccion" class="text-sm font-medium">Meses a predecir:</label>
+            <input 
+              type="number" 
+              id="mesesPrediccion"
+              [(ngModel)]="mesesPrediccion" 
+              min="1" 
+              max="12"
+              class="w-20 px-3 py-2 bg-white text-gray-800 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-300 focus:outline-none"
+            />
+          </div>
+          <button 
+            (click)="actualizarMesesPrediccion()"
+            [disabled]="loadingPredicciones"
+            class="px-4 py-2 bg-white text-indigo-600 rounded-md shadow-sm hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-semibold">
+            <i class="fas fa-sync-alt mr-2" [ngClass]="{'animate-spin': loadingPredicciones}"></i>
+            {{ loadingPredicciones ? 'Cargando...' : 'Actualizar' }}
+          </button>
+        </div>
+      </div>
+      <div *ngIf="errorPredicciones" class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <p class="text-sm">{{ errorPredicciones }}</p>
+      </div>
+    </div>
+
+    <!-- Estadísticas Predictivas -->
+    <div *ngIf="analisisTendencias" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 font-medium">Total Pedidos (Anual)</p>
+            <p class="text-3xl font-bold text-gray-800 mt-2">{{ analisisTendencias.estadisticas.total_pedidos | number }}</p>
+          </div>
+          <div class="bg-indigo-100 p-3 rounded-full">
+            <i class="fas fa-shopping-cart text-indigo-600 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 font-medium">Monto Total (Anual)</p>
+            <p class="text-3xl font-bold text-gray-800 mt-2">Bs {{ analisisTendencias.estadisticas.monto_total_anual | number:'1.2-2' }}</p>
+          </div>
+          <div class="bg-green-100 p-3 rounded-full">
+            <i class="fas fa-dollar-sign text-green-600 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 font-medium">Promedio por Pedido</p>
+            <p class="text-3xl font-bold text-gray-800 mt-2">Bs {{ analisisTendencias.estadisticas.promedio_monto | number:'1.2-2' }}</p>
+          </div>
+          <div class="bg-yellow-100 p-3 rounded-full">
+            <i class="fas fa-chart-line text-yellow-600 text-2xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500 font-medium">Clientes Activos</p>
+            <p class="text-3xl font-bold text-gray-800 mt-2">{{ analisisTendencias.estadisticas.clientes_activos | number }}</p>
+          </div>
+          <div class="bg-purple-100 p-3 rounded-full">
+            <i class="fas fa-users text-purple-600 text-2xl"></i>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Tarjetas métricas -->
-    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 dashboard-grid">
-      <!-- Personal -->
-      <div class="card">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="icon-wrap">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Total Personal</dt>
-                <dd>
-                  <div class="text-lg font-medium text-gray-900">{{ kpis.totalPersonal }}</div>
-                </dd>
-              </dl>
-            </div>
-          </div>
+    <!-- Gráficos de Predicciones y Tendencias -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Gráfico de Predicciones Futuras -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-crystal-ball text-indigo-500 mr-3"></i>Predicciones de Pedidos Futuros
+        </h3>
+        <div *ngIf="prediccionesFuturas.length > 0; else noPredicciones" class="flex justify-center items-center" style="height: 350px;">
+          <canvas id="prediccionesChart"></canvas>
         </div>
-        <div class="card-footer">
-          <div class="text-sm">
-            <a routerLink="/menu/personal" class="link">
-              Ver personal <i class="fas fa-arrow-right ml-1"></i>
-            </a>
+        <ng-template #noPredicciones>
+          <div class="text-center py-12">
+            <i class="fas fa-chart-line text-gray-300 text-5xl mb-4"></i>
+            <p class="text-sm text-gray-500">No hay predicciones disponibles. Asegúrate de que el modelo está entrenado.</p>
           </div>
-        </div>
+        </ng-template>
       </div>
 
-      <!-- Asistencia -->
-      <div class="card">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="icon-wrap">
-              <i class="fas fa-calendar-check"></i>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Asistencia Hoy</dt>
-                <dd>
-                  <div class="text-lg font-medium text-gray-900">
-                    {{ kpis.asistenciaHoy }} / {{ kpis.totalPersonal }}
-                  </div>
-                  <div class="h-2 bg-gray-200 rounded-full overflow-hidden mt-2">
-                    <div class="h-2 bg-green-500 rounded-full" [style.width.%]="asistenciaPct"></div>
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
+      <!-- Gráfico de Tendencias Históricas -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-chart-bar text-purple-500 mr-3"></i>Tendencias Históricas (12 meses)
+        </h3>
+        <div *ngIf="analisisTendencias && analisisTendencias.tendencias_mensuales.length > 0; else noTendencias" class="flex justify-center items-center" style="height: 350px;">
+          <canvas id="tendenciasChart"></canvas>
         </div>
-        <div class="card-footer">
-          <div class="text-sm">
-            <a routerLink="/menu/asistencia" class="link">
-              Gestionar asistencia <i class="fas fa-arrow-right ml-1"></i>
-            </a>
+        <ng-template #noTendencias>
+          <div class="text-center py-12">
+            <i class="fas fa-chart-area text-gray-300 text-5xl mb-4"></i>
+            <p class="text-sm text-gray-500">No hay datos históricos de tendencias disponibles.</p>
           </div>
-        </div>
+        </ng-template>
       </div>
 
-      <!-- Usuarios -->
-      <div class="card">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="icon-wrap">
-              <i class="fas fa-user-circle"></i>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">Usuarios del Sistema</dt>
-                <dd><div class="text-lg font-medium text-gray-900">{{ kpis.usuarios }}</div></dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer">
-          <div class="text-sm">
-            <a routerLink="/menu/usuarios" class="link">
-              Ver usuarios <i class="fas fa-arrow-right ml-1"></i>
-            </a>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Actividad reciente -->
-    <div class="mt-8">
-      <h3 class="text-lg font-medium text-gray-900">Actividad Reciente</h3>
-      <div class="mt-4 overflow-hidden bg-white shadow sm:rounded-md">
-        <ul class="divide-y divide-gray-200">
-          <li *ngFor="let a of actividad">
-            <div class="px-4 py-4 sm:px-6 flex items-center">
-              <div class="min-w-0 flex-1">
-                <p class="text-sm font-medium text-indigo-600 truncate">{{ a.titulo }}</p>
-                <p class="text-sm text-gray-500">{{ a.detalle }}</p>
-              </div>
-              <div class="ml-4 flex-shrink-0">
-                <p class="text-sm text-gray-500">{{ a.hace }}</p>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Bloque opcional: “Qué sigue” -->
-    <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="panel">
-        <h4 class="panel-title"><i class="fas fa-bolt mr-2"></i>Accesos rápidos</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <a routerLink="/menu/personal" class="quick-btn"><i class="fas fa-user-friends mr-2"></i>Personal</a>
-          <a routerLink="/menu/asistencia" class="quick-btn"><i class="fas fa-clipboard-check mr-2"></i>Asistencia</a>
-          <a routerLink="/menu/usuarios" class="quick-btn"><i class="fas fa-id-card mr-2"></i>Usuarios</a>
-          <a routerLink="/menu/configuracion" class="quick-btn"><i class="fas fa-cog mr-2"></i>Configuración</a>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h4 class="panel-title"><i class="fas fa-chart-line mr-2"></i>Indicadores de hoy</h4>
-        <ul class="space-y-3">
-          <li class="kpi-line">
-            <span>Órdenes activas</span>
-            <strong>{{ kpis.ordenes }}</strong>
-          </li>
-          <li class="kpi-line">
-            <span>Inventario crítico</span>
-            <strong>{{ kpis.inventarioCritico }}</strong>
-          </li>
-          <li class="kpi-line">
-            <span>Eficiencia</span>
-            <strong>{{ (kpis.eficiencia * 100) | number:'1.0-0' }}%</strong>
-          </li>
-        </ul>
+    <!-- Top 10 Clientes Más Activos -->
+    <div *ngIf="analisisTendencias && analisisTendencias.clientes_top.length > 0" class="bg-white p-6 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-trophy text-yellow-500 mr-3"></i>Top 10 Clientes Más Activos
+      </h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pedidos</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Monto Total</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let cliente of analisisTendencias.clientes_top; let i = index" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full text-white font-bold"
+                      [ngClass]="{
+                        'bg-yellow-500': i === 0,
+                        'bg-gray-400': i === 1,
+                        'bg-orange-600': i === 2,
+                        'bg-indigo-500': i > 2
+                      }">
+                  {{ i + 1 }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <p class="text-sm font-medium text-gray-900">{{ cliente.cliente }}</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right">
+                <p class="text-sm text-gray-700 font-semibold">{{ cliente.total_pedidos }}</p>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right">
+                <p class="text-sm text-green-600 font-bold">Bs {{ cliente.monto_total | number:'1.2-2' }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
   </div>
-</section>
+</div>

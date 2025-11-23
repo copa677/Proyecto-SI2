@@ -6,7 +6,6 @@ import { UsuariosComponent } from './pages/usuarios/usuarios.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { PersonalComponent } from './pages/personal/personal.component';
 import { AsistenciaComponent } from './pages/asistencia/asistencia.component';
-import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
 import { BitacoraComponent } from './pages/bitacora/bitacora.component';
 import { authGuard } from './guards/auth.guard';
 import { PermissionGuard } from './guards/permission.guard';
@@ -24,9 +23,20 @@ import { ClienteComponent } from './pages/cliente/cliente.component';
 import { ReporteInventarioComponent } from './pages/reporte-inventario/reporte-inventario.component';
 import { ReporteProduccionComponent } from './pages/reporte-produccion/reporte-produccion.component';
 import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.component';
+import { PedidosComponent } from './pages/pedidos/pedidos.component';
+import { PedidoFormComponent } from './pages/pedido-form/pedido-form.component';
+import { PedidoDetalleComponent } from './pages/pedido-detalle/pedido-detalle.component';
+import { ReportesIAComponent } from './pages/reportesIA/reportes-ia.component';
+import { RegistroClienteComponent } from './pages/registro-cliente/registro-cliente.component';
+import { ClienteDashboardComponent } from './pages/cliente-dashboard/cliente-dashboard.component';
+import { ClientePedidosComponent } from './pages/cliente-pedidos/cliente-pedidos.component';
+import { ClienteFacturasComponent } from './pages/cliente-facturas/cliente-facturas.component';
 
 
 const routes: Routes = [
+  { path: 'registro-cliente', component: RegistroClienteComponent },
+  // Rutas para el portal del cliente
+
   {
     path: 'menu', component: MenuComponent,
     canActivate: [authGuard], 
@@ -34,8 +44,18 @@ const routes: Routes = [
       { 
         path: 'usuarios', 
         component: UsuariosComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'Usuarios', accion: 'ver' }
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'gestionar_usuarios'
+        }
+      },
+      { 
+        path: 'clientes', 
+        component: ClienteComponent,
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'gestionar_clientes'
+        }
       },
       { 
         path: 'clientes', 
@@ -51,117 +71,189 @@ const routes: Routes = [
       { 
         path: 'personal', 
         component: PersonalComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'Personal', accion: 'ver' }
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'gestionar_personal'
+        }
       },
       { 
         path: 'asistencia', 
-        component: AsistenciaComponent 
-        // Asistencia sin restricción por ahora
+        component: AsistenciaComponent,
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'gestionar_asistencia'
+        }
       },
       { 
         path: 'turnos', 
-        component: TurnosComponent 
-        // Turnos sin restricción por ahora
+        component: TurnosComponent,
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'gestionar_turnos'
+        }
       },
       { 
         path: 'bitacora', 
         component: BitacoraComponent,
-        canActivate: [RoleGuard, PermissionGuard],
+        canActivate: [RoleGuard],
         data: { 
-          roles: ['Administrador'], // Solo administradores
-          ventana: 'Bitacora', 
-          accion: 'ver' 
+          roles: ['Administrador', 'admin'],
+          permission: 'ver_bitacora' // Permiso granular
         }
-      },
-      { 
-        path: 'configuracion', 
-        component: ConfiguracionComponent 
       },
       { 
         path: 'lotes', 
         component: LotesComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'Lotes', accion: 'ver' }
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'ver_lotes'
+        }
       },
       { 
         path: 'inventario', 
         component: InventarioComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'Inventario', accion: 'ver' }
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'ver_inventario'
+        }
       },
       { 
         path: 'ordenproduccion', 
         component: OrdenProduccionComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'OrdenProduccion', accion: 'ver' }
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'ver_ordenes'
+        }
       },
       { 
         path: 'trazabilidad', 
-        component: TrazabilidadComponent 
-        // Trazabilidad sin restricción por ahora
+        component: TrazabilidadComponent,
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'ver_trazabilidad'
+        }
       },
       { 
         path: 'control-calidad', 
-        component: ControlCalidadComponent 
-        // Control de calidad sin restricción por ahora
+        component: ControlCalidadComponent,
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'ver_calidad'
+        }
       },
       { 
         path: 'nota-salida', 
         component: NotaSalidaComponent,
-        canActivate: [PermissionGuard],
-        data: { ventana: 'NotaSalida', accion: 'ver' }
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'gestionar_notas_salida'
+        }
       },
       { 
         path: 'permisos', 
         component: PermisosComponent,
-        canActivate: [RoleGuard, PermissionGuard],
+        canActivate: [RoleGuard],
         data: { 
-          roles: ['Administrador'], // Solo administradores
-          ventana: 'Reportes', 
-          accion: 'ver' 
+          roles: ['Administrador', 'admin'],
+          permission: 'gestionar_permisos'
         }
       },
       { 
         path: 'asignar-permisos', 
         component: AsignarPermisosComponent,
-        canActivate: [RoleGuard, PermissionGuard],
+        canActivate: [RoleGuard],
         data: { 
-          roles: ['Administrador'], // Solo administradores
-          ventana: 'Usuarios', 
-          accion: 'editar' 
+          roles: ['Administrador', 'admin'],
+          permission: 'asignar_permisos'
         }
       },
       {
         path: 'reporte-inventario',
         component: ReporteInventarioComponent,
-        canActivate: [RoleGuard, PermissionGuard],
+        canActivate: [RoleGuard],
         data: { 
-          roles: ['Administrador', 'Supervisor'], // Admin y Supervisor
-          ventana: 'ReporteInventario', 
-          accion: 'ver' 
+          roles: ['Administrador', 'Supervisor'],
+          permission: 'ver_reportes'
         }
       },
       {
         path: 'reporte-produccion',
         component: ReporteProduccionComponent,
-        canActivate: [RoleGuard, PermissionGuard],
+        canActivate: [RoleGuard],
         data: { 
-          roles: ['Administrador', 'Supervisor'], // Admin y Supervisor
-          ventana: 'ReporteProduccion', 
-          accion: 'ver' 
+          roles: ['Administrador', 'Supervisor'],
+          permission: 'ver_reportes'
         }
       },
       {
         path: 'reporte-ventas',
         component: ReporteVentasComponent,
-        canActivate: [RoleGuard, PermissionGuard],
+        canActivate: [RoleGuard],
         data: { 
-          roles: ['Administrador', 'Supervisor'], // Admin y Supervisor
-          ventana: 'ReporteVentas', 
-          accion: 'ver' 
+          roles: ['Administrador', 'Supervisor'],
+          permission: 'ver_reportes'
         }
       },
+      { 
+        path: 'pedidos', 
+        component: PedidosComponent,
+        canActivate: [RoleGuard],
+        data: { 
+          permission: 'gestionar_pedidos'
+        }
+      },
+      { 
+        path: 'pedido-form', 
+        component: PedidoFormComponent,
+        canActivate: [authGuard]
+      },
+      { 
+        path: 'pedido-form/:id', 
+        component: PedidoFormComponent,
+        canActivate: [authGuard]
+      },
+      { 
+        path: 'pedido-detalle/:id', 
+        component: PedidoDetalleComponent,
+        canActivate: [authGuard]
+      },
+      { 
+        path: 'reportes-ia', 
+        component: ReportesIAComponent,
+        canActivate: [RoleGuard],
+        data: { 
+          roles: ['Administrador', 'Supervisor'],
+          permission: 'ver_reportes'
+        }
+      },
+    ]
+  },
+  // Portal del Cliente
+  {
+    path: 'cliente',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'tienda', // Catálogo de productos (principal)
+        component: ClientePedidosComponent
+      },
+      {
+        path: 'dashboard',
+        component: ClienteDashboardComponent
+      },
+      {
+        path: 'pedidos', // Alias para la tienda
+        component: ClientePedidosComponent
+      },
+      {
+        path: 'facturas',
+        component: ClienteFacturasComponent
+      },
+      {
+        path: 'pedidos/:id', // Para ver el detalle de un pedido específico
+        component: PedidoDetalleComponent
+      },
+      { path: '', redirectTo: 'tienda', pathMatch: 'full' } // Redirige a tienda por defecto
     ]
   },
   { path: 'notes', component: NotesComponent },

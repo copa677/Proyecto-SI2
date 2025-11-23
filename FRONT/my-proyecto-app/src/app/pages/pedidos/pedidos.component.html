@@ -1,0 +1,347 @@
+<section class="py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <a [routerLink]="['/menu/dashboard']" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+            <i class="fas fa-home mr-2"></i>
+            Inicio
+          </a>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Pedidos</span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+    
+    <!-- Encabezado -->
+    <div class="md:flex md:items-center md:justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Gestión de Pedidos</h2>
+        <p class="mt-1 text-sm text-gray-600">Administra los pedidos de clientes</p>
+      </div>
+      <div class="mt-4 md:mt-0">
+        <button 
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" 
+          (click)="nuevoPedido()">
+          <i class="fas fa-plus mr-2"></i> Nuevo Pedido
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-md mb-6">
+      <div class="px-4 py-4 sm:px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Buscar por código u observaciones</label>
+            <div class="relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400"></i>
+              </div>
+              <input 
+                type="text" 
+                class="form-input block w-full pl-10 sm:text-sm rounded-md" 
+                [(ngModel)]="filtroBusqueda"
+                (ngModelChange)="aplicarFiltros()"
+                placeholder="Buscar...">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <select 
+              class="form-input block w-full sm:text-sm rounded-md" 
+              [(ngModel)]="filtroEstado"
+              (ngModelChange)="aplicarFiltros()">
+              <option value="">Todos</option>
+              <option value="cotizacion">Cotización</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="en_produccion">En Producción</option>
+              <option value="completado">Completado</option>
+              <option value="entregado">Entregado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+          <div class="flex items-end space-x-2">
+            <div class="flex-grow">
+              <label class="block text-sm font-medium text-gray-700 mb-1 invisible">Acciones</label>
+              <div class="flex items-center">
+              <input 
+                type="checkbox" 
+                id="mostrarCancelados"
+                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                [(ngModel)]="mostrarCancelados"
+                (change)="toggleMostrarCancelados()">
+              <label for="mostrarCancelados" class="ml-2 block text-sm text-gray-700">
+                Mostrar cancelados
+              </label>
+            </div>
+            </div>
+            <button class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" (click)="limpiarFiltros()">
+              <i class="fas fa-eraser mr-2"></i> Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de pedidos -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Pedido</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Entrega</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Observaciones</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngIf="cargando">
+              <td colspan="8" class="px-6 py-4 text-center">
+                <i class="fas fa-spinner fa-spin text-indigo-600 mr-2"></i>
+                <span class="text-gray-600">Cargando pedidos...</span>
+              </td>
+            </tr>
+            <tr *ngIf="!cargando && pedidosFiltrados.length === 0">
+              <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                No hay pedidos para mostrar
+              </td>
+            </tr>
+            <tr *ngFor="let pedido of pedidosFiltrados" class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-sm font-medium text-gray-900">{{ pedido.cod_pedido }}</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ pedido.fecha_pedido | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ pedido.fecha_entrega_prometida | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                Cliente #{{ pedido.id_cliente }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getEstadoBadgeClass(pedido.estado)">
+                  {{ getEstadoLabel(pedido.estado) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                Bs {{ pedido.total }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">
+                {{ pedido.observaciones || '-' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button 
+                  class="text-indigo-600 hover:text-indigo-900 mr-3" 
+                  (click)="verDetalle(pedido.id_pedido)"
+                  title="Ver detalle">
+                  <i class="fas fa-eye mr-1"></i> Ver
+                </button>
+                <button 
+                  class="text-green-600 hover:text-green-900 mr-3" 
+                  (click)="abrirModalPago(pedido)"
+                  *ngIf="puedeProcesarPago(pedido) && !pedidoTieneFactura(pedido)"
+                  title="Proceder al pago">
+                  <i class="fas fa-dollar-sign mr-1"></i> Pagar
+                </button>
+                <button 
+                  class="text-yellow-600 hover:text-yellow-900 mr-3" 
+                  (click)="editarPedido(pedido.id_pedido)"
+                  [disabled]="pedido.estado === 'cancelado'"
+                  [class.opacity-50]="pedido.estado === 'cancelado'"
+                  [class.cursor-not-allowed]="pedido.estado === 'cancelado'"
+                  title="Editar">
+                  <i class="fas fa-edit mr-1"></i> Editar
+                </button>
+                <button 
+                  class="text-red-600 hover:text-red-900" 
+                  (click)="cancelarPedido(pedido)"
+                  [disabled]="pedido.estado === 'cancelado'"
+                  [class.opacity-50]="pedido.estado === 'cancelado'"
+                  [class.cursor-not-allowed]="pedido.estado === 'cancelado'"
+                  title="Cancelar">
+                  <i class="fas fa-times mr-1"></i> Cancelar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer con resumen -->
+      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6" *ngIf="pedidosFiltrados.length > 0">
+        <p class="text-sm text-gray-700">
+          Mostrando <span class="font-medium">{{ pedidosFiltrados.length }}</span> de
+          <span class="font-medium">{{ pedidos.length }}</span> pedidos
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Modal de Pago -->
+<div *ngIf="mostrarModalPago" class="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    
+    <!-- Overlay de fondo -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" (click)="cerrarModalPago()"></div>
+
+    <!-- Centrador del modal -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <!-- Contenido del modal -->
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      
+      <!-- Header del modal -->
+      <div class="bg-gradient-to-r from-green-500 to-teal-600 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-bold text-white flex items-center" id="modal-title">
+            <i class="fas fa-cash-register mr-3"></i>
+            Procesar Pago
+          </h3>
+          <button 
+            (click)="cerrarModalPago()" 
+            class="text-white hover:text-gray-200 focus:outline-none"
+            [disabled]="procesandoPago">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cuerpo del modal -->
+      <div class="bg-white px-6 py-5" *ngIf="pedidoSeleccionado">
+        
+        <!-- Resumen del pedido -->
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+            <i class="fas fa-file-invoice text-indigo-600 mr-2"></i>
+            Resumen del Pedido
+          </h4>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Código:</span>
+              <span class="font-semibold text-gray-900">{{ pedidoSeleccionado.cod_pedido }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Cliente:</span>
+              <span class="font-medium text-gray-900">Cliente #{{ pedidoSeleccionado.id_cliente }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Estado:</span>
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getEstadoBadgeClass(pedidoSeleccionado.estado)">
+                {{ getEstadoLabel(pedidoSeleccionado.estado) }}
+              </span>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-gray-300">
+              <span class="text-gray-700 font-semibold">Total a Pagar:</span>
+              <span class="text-2xl font-bold text-green-600">Bs {{ pedidoSeleccionado.total }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selección de método de pago -->
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-gray-700 mb-3">
+            <i class="fas fa-credit-card text-indigo-600 mr-2"></i>
+            Método de Pago
+          </label>
+          <div class="space-y-3">
+            
+            <!-- Efectivo -->
+            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50"
+                   [ngClass]="metodoPagoSeleccionado === 'efectivo' ? 'border-green-500 bg-green-50' : 'border-gray-200'">
+              <input 
+                type="radio" 
+                name="metodoPago" 
+                value="efectivo" 
+                [(ngModel)]="metodoPagoSeleccionado"
+                class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
+              <div class="ml-3 flex-grow">
+                <div class="flex items-center justify-between">
+                  <span class="font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                    Efectivo
+                  </span>
+                  <i *ngIf="metodoPagoSeleccionado === 'efectivo'" class="fas fa-check-circle text-green-600"></i>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Pago en efectivo al momento de la entrega</p>
+              </div>
+            </label>
+
+            <!-- Tarjeta -->
+            <label class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50"
+                   [ngClass]="metodoPagoSeleccionado === 'tarjeta' ? 'border-purple-500 bg-purple-50' : 'border-gray-200'">
+              <input 
+                type="radio" 
+                name="metodoPago" 
+                value="tarjeta" 
+                [(ngModel)]="metodoPagoSeleccionado"
+                class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300">
+              <div class="ml-3 flex-grow">
+                <div class="flex items-center justify-between">
+                  <span class="font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-credit-card text-purple-600 mr-2"></i>
+                    Tarjeta de Crédito/Débito
+                  </span>
+                  <i *ngIf="metodoPagoSeleccionado === 'tarjeta'" class="fas fa-check-circle text-purple-600"></i>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Pago con tarjeta (Visa, MasterCard, etc.)</p>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Mensaje informativo -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-info-circle text-blue-400"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-blue-700">
+                Se generará una factura automáticamente una vez procesado el pago.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse">
+        <button 
+          type="button"
+          (click)="procesarPago()"
+          [disabled]="procesandoPago || !metodoPagoSeleccionado"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-3 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+          <i *ngIf="procesandoPago" class="fas fa-spinner fa-spin mr-2"></i>
+          <i *ngIf="!procesandoPago" class="fas fa-check mr-2"></i>
+          {{ procesandoPago ? 'Procesando...' : 'Confirmar Pago' }}
+        </button>
+        <button 
+          type="button"
+          (click)="cerrarModalPago()"
+          [disabled]="procesandoPago"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-6 py-3 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm disabled:cursor-not-allowed transition-colors">
+          <i class="fas fa-times mr-2"></i>
+          Cancelar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

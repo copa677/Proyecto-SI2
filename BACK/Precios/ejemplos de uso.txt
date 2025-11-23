@@ -1,0 +1,228 @@
+EJEMPLOS DE USO - API PRECIOS
+=============================================
+
+BASE URL: http://localhost:8000/api/precios/
+
+=============================================
+🔍 MÉTODOS GET
+=============================================
+
+1. 📋 LISTAR PRECIOS ACTIVOS
+URL: GET http://localhost:8000/api/precios/precios/
+Ejemplo:
+curl -X GET http://localhost:8000/api/precios/precios/
+
+Respuesta esperada:
+[
+  {
+    "id_precio": 1,
+    "decripcion": "Polera básica",
+    "material": "Algodón 100%",
+    "talla": "M",
+    "precio_base": "19.99",
+    "activo": true
+  }
+]
+
+2. 📋 LISTAR TODOS LOS PRECIOS (INCLUYEN INACTIVOS)
+URL: GET http://localhost:8000/api/precios/precios/all/
+Ejemplo:
+curl -X GET http://localhost:8000/api/precios/precios/all/
+
+3. 🔎 BUSCAR PRECIOS
+URL: GET http://localhost:8000/api/precios/precios/search/?q=termino
+Ejemplos:
+curl -X GET "http://localhost:8000/api/precios/precios/search/?q=camisa"
+curl -X GET "http://localhost:8000/api/precios/precios/search/?q=algodón"
+curl -X GET "http://localhost:8000/api/precios/precios/search/?q=M"
+curl -X GET "http://localhost:8000/api/precios/precios/search/?q=polera%20basica"
+
+4. 👀 OBTENER PRECIO ESPECÍFICO
+URL: GET http://localhost:8000/api/precios/precios/1/
+Ejemplo:
+curl -X GET http://localhost:8000/api/precios/precios/1/
+
+=============================================
+📝 MÉTODOS POST
+=============================================
+
+5. ➕ CREAR NUEVO PRECIO
+URL: POST http://localhost:8000/api/precios/precios/create/
+Ejemplos:
+
+Polera básica:
+curl -X POST http://localhost:8000/api/precios/precios/create/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "decripcion": "Polera básica",
+    "material": "Algodón 100%",
+    "talla": "M",
+    "precio_base": "19.99"
+  }'
+
+Camisa formal:
+curl -X POST http://localhost:8000/api/precios/precios/create/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "decripcion": "Camisa formal manga larga",
+    "material": "Popelina de algodón",
+    "talla": "L",
+    "precio_base": "45.50"
+  }'
+
+Recargo cuello V:
+curl -X POST http://localhost:8000/api/precios/precios/create/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "decripcion": "Recargo cuello V",
+    "material": "Algodón 100%",
+    "talla": "",
+    "precio_base": "5.99"
+  }'
+
+=============================================
+✏️ MÉTODOS PUT
+=============================================
+
+6. 📝 ACTUALIZAR PRECIO
+URL: PUT http://localhost:8000/api/precios/precios/update/1/
+Ejemplo:
+curl -X PUT http://localhost:8000/api/precios/precios/update/1/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "decripcion": "Polera básica actualizada",
+    "material": "Algodón 100% premium",
+    "talla": "M",
+    "precio_base": "22.99",
+    "activo": true
+  }'
+
+7. 🔄 REACTIVAR PRECIO
+URL: PUT http://localhost:8000/api/precios/precios/activate/3/
+Ejemplo:
+curl -X PUT http://localhost:8000/api/precios/precios/activate/3/
+
+=============================================
+🗑️ MÉTODOS DELETE
+=============================================
+
+8. ❌ ELIMINAR PRECIO (DESACTIVAR)
+URL: DELETE http://localhost:8000/api/precios/precios/delete/1/
+Ejemplo:
+curl -X DELETE http://localhost:8000/api/precios/precios/delete/1/
+
+Respuesta esperada:
+{
+  "message": "Precio desactivado correctamente"
+}
+
+=============================================
+📦 EJEMPLOS DE DATOS PARA CREAR PRECIOS
+=============================================
+
+POLERAS:
+{
+  "decripcion": "Polera cuello V",
+  "material": "Algodón pima",
+  "talla": "L",
+  "precio_base": "28.50"
+}
+
+{
+  "decripcion": "Polera deportiva",
+  "material": "Mezcla algodón-poliéster",
+  "talla": "XL",
+  "precio_base": "32.75"
+}
+
+CAMISAS:
+{
+  "decripcion": "Camisa formal",
+  "material": "Popelina",
+  "talla": "M",
+  "precio_base": "46.00"
+}
+
+{
+  "decripcion": "Camisa polo",
+  "material": "Tela pique",
+  "talla": "S",
+  "precio_base": "38.25"
+}
+
+RECARGOS:
+{
+  "decripcion": "Recargo manga larga",
+  "material": "Algodón 100%",
+  "talla": "",
+  "precio_base": "6.50"
+}
+
+{
+  "decripcion": "Recargo cuello con botones",
+  "material": "Popelina",
+  "talla": "",
+  "precio_base": "4.75"
+}
+
+=============================================
+🐍 EJEMPLOS EN PYTHON CON REQUESTS
+=============================================
+
+import requests
+
+BASE_URL = "http://localhost:8000/api/precios"
+
+# Listar precios activos
+response = requests.get(f"{BASE_URL}/precios/")
+print("Precios activos:", response.json())
+
+# Crear nuevo precio
+nuevo_precio = {
+    "decripcion": "Polera técnica",
+    "material": "Dry-fit",
+    "talla": "M",
+    "precio_base": "38.99"
+}
+response = requests.post(f"{BASE_URL}/precios/create/", json=nuevo_precio)
+print("Precio creado:", response.json())
+
+# Buscar precios
+response = requests.get(f"{BASE_URL}/precios/search/?q=algodón")
+print("Búsqueda:", response.json())
+
+# Actualizar precio
+precio_actualizado = {
+    "decripcion": "Polera técnica premium",
+    "material": "Dry-fit mejorado",
+    "talla": "M",
+    "precio_base": "42.50",
+    "activo": True
+}
+response = requests.put(f"{BASE_URL}/precios/update/1/", json=precio_actualizado)
+print("Precio actualizado:", response.json())
+
+# Eliminar precio
+response = requests.delete(f"{BASE_URL}/precios/delete/2/")
+print("Eliminación:", response.json())
+
+=============================================
+🚀 FLUJO COMPLETO DE TRABAJO
+=============================================
+
+1. Crear precios: POST /precios/create/
+2. Listar para verificar: GET /precios/
+3. Buscar específicos: GET /precios/search/?q=termino
+4. Actualizar si es necesario: PUT /precios/update/1/
+5. Desactivar cuando no se use: DELETE /precios/delete/1/
+6. Reactivar si se necesita: PUT /precios/activate/1/
+
+=============================================
+⚠️ NOTAS IMPORTANTES
+=============================================
+
+- Los DELETE son eliminaciones lógicas (solo cambian activo a false)
+- Para ver precios inactivos usar: /precios/all/
+- La búsqueda busca en descripción, material y talla
+- El campo talla puede estar vacío para recargos
+- Todos los precios nuevos se crean con activo=true por defecto

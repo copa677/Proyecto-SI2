@@ -15,7 +15,22 @@ export class AsignarPermisosComponent implements OnInit {
   usuarioSeleccionado: any = null;
   permisosVentana: number[] = [];
   ventanas: string[] = [
-    'Personal', 'Inventario', 'Reportes', 'Bitacora', 'Usuarios', 'Lotes', 'OrdenProduccion', 'NotaSalida'
+    'Usuarios',
+    'Personal',
+    'Asistencia',
+    'Turnos',
+    'Clientes',
+    'Inventario',
+    'Lotes',
+    'OrdenProduccion',
+    'NotaSalida',
+    'Pedidos',
+    'ControlCalidad',
+    'Trazabilidad',
+    'Reportes',
+    'Bitacora',
+    'Dashboard',
+    'Configuracion'
   ];
   ventanaSeleccionada: string = '';
 

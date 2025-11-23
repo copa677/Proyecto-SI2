@@ -3,6 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { ClientePedidosComponent } from './pages/cliente-pedidos/cliente-pedidos.component';
+import { ClienteFacturasComponent } from './pages/cliente-facturas/cliente-facturas.component';
+import { ClienteDashboardComponent } from './pages/cliente-dashboard/cliente-dashboard.component';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,7 +19,6 @@ import { UsuariosComponent } from './pages/usuarios/usuarios.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { PersonalComponent } from './pages/personal/personal.component';
 import { AsistenciaComponent } from './pages/asistencia/asistencia.component';
-import { ConfiguracionComponent } from './pages/configuracion/configuracion.component';
 import { BitacoraComponent } from './pages/bitacora/bitacora.component';
 import { BitacoraInterceptor } from './services_back/bitacora.interceptor';
 import { LotesComponent } from './pages/lotes/lotes.component';
@@ -34,6 +36,11 @@ import { ClienteComponent } from './pages/cliente/cliente.component';
 import { ReporteInventarioComponent } from './pages/reporte-inventario/reporte-inventario.component';
 import { ReporteProduccionComponent } from './pages/reporte-produccion/reporte-produccion.component';
 import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.component';
+import { PedidosComponent } from './pages/pedidos/pedidos.component';
+import { PedidoFormComponent } from './pages/pedido-form/pedido-form.component';
+import { PedidoDetalleComponent } from './pages/pedido-detalle/pedido-detalle.component';
+import { ReportesIAComponent } from './pages/reportesIA/reportes-ia.component';
+import { RegistroClienteComponent } from './pages/registro-cliente/registro-cliente.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +52,6 @@ import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.co
     DashboardComponent,
     PersonalComponent,
     AsistenciaComponent,
-    ConfiguracionComponent,
     BitacoraComponent,
     LotesComponent,
     OrdenProduccionComponent,
@@ -59,6 +65,14 @@ import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.co
     ControlCalidadComponent,
     TrazabilidadComponent,
     ClienteComponent,
+    PedidosComponent,
+    PedidoFormComponent,
+    PedidoDetalleComponent,
+    ReportesIAComponent,
+    RegistroClienteComponent,
+    ClientePedidosComponent,
+    ClienteFacturasComponent,
+    ClienteDashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -69,9 +83,6 @@ import { ReporteVentasComponent } from './pages/reporte-ventas/reporte-ventas.co
     HttpClientModule,
     BrowserAnimationsModule, // required animations module
     ToastrModule.forRoot(), // ToastrModule added
-    ReporteInventarioComponent,
-    ReporteProduccionComponent,
-    ReporteVentasComponent,
   ],
   providers: [
     {

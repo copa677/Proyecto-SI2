@@ -1,3 +1,83 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Estilos personalizados para inputs y selects */
+@layer components {
+  .form-input {
+    @apply px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm;
+    @apply focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500;
+    @apply disabled:bg-gray-100 disabled:cursor-not-allowed;
+    @apply transition duration-150 ease-in-out;
+  }
+  /* Tailwind no permite @apply en pseudo-clases ni pseudo-elementos.
+     Por eso, los estilos para hover, placeholder, etc. se agregan fuera de @layer o como CSS normal: */
+}
+
+/* PSEUDO-STYLES FUERA DE @layer POR ESPECIFICIDAD Y SOPORTE DE TAILWIND */
+
+/* Hover sólo cambia el border cuando no está deshabilitado */
+.form-input:hover:not(:disabled) {
+  border-color: rgb(156 163 175 / var(--tw-border-opacity, 1)); /* border-gray-400 */
+}
+
+/* Placeholder */
+.form-input::placeholder {
+  color: rgb(156 163 175 / 1); /* text-gray-400 */
+  opacity: 1; /* Asegura que sea visible */
+}
+
+/* SELECT personalizado */
+select.form-input {
+  appearance: none;
+  background-color: #fff; /* bg-white */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Para inputs con error - NO USAR @apply aquí */
+.form-input.border-red-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(239 68 68 / var(--tw-border-opacity)); /* border-red-500 */
+  box-shadow: 0 0 0 2px #fca5a5;
+}
+.form-input.border-red-500:focus {
+  --tw-border-opacity: 1;
+  border-color: rgb(239 68 68 / var(--tw-border-opacity)); /* border-red-500 */
+  box-shadow: 0 0 0 2px #fca5a5;
+}
+
+/* Para textareas con .form-input (deja que sea redimensionable verticalmente) */
+textarea.form-input {
+  resize: vertical;
+}
+
+@layer utilities {
+  /* Define una sombra tipo "focus" índigo */
+  .shadow-outline-indigo {
+    @apply ring-2 ring-indigo-500 shadow-md;
+  }
+}
+
+@layer utilities {
+  .shadow-outline-indigo {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* indigo-500 */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+}
+
+@layer utilities {
+  .shadow-outline-indigo {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* indigo-500 */
+  }
+}

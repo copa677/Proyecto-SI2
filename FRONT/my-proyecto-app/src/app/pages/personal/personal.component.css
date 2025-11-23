@@ -1,7 +1,7 @@
 .table-row:hover { background-color: rgba(79,70,229,0.05); }
 
 .btn-primary {
-  background-image: linear-gradient(to right, #2563eb, #4f46e5);
+  background-color: #4f46e5;
   color: #fff;
 }
 .btn-primary:hover { filter: brightness(0.98); }

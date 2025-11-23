@@ -2,15 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ExportService } from '../../services_back/export.service';
+import { ReportesService, VentaReporte as VentaReporteAPI } from '../../services_back/reportes.service';
 
 export interface VentaReporte {
-  id_venta: number;
-  fecha_venta: string;
-  cliente: string;
+  id_salida: number;
+  fecha_salida: string;
+  responsable: string;
   producto: string;
   lote_asociado: string;
   cantidad: number;
   precio_total: number;
+  motivo?: string;
+  estado?: string;
 }
 
 @Component({
@@ -24,14 +27,16 @@ export class ReporteVentasComponent implements OnInit {
   filtroForm: FormGroup;
   isLoading = true;
   reporteVentas: VentaReporte[] = [];
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
-    private exportService: ExportService
+    private exportService: ExportService,
+    private reportesService: ReportesService
   ) {
     this.filtroForm = this.fb.group({
-      lote: [''],
-      cliente: ['']
+      fechaInicio: [''],
+      fechaFin: ['']
     });
   }
 
@@ -41,34 +46,35 @@ export class ReporteVentasComponent implements OnInit {
 
   generarReporte(): void {
     this.isLoading = true;
-    // Simulación de llamada a la API
-    setTimeout(() => {
-      this.reporteVentas = this.getMockVentas();
-      this.isLoading = false;
-    }, 1000);
+    this.errorMessage = '';
+    const { fechaInicio, fechaFin } = this.filtroForm.value;
+
+    // Conectado al BACKEND REAL
+    this.reportesService.getReporteVentas(
+      fechaInicio || undefined,
+      fechaFin || undefined
+    ).subscribe({
+      next: (data) => {
+        this.reporteVentas = data.ventas;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Error al cargar el reporte de ventas.';
+        this.isLoading = false;
+        console.error(err);
+      }
+    });
   }
 
   limpiarFiltros(): void {
-    this.filtroForm.reset({ lote: '', cliente: '' });
+    this.filtroForm.reset({ fechaInicio: '', fechaFin: '' });
     this.generarReporte();
   }
 
   private getMockVentas(): VentaReporte[] {
-    const { lote, cliente } = this.filtroForm.value;
-    let mockData = [
-      { id_venta: 101, fecha_venta: '2025-10-28', cliente: 'Tienda ABC', producto: 'Camisa Clásica Blanca - Talla M', lote_asociado: 'LOTE-2025-10-A', cantidad: 50, precio_total: 1250.00 },
-      { id_venta: 102, fecha_venta: '2025-10-28', cliente: 'Retail Corp', producto: 'Polera Cuello Redondo Negra - Talla L', lote_asociado: 'LOTE-2025-10-B', cantidad: 100, precio_total: 1500.00 },
-      { id_venta: 103, fecha_venta: '2025-10-29', cliente: 'Tienda ABC', producto: 'Camisa de Lino Azul - Talla S', lote_asociado: 'LOTE-2025-09-C', cantidad: 25, precio_total: 750.50 },
-      { id_venta: 104, fecha_venta: '2025-10-30', cliente: 'Moda Express', producto: 'Camisa Clásica Blanca - Talla M', lote_asociado: 'LOTE-2025-10-A', cantidad: 20, precio_total: 500.00 },
-      { id_venta: 105, fecha_venta: '2025-10-30', cliente: 'Retail Corp', producto: 'Polera Estampada Gris - Talla M', lote_asociado: 'LOTE-2025-10-D', cantidad: 75, precio_total: 1125.00 },
-    ];
+    // Datos de ejemplo - ya no se usan, se reemplazan por el backend
+    let mockData: VentaReporte[] = [];
 
-    if (lote) {
-      mockData = mockData.filter(v => v.lote_asociado.toLowerCase().includes(lote.toLowerCase()));
-    }
-    if (cliente) {
-      mockData = mockData.filter(v => v.cliente.toLowerCase().includes(cliente.toLowerCase()));
-    }
     return mockData;
   }
 
@@ -98,36 +104,35 @@ export class ReporteVentasComponent implements OnInit {
     const sheets = [
       {
         sheetName: 'Ventas',
-        title: 'REPORTE DE VENTAS',
+        title: 'REPORTE DE VENTAS (NOTAS DE SALIDA)',
         data: {
-          headers: ['ID Venta', 'Fecha', 'Cliente', 'Producto', 'Lote Asociado', 'Cantidad', 'Precio Total'],
+          headers: ['ID Salida', 'Fecha', 'Responsable', 'Producto', 'Lote Asociado', 'Cantidad', 'Estado'],
           rows: this.reporteVentas.map(item => [
-            item.id_venta.toString(),
-            item.fecha_venta,
-            item.cliente,
+            item.id_salida.toString(),
+            item.fecha_salida,
+            item.responsable,
             item.producto,
             item.lote_asociado,
             item.cantidad,
-            item.precio_total
+            item.estado || ''
           ])
         }
       },
       {
         sheetName: 'Resumen',
-        title: 'RESUMEN DE VENTAS',
+        title: 'RESUMEN DE SALIDAS',
         data: {
           headers: ['Descripción', 'Valor'],
           rows: [
-            ['Total de Ventas', this.reporteVentas.length],
-            ['Cantidad Total Vendida', this.getCantidadTotal()],
-            ['Monto Total', this.getTotalVentas()]
+            ['Total de Salidas', this.reporteVentas.length],
+            ['Cantidad Total', this.getCantidadTotal()]
           ]
         }
       }
     ];
 
     const infoData = [
-      ['REPORTE DE VENTAS'],
+      ['REPORTE DE SALIDAS'],
       ['ManufacturaPRO'],
       [''],
       ['Fecha de Generación:', new Date().toLocaleString('es-ES')],
@@ -135,12 +140,12 @@ export class ReporteVentasComponent implements OnInit {
     ];
 
     const filtros = this.filtroForm.value;
-    if (filtros.lote) infoData.push(['Lote:', filtros.lote]);
-    if (filtros.cliente) infoData.push(['Cliente:', filtros.cliente]);
+    if (filtros.fechaInicio) infoData.push(['Fecha Inicio:', filtros.fechaInicio]);
+    if (filtros.fechaFin) infoData.push(['Fecha Fin:', filtros.fechaFin]);
 
     this.exportService.exportToExcel(
       sheets,
-      `Reporte_Ventas_${new Date().toISOString().split('T')[0]}`,
+      `Reporte_Salidas_${new Date().toISOString().split('T')[0]}`,
       infoData
     );
   }
@@ -156,66 +161,65 @@ export class ReporteVentasComponent implements OnInit {
 
     const additionalInfo: string[] = [];
     const filtros = this.filtroForm.value;
-    if (filtros.lote || filtros.cliente) {
+    if (filtros.fechaInicio || filtros.fechaFin) {
       additionalInfo.push('Filtros aplicados:');
-      if (filtros.lote) additionalInfo.push(`Lote: ${filtros.lote}`);
-      if (filtros.cliente) additionalInfo.push(`Cliente: ${filtros.cliente}`);
+      if (filtros.fechaInicio) additionalInfo.push(`Fecha Inicio: ${filtros.fechaInicio}`);
+      if (filtros.fechaFin) additionalInfo.push(`Fecha Fin: ${filtros.fechaFin}`);
     }
 
     // Resumen estadístico
     additionalInfo.push('');
-    additionalInfo.push(`Total de ventas: ${this.reporteVentas.length}`);
-    additionalInfo.push(`Cantidad total vendida: ${this.getCantidadTotal()}`);
-    additionalInfo.push(`Monto total: $${this.getTotalVentas().toFixed(2)}`);
+    additionalInfo.push(`Total de salidas: ${this.reporteVentas.length}`);
+    additionalInfo.push(`Cantidad total: ${this.getCantidadTotal()}`);
 
-    // Agrupar ventas por cliente para el gráfico
-    const ventasPorCliente = this.reporteVentas.reduce((acc, venta) => {
-      if (!acc[venta.cliente]) {
-        acc[venta.cliente] = 0;
+    // Agrupar por responsable para el gráfico
+    const salidasPorResponsable = this.reporteVentas.reduce((acc, venta) => {
+      if (!acc[venta.responsable]) {
+        acc[venta.responsable] = 0;
       }
-      acc[venta.cliente] += venta.precio_total;
+      acc[venta.responsable] += venta.cantidad;
       return acc;
     }, {} as { [key: string]: number });
 
     const sections = [
       {
-        title: 'Detalle de Ventas',
+        title: 'Detalle de Salidas',
         table: {
-          headers: ['ID', 'Fecha', 'Cliente', 'Producto', 'Lote', 'Cantidad', 'Total'],
+          headers: ['ID', 'Fecha', 'Responsable', 'Producto', 'Lote', 'Cantidad', 'Estado'],
           rows: this.reporteVentas.map(item => [
-            item.id_venta.toString(),
-            item.fecha_venta,
-            item.cliente,
+            item.id_salida.toString(),
+            item.fecha_salida,
+            item.responsable,
             item.producto,
             item.lote_asociado,
             item.cantidad.toString(),
-            '$' + item.precio_total.toFixed(2)
+            item.estado || ''
           ])
         }
       },
       {
-        title: 'Ventas por Cliente',
+        title: 'Salidas por Responsable',
         table: {
-          headers: ['Cliente', 'Monto Total'],
-          rows: Object.entries(ventasPorCliente).map(([cliente, monto]) => [
-            cliente,
-            '$' + monto.toFixed(2)
+          headers: ['Responsable', 'Cantidad Total'],
+          rows: Object.entries(salidasPorResponsable).map(([responsable, cantidad]) => [
+            responsable,
+            cantidad.toString()
           ])
         },
         chartData: {
-          labels: Object.keys(ventasPorCliente),
-          values: Object.values(ventasPorCliente),
-          label: 'Monto Total de Ventas',
+          labels: Object.keys(salidasPorResponsable),
+          values: Object.values(salidasPorResponsable),
+          label: 'Cantidad Total de Salidas',
           color: 'rgba(37, 99, 235, 0.6)'
         }
       }
     ];
 
     await this.exportService.exportToPDF(
-      'REPORTE DE VENTAS',
+      'REPORTE DE SALIDAS',
       'ManufacturaPRO',
       sections,
-      `Reporte_Ventas_${new Date().toISOString().split('T')[0]}`,
+      `Reporte_Salidas_${new Date().toISOString().split('T')[0]}`,
       additionalInfo
     );
   }

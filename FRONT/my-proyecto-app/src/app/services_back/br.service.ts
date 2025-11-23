@@ -32,4 +32,17 @@ export class BrService {
     formData.append('file', archivo);
     return this.http.post(`${this.myAppUrl}${this.myApiUrl}/restore/`, formData);
   }
+
+  /**
+   * 📅 Programar backup (fecha específica o intervalo)
+   */
+  programarBackup(tipo: string, fechaHora?: string, intervaloHoras?: number): Observable<any> {
+    const body: any = { tipo };
+    if (tipo === 'fecha' && fechaHora) {
+      body.fecha_programada = fechaHora;
+    } else if (tipo === 'intervalo' && intervaloHoras) {
+      body.intervalo_horas = intervaloHoras;
+    }
+    return this.http.post(`${this.myAppUrl}${this.myApiUrl}/programar/`, body);
+  }
 }

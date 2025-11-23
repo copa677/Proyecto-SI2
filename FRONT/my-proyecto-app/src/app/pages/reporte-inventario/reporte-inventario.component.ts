@@ -42,14 +42,7 @@ export class ReporteInventarioComponent implements OnInit {
     this.errorMessage = '';
     const { fechaInicio, fechaFin } = this.filtroForm.value;
 
-    // Simulación de carga con datos de prueba (mockup)
-    setTimeout(() => {
-      this.reporteData = this.getMockData(fechaInicio, fechaFin);
-      this.isLoading = false;
-    }, 1000); // Simula 1 segundo de carga
-
-    /*
-    // CÓDIGO ORIGINAL CONECTADO AL BACKEND (descomentar para volver a conectar)
+    // Conectado al BACKEND REAL
     this.reportesService.getReporteInventarioConsumo(
       fechaInicio || undefined,
       fechaFin || undefined
@@ -63,7 +56,7 @@ export class ReporteInventarioComponent implements OnInit {
         this.isLoading = false;
         console.error(err);
       }
-    });*/
+    });
   }
 
   limpiarFiltros(): void {

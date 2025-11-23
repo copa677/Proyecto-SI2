@@ -41,23 +41,22 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha
                 Actualización</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lote</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Mínimo</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr *ngFor="let inventario of filteredInventarios" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{
-                inventario.nombre_materia_prima }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ inventario.nombre_materia_prima }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.unidad_medida }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.cantidad_actual }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.ubicacion }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.fecha_actualizacion |
-                date:'short' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.fecha_actualizacion | date:'short' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.id_lote }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ inventario.stock_minimo }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                  [ngClass]="getEstadoClass(inventario.estado)">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="getEstadoClass(inventario.estado)">
                   {{ inventario.estado }}
                 </span>
               </td>
@@ -72,7 +71,7 @@
               </td>
             </tr>
             <tr *ngIf="filteredInventarios.length === 0">
-              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay items en inventario</td>
+              <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">No hay items en inventario</td>
             </tr>
           </tbody>
         </table>
@@ -182,6 +181,14 @@
                 <option value="Stock Bajo">Stock Bajo</option>
                 <option value="Agotado">Agotado</option>
               </select>
+            </div>
+
+            <!-- Campo Stock Mínimo -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Stock Mínimo</label>
+              <input type="number" [(ngModel)]="formData.stock_minimo" name="stock_minimo"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ejemplo: 10" min="0" step="0.01">
             </div>
 
           </form>

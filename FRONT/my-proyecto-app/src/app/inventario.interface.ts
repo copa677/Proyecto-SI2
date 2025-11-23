@@ -7,4 +7,5 @@ export interface Inventario {
   estado: string;
   fecha_actualizacion: string; // ISO string
   id_lote: number;
+  stock_minimo: number; // <-- Nuevo campo
 }

@@ -1,15 +1,20 @@
-/* Estilos personalizados para el componente de inventario */
+
 .hover\:bg-gray-50:hover {
-  transition: background-color 0.2s ease-in-out;
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
 }
 
 button {
-  transition: all 0.2s ease-in-out;
+  transition-property: all;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
 }
 
 /* Animación para el modal */
+
 .fixed.z-10 {
-  animation: fadeIn 0.2s ease-in-out;
+  animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
@@ -25,5 +30,5 @@ button {
 input[type="text"]:focus,
 input[type="number"]:focus,
 select:focus {
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.5); /* similar a shadow-outline-indigo */
 }
