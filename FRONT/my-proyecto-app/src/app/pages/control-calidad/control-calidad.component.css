@@ -6,10 +6,6 @@ button {
   @apply transition-all duration-200 ease-in-out;
 }
 
-/* Animación para el modal */
-.fixed.z-10 {
-  @apply animate-fadeIn;
-}
 
 @keyframes fadeIn {
   from {
@@ -20,9 +16,4 @@ button {
   }
 }
 
-/* Estilos para los campos del formulario */
-input:focus,
-textarea:focus,
-select:focus {
-  @apply shadow-outline-indigo;
-}
+

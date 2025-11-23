@@ -55,12 +55,6 @@ textarea.form-input {
   resize: vertical;
 }
 
-@layer utilities {
-  /* Define una sombra tipo "focus" índigo */
-  .shadow-outline-indigo {
-    @apply ring-2 ring-indigo-500 shadow-md;
-  }
-}
 
 @layer utilities {
   .shadow-outline-indigo {
@@ -76,8 +70,3 @@ textarea.form-input {
   }
 }
 
-@layer utilities {
-  .shadow-outline-indigo {
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* indigo-500 */
-  }
-}
