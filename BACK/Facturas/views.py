@@ -9,6 +9,16 @@ from .models import Factura
 from .serializers import FacturaSerializer
 from Pedidos.models import Pedido, DetallePedido
 
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+import io
+from datetime import datetime, timedelta
+
 # Configurar Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -394,5 +404,294 @@ def crear_factura_manual(request):
     except Exception as e:
         return Response(
             {'error': f'Error al crear factura: {str(e)}'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    
+@api_view(['GET'])
+def descargar_factura_pdf(request, id_factura):
+    """
+    Descargar factura en formato PDF con información completa
+    """
+    try:
+        factura = get_object_or_404(Factura, id_factura=id_factura)
+        
+        # Obtener información del pedido
+        try:
+            pedido = Pedido.objects.get(id_pedido=factura.id_pedido)
+            detalles_pedido = DetallePedido.objects.filter(id_pedido=factura.id_pedido)
+        except Pedido.DoesNotExist:
+            pedido = None
+            detalles_pedido = []
+        
+        # Obtener información del cliente
+        cliente_info = None
+        if pedido:
+            try:
+                from Clientes.models import Cliente
+                from usuarios.models import usurios
+                cliente = Cliente.objects.get(id=pedido.id_cliente)
+                usuario = usurios.objects.get(id=cliente.id_usuario)
+                cliente_info = {
+                    'nombre': cliente.nombre_completo,
+                    'direccion': cliente.direccion,
+                    'telefono': cliente.telefono,
+                    'email': usuario.email
+                }
+            except (Cliente.DoesNotExist, usurios.DoesNotExist):
+                cliente_info = None
+        
+        # Crear el buffer para el PDF
+        buffer = io.BytesIO()
+        
+        # Crear el documento PDF
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=72,
+            leftMargin=72,
+            topMargin=72,
+            bottomMargin=18
+        )
+        
+        # Contenido del PDF
+        elements = []
+        
+        # Estilos
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            spaceAfter=30,
+            alignment=1,  # Centrado
+        )
+        
+        normal_style = styles["Normal"]
+        heading_style = styles["Heading2"]
+        small_style = ParagraphStyle(
+            'Small',
+            parent=styles["Normal"],
+            fontSize=8,
+            textColor=colors.grey
+        )
+        
+        # Título
+        elements.append(Paragraph("FACTURA", title_style))
+        elements.append(Spacer(1, 20))
+        
+        # Información de la empresa
+        empresa_info = [
+            Paragraph("<b>MANUFACTURAPRO S.A.</b>", normal_style),
+            Paragraph("Av. Industrial #123", normal_style),
+            Paragraph("La Paz, Bolivia", normal_style),
+            Paragraph("Tel: +591 2 1234567", normal_style),
+            Paragraph("NIT: 123456789", normal_style),
+        ]
+        
+        for info in empresa_info:
+            elements.append(info)
+        
+        elements.append(Spacer(1, 30))
+        
+        # Información del cliente si existe
+        if cliente_info:
+            elements.append(Paragraph("<b>DATOS DEL CLIENTE</b>", heading_style))
+            elements.append(Spacer(1, 10))
+            
+            cliente_data = [
+                [Paragraph("<b>Nombre:</b>", normal_style), Paragraph(cliente_info['nombre'], normal_style)],
+                [Paragraph("<b>Dirección:</b>", normal_style), Paragraph(cliente_info['direccion'], normal_style)],
+                [Paragraph("<b>Teléfono:</b>", normal_style), Paragraph(cliente_info['telefono'], normal_style)],
+                [Paragraph("<b>Email:</b>", normal_style), Paragraph(cliente_info['email'], normal_style)],
+            ]
+            
+            cliente_table = Table(cliente_data, colWidths=[1.5*inch, 4*inch])
+            cliente_table.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+                ('BACKGROUND', (0, 0), (-1, -1), colors.lightgrey),
+            ]))
+            
+            elements.append(cliente_table)
+            elements.append(Spacer(1, 20))
+        
+        # Información de la factura
+        elements.append(Paragraph("<b>INFORMACIÓN DE LA FACTURA</b>", heading_style))
+        elements.append(Spacer(1, 10))
+        
+        factura_data = [
+            [Paragraph("<b>N° Factura:</b>", normal_style), Paragraph(factura.cod_factura, normal_style)],
+            [Paragraph("<b>Fecha Emisión:</b>", normal_style), Paragraph(factura.fecha_creacion.strftime("%d/%m/%Y %H:%M"), normal_style)],
+            [Paragraph("<b>Pedido N°:</b>", normal_style), Paragraph(str(factura.id_pedido), normal_style)],
+        ]
+        
+        if pedido:
+            factura_data.append([Paragraph("<b>Código Pedido:</b>", normal_style), Paragraph(pedido.cod_pedido, normal_style)])
+        
+        # Calcular fecha de vencimiento
+        fecha_vencimiento = factura.fecha_creacion + timedelta(days=30)
+        factura_data.append([Paragraph("<b>Fecha Vencimiento:</b>", normal_style), Paragraph(fecha_vencimiento.strftime("%d/%m/%Y"), normal_style)])
+        
+        factura_data.append([Paragraph("<b>Estado:</b>", normal_style), Paragraph(factura.get_estado_pago_display(), normal_style)])
+        
+        if factura.metodo_pago:
+            factura_data.append([Paragraph("<b>Método Pago:</b>", normal_style), Paragraph(factura.metodo_pago.capitalize(), normal_style)])
+        
+        if factura.fecha_pago:
+            factura_data.append([Paragraph("<b>Fecha Pago:</b>", normal_style), Paragraph(factura.fecha_pago.strftime("%d/%m/%Y %H:%M"), normal_style)])
+        
+        # Crear tabla de información
+        info_table = Table(factura_data, colWidths=[2*inch, 3*inch])
+        info_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        elements.append(info_table)
+        elements.append(Spacer(1, 30))
+        
+        # Detalles de los productos/servicios
+        elements.append(Paragraph("<b>DETALLES DEL PEDIDO</b>", heading_style))
+        elements.append(Spacer(1, 10))
+        
+        if detalles_pedido:
+            # Crear tabla de productos
+            productos_data = [
+                [
+                    Paragraph("<b>Producto</b>", normal_style),
+                    Paragraph("<b>Especificaciones</b>", normal_style),
+                    Paragraph("<b>Cantidad</b>", normal_style),
+                    Paragraph("<b>Precio Unit.</b>", normal_style),
+                    Paragraph("<b>Subtotal</b>", normal_style)
+                ]
+            ]
+            
+            for detalle in detalles_pedido:
+                especificaciones = f"{detalle.tipo_prenda.capitalize()}, {detalle.color}, Talla: {detalle.talla}"
+                if detalle.material:
+                    especificaciones += f", Material: {detalle.material}"
+                
+                productos_data.append([
+                    Paragraph(detalle.tipo_prenda.capitalize(), normal_style),
+                    Paragraph(especificaciones, normal_style),
+                    Paragraph(str(detalle.cantidad), normal_style),
+                    Paragraph(f"Bs. {detalle.precio_unitario:,.2f}", normal_style),
+                    Paragraph(f"Bs. {detalle.subtotal:,.2f}", normal_style)
+                ])
+            
+            # Crear tabla de productos
+            productos_table = Table(productos_data, colWidths=[1.2*inch, 2.5*inch, 0.8*inch, 1*inch, 1*inch])
+            productos_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (2, 1), (4, -1), 'RIGHT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            
+            elements.append(productos_table)
+        else:
+            # Si no hay detalles, mostrar item genérico
+            productos_data = [
+                [Paragraph("<b>Descripción</b>", normal_style), Paragraph("<b>Cantidad</b>", normal_style), Paragraph("<b>Precio Unit.</b>", normal_style), Paragraph("<b>Subtotal</b>", normal_style)],
+                [Paragraph("Servicio de manufactura", normal_style), Paragraph("1", normal_style), Paragraph(f"Bs. {factura.monto_total:,.2f}", normal_style), Paragraph(f"Bs. {factura.monto_total:,.2f}", normal_style)]
+            ]
+            
+            productos_table = Table(productos_data, colWidths=[3*inch, 1*inch, 1.5*inch, 1.5*inch])
+            productos_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (2, 1), (3, -1), 'RIGHT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            
+            elements.append(productos_table)
+        
+        elements.append(Spacer(1, 20))
+        
+        # Total
+        total_data = [
+            [Paragraph("<b>TOTAL:</b>", normal_style), Paragraph(f"<b>Bs. {factura.monto_total:,.2f}</b>", normal_style)]
+        ]
+        
+        total_table = Table(total_data, colWidths=[4*inch, 1.5*inch])
+        total_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.lightblue),
+        ]))
+        
+        elements.append(total_table)
+        elements.append(Spacer(1, 30))
+        
+        # Información de pago con Stripe si existe
+        if factura.stripe_payment_intent_id:
+            elements.append(Paragraph("<b>INFORMACIÓN DE PAGO ELECTRÓNICO</b>", heading_style))
+            elements.append(Spacer(1, 10))
+            
+            stripe_info = [
+                [Paragraph("<b>ID Transacción:</b>", normal_style), Paragraph(factura.stripe_payment_intent_id, normal_style)],
+            ]
+            
+            if factura.ultimos_digitos_tarjeta:
+                stripe_info.append([Paragraph("<b>Tarjeta:</b>", normal_style), Paragraph(f"**** **** **** {factura.ultimos_digitos_tarjeta}", normal_style)])
+            
+            if factura.tipo_tarjeta:
+                stripe_info.append([Paragraph("<b>Tipo:</b>", normal_style), Paragraph(factura.tipo_tarjeta.capitalize(), normal_style)])
+            
+            if factura.codigo_autorizacion:
+                stripe_info.append([Paragraph("<b>Código Autorización:</b>", normal_style), Paragraph(factura.codigo_autorizacion, normal_style)])
+            
+            stripe_table = Table(stripe_info, colWidths=[2*inch, 3*inch])
+            stripe_table.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+                ('BACKGROUND', (0, 0), (-1, -1), colors.lightgrey),
+            ]))
+            
+            elements.append(stripe_table)
+            elements.append(Spacer(1, 20))
+        
+        # Observaciones del pedido si existen
+        if pedido and pedido.observaciones:
+            elements.append(Paragraph("<b>OBSERVACIONES</b>", heading_style))
+            elements.append(Spacer(1, 5))
+            elements.append(Paragraph(pedido.observaciones, normal_style))
+            elements.append(Spacer(1, 20))
+        
+        # Pie de página
+        elements.append(Spacer(1, 30))
+        elements.append(Paragraph("<i>Este documento es una factura legal generada electrónicamente</i>", small_style))
+        elements.append(Paragraph(f"<i>Generado el: {datetime.now().strftime('%d/%m/%Y %H:%M')}</i>", small_style))
+        
+        # Construir PDF
+        doc.build(elements)
+        
+        # Preparar respuesta
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="factura_{factura.cod_factura}.pdf"'
+        
+        return response
+        
+    except Exception as e:
+        return Response(
+            {'error': f'Error al generar PDF: {str(e)}'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

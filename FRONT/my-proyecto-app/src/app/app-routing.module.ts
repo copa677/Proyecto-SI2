@@ -31,7 +31,7 @@ import { RegistroClienteComponent } from './pages/registro-cliente/registro-clie
 import { ClienteDashboardComponent } from './pages/cliente-dashboard/cliente-dashboard.component';
 import { ClientePedidosComponent } from './pages/cliente-pedidos/cliente-pedidos.component';
 import { ClienteFacturasComponent } from './pages/cliente-facturas/cliente-facturas.component';
-
+import { FacturasComponent } from './pages/facturas/facturas.component';
 
 const routes: Routes = [
   { path: 'registro-cliente', component: RegistroClienteComponent },
@@ -225,6 +225,12 @@ const routes: Routes = [
           roles: ['Administrador', 'Supervisor'],
           permission: 'ver_reportes'
         }
+      },
+      // Ruta de facturas sin permisos específicos
+      { 
+        path: 'facturas', 
+        component: FacturasComponent,
+        canActivate: [authGuard] // Solo requiere autenticación, sin permisos específicos
       },
     ]
   },

@@ -13,9 +13,9 @@ urlpatterns = [
     
     # CRUD Facturas
     path('', views.listar_facturas, name='listar_facturas'),
-    path('<int:id_factura>/', views.obtener_factura, name='obtener_factura'),
+    path('<int:id_factura>/pdf/', views.descargar_factura_pdf, name='descargar_factura_pdf'),  # Nueva ruta PDF
     path('mis-facturas/', views.obtener_facturas_cliente, name='obtener_facturas_cliente'),
-    
+    path('<int:id_factura>/', views.obtener_factura, name='obtener_factura'),
     # Factura manual (para empleados)
     path('crear-manual/', views.crear_factura_manual, name='crear_factura_manual'),
 ]
