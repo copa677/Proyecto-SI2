@@ -165,7 +165,6 @@ class BitacoraMiddleware:
                 return 'ACTUALIZACION_ASISTENCIA'
             elif metodo == 'DELETE':
                 return 'ELIMINACION_ASISTENCIA'
-        
         # === GENÉRICO ===
         elif metodo == 'POST':
             return 'CREACION'

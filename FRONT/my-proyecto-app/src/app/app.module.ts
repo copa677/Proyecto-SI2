@@ -41,6 +41,7 @@ import { PedidoFormComponent } from './pages/pedido-form/pedido-form.component';
 import { PedidoDetalleComponent } from './pages/pedido-detalle/pedido-detalle.component';
 import { ReportesIAComponent } from './pages/reportesIA/reportes-ia.component';
 import { RegistroClienteComponent } from './pages/registro-cliente/registro-cliente.component';
+import { FacturasComponent } from './pages/facturas/facturas.component';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { RegistroClienteComponent } from './pages/registro-cliente/registro-clie
     ClientePedidosComponent,
     ClienteFacturasComponent,
     ClienteDashboardComponent,
+    FacturasComponent,
   ],
   imports: [
     BrowserModule,
